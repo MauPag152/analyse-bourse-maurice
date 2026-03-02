@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseur de Rendement - Maurice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        .py-loading { display: none; }
+        body { background-color: #0f172a; color: white; font-family: ui-sans-serif, system-ui; }
+        .card { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-[1600px] mx-auto space-y-4">
+        <div class="card flex flex-col md:flex-row items-center justify-between gap-4 border-b-4 border-green-500">
+            <div>
+                <h1 class="text-2xl font-bold text-green-400">TERMINAL DE RENDEMENT MAURICE</h1>
+                <p class="text-slate-400 text-sm">Prix de clôture | % Rendement 1 an | Écart-Type Journalier</p>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="ticker-input" value="AAPL" class="bg-slate-800 border border-slate-600 px-4 py-2 rounded-lg uppercase outline-none focus:ring-2 focus:ring-green-500">
+                <button py-click="update_chart" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-lg font-bold transition-all">Analyser</button>
+            </div>
+            <div id="status" class="text-xs font-mono bg-slate-800 px-3 py-1 rounded border border-slate-700">Initialisation...</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="stats-container">
+            </div>
+
+        <div class="card min-h-[500px] flex items-center justify-center">
+            <div id="plot-output" class="w-full text-slate-500 italic text-center">
+                Chargement du moteur financier... (Veuillez patienter 20-30 secondes)
+            </div>
+        </div>
+    </div>
+
+<py-config>
+    packages = ["yfinance", "pandas", "matplotlib", "numpy"]
+</py-config>
+
+<py-script>
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from js import document
+
+def update_chart():
+    ticker_symbol = document.getElementById("ticker-input").value.strip().upper()
+    document.getElementById("status").innerHTML = "⌛ Calcul..."
+    
+    try:
+        # 1. Récupération des données 1 an
+        data = yf.download(ticker_symbol, period="1y")
+        if data.empty: raise Exception("Ticker introuvable")
+        
+        # Correction format yfinance
+        df = data['Close'].to_frame() if isinstance(data.columns, pd.MultiIndex) else data['Close'].to_frame()
+        df = df.dropna()
+        
+        prices = df.values.flatten()
+        last_price = float(prices[-1])
+        first_price = float(prices[0])
+        
+        # 2. Calculs demandés
+        yield_pct = ((last_price / first_price) - 1) * 100
+        daily_returns = df.pct_change().dropna()
+        std_dev = float(daily_returns.std() * 100) # Écart-type journalier en %
+
+        # 3. Mise à jour des tuiles de stats
+        color_class = "text-green-400" if yield_pct >= 0 else "text-red-400"
+        stats_html = f"""
+            <div class="card bg-slate-800/50">
+                <div class="text-slate-400 text-xs uppercase font-bold">Prix de Clôture</div>
+                <div class="text-3xl font-black">${last_price:.2f}</div>
+            </div>
+            <div class="card bg-slate-800/50">
+                <div class="text-slate-400 text-xs uppercase font-bold">Rendement (1 an)</div>
+                <div class="text-3xl font-black {color_class}">{yield_pct:+.2f}%</div>
+            </div>
+            <div class="card bg-slate-800/50 border-l-4 border-blue-500">
+                <div class="text-slate-400 text-xs uppercase font-bold">Écart-Type Journalier</div>
+                <div class="text-3xl font-black text-blue-400">{std_dev:.2f}%</div>
+            </div>
+        """
+        document.getElementById("stats-container").innerHTML = stats_html
+
+        # 4. Graphique 25x8
+        plt.style.use('dark_background')
+        fig, ax = plt.subplots(figsize=(25, 8), facecolor='#1e293b')
+        ax.set_facecolor('#1e293b')
+        
+        ax.plot(df.index, prices, color='#4ade80', linewidth=3, label=f'Cours {ticker_symbol}')
+        ax.fill_between(df.index, prices, min(prices), color='#4ade80', alpha=0.1)
+        
+        ax.set_title(f"ÉVOLUTION ANNUELLE - {ticker_symbol}", fontsize=20, fontweight='bold', color='#f8fafc', pad=20)
+        ax.grid(color='#334155', linestyle='--', alpha=0.5)
+        ax.tick_params(colors='#94a3b8')
+
+        document.getElementById("plot-output").innerHTML = ""
+        display(fig, target="plot-output")
+        document.getElementById("status").innerHTML = "● Prêt"
+        
+    except Exception as e:
+        document.getElementById("status").innerHTML = "❌ Erreur"
+        document.getElementById("plot-output").innerHTML = f"Erreur : {str(e)}"
+
+# Lancement automatique au démarrage
+update_chart()
+</py-script>
+</body>
+</html>
