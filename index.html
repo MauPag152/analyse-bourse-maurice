@@ -3,70 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Maurice V4 - Interactif</title>
+    <title>Terminal Maurice V6 - Analyse Complète</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0f172a] p-4 text-white font-sans">
     <div class="max-w-[1600px] mx-auto space-y-4">
         
-        <div class="bg-slate-800 p-4 rounded-xl border-l-8 border-blue-500 shadow-xl flex flex-wrap justify-between items-center gap-4">
+        <div class="bg-slate-800 p-4 rounded-xl border-l-8 border-indigo-500 shadow-xl flex flex-wrap justify-between items-center gap-4">
             <div>
-                <h1 class="text-xl font-bold text-blue-400 uppercase">Terminal Maurice V4</h1>
-                <p class="text-slate-400 text-xs text-nowrap">Analyse instantanée 25x8</p>
+                <h1 class="text-xl font-bold text-indigo-400 uppercase">Terminal Maurice V6</h1>
+                <p class="text-slate-400 text-xs">Moyennes Mobiles (20, 50, 200) + RSI + Volume</p>
             </div>
             
             <div class="flex items-center gap-2">
-                <input type="text" id="symbol-input" placeholder="Ex: TSLA, BTCUSD, MSFT" 
-                       class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-lg text-white font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 w-40 md:w-64">
+                <input type="text" id="symbol-input" placeholder="Ex: SPYM, AAPL, TSLA" 
+                       class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-lg text-white font-bold uppercase outline-none focus:ring-2 focus:ring-indigo-500 w-40 md:w-64">
                 <button onclick="changeSymbol()" 
-                        class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-bold transition-all shadow-lg active:scale-95 text-nowrap">
-                    Changer l'action
+                        class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-lg font-bold transition-all shadow-lg active:scale-95 text-nowrap">
+                    Analyser l'action
                 </button>
             </div>
         </div>
 
         <div class="bg-slate-800 p-2 rounded-xl shadow-2xl border border-slate-700">
-            <div id="tradingview_chart" class="h-[600px]"></div>
+            <div id="tradingview_chart" class="h-[750px]"></div>
         </div>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script type="text/javascript">
-      let widget;
-
       function loadWidget(symbol) {
-        widget = new TradingView.widget({
+        new TradingView.widget({
           "autosize": true,
           "symbol": symbol,
           "interval": "D",
           "timezone": "America/New_York",
           "theme": "dark",
-          "style": "3",
+          "style": "1", // Mode Bougies
           "locale": "fr",
           "toolbar_bg": "#f1f3f6",
           "enable_publishing": false,
           "allow_symbol_change": true,
           "container_id": "tradingview_chart",
+          "studies": [
+            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 20 }, "title": "MA 20", "plots": [{ "id": "plot_0", "color": "#4ade80" }] },
+            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 50 }, "title": "MA 50", "plots": [{ "id": "plot_0", "color": "#fb923c" }] },
+            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 200 }, "title": "MA 200", "plots": [{ "id": "plot_0", "color": "#f87171" }] },
+            { "id": "RSI@tv-basicstudies", "inputs": { "length": 14 } },
+            { "id": "Volume@tv-basicstudies" }
+          ],
           "width": "100%",
-          "height": 600
+          "height": 750
         });
       }
 
       function changeSymbol() {
         const input = document.getElementById('symbol-input').value.trim().toUpperCase();
-        if (input) {
-          loadWidget(input);
-        }
+        if (input) loadWidget(input);
       }
 
-      // Chargement initial sur AAPL
-      loadWidget("NASDAQ:AAPL");
+      loadWidget("AMEX:SPYM");
     </script>
 </body>
 </html>
-           
-    
+  
+
       
                
        
+
 
