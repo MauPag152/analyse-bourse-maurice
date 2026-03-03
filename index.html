@@ -3,52 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Boursier Instantané - Maurice</title>
+    <title>Terminal Maurice V4 - Interactif</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0f172a; color: white; font-family: sans-serif; }
-        .tradingview-widget-container { height: 600px; width: 100%; }
-    </style>
 </head>
-<body class="p-4">
+<body class="bg-[#0f172a] p-4 text-white font-sans">
     <div class="max-w-[1600px] mx-auto space-y-4">
-        <div class="bg-slate-800 p-6 rounded-xl border-l-8 border-blue-500 shadow-xl flex justify-between items-center">
+        
+        <div class="bg-slate-800 p-4 rounded-xl border-l-8 border-blue-500 shadow-xl flex flex-wrap justify-between items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-400">TERMINAL MAURICE V3 (INSTANTANÉ)</h1>
-                <p class="text-slate-400">Graphique Professionnel 25x8 - Flux Temps Réel</p>
+                <h1 class="text-xl font-bold text-blue-400 uppercase">Terminal Maurice V4</h1>
+                <p class="text-slate-400 text-xs text-nowrap">Analyse instantanée 25x8</p>
             </div>
-            <div class="text-right">
-                <span class="bg-blue-900 text-blue-200 px-3 py-1 rounded-full text-xs font-bold">MODE RÉSEAU FIBRE</span>
+            
+            <div class="flex items-center gap-2">
+                <input type="text" id="symbol-input" placeholder="Ex: TSLA, BTCUSD, MSFT" 
+                       class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-lg text-white font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 w-40 md:w-64">
+                <button onclick="changeSymbol()" 
+                        class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-bold transition-all shadow-lg active:scale-95 text-nowrap">
+                    Changer l'action
+                </button>
             </div>
         </div>
 
         <div class="bg-slate-800 p-2 rounded-xl shadow-2xl border border-slate-700">
-            <div id="tradingview_chart"></div>
+            <div id="tradingview_chart" class="h-[600px]"></div>
         </div>
     </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script type="text/javascript">
-      new TradingView.widget({
-        "autosize": true,
-        "symbol": "NASDAQ:AAPL",
-        "interval": "D",
-        "timezone": "America/New_York",
-        "theme": "dark",
-        "style": "3",
-        "locale": "fr",
-        "toolbar_bg": "#f1f3f6",
-        "enable_publishing": false,
-        "hide_top_toolbar": false,
-        "save_image": false,
-        "container_id": "tradingview_chart",
-        "width": "100%",
-        "height": 600
-      });
+      let widget;
+
+      function loadWidget(symbol) {
+        widget = new TradingView.widget({
+          "autosize": true,
+          "symbol": symbol,
+          "interval": "D",
+          "timezone": "America/New_York",
+          "theme": "dark",
+          "style": "3",
+          "locale": "fr",
+          "toolbar_bg": "#f1f3f6",
+          "enable_publishing": false,
+          "allow_symbol_change": true,
+          "container_id": "tradingview_chart",
+          "width": "100%",
+          "height": 600
+        });
+      }
+
+      function changeSymbol() {
+        const input = document.getElementById('symbol-input').value.trim().toUpperCase();
+        if (input) {
+          loadWidget(input);
+        }
+      }
+
+      // Chargement initial sur AAPL
+      loadWidget("NASDAQ:AAPL");
     </script>
 </body>
 </html>
-
+           
+    
       
                
        
+
