@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Maurice V6 - Analyse Complète</title>
+    <title>Terminal Maurice V6.1 - Indicateurs Personnalisables</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0f172a] p-4 text-white font-sans">
@@ -11,8 +11,8 @@
         
         <div class="bg-slate-800 p-4 rounded-xl border-l-8 border-indigo-500 shadow-xl flex flex-wrap justify-between items-center gap-4">
             <div>
-                <h1 class="text-xl font-bold text-indigo-400 uppercase">Terminal Maurice V6</h1>
-                <p class="text-slate-400 text-xs">Moyennes Mobiles (20, 50, 200) + RSI + Volume</p>
+                <h1 class="text-xl font-bold text-indigo-400 uppercase">Terminal Maurice V6.1</h1>
+                <p class="text-slate-400 text-xs">MA (20, 50, 200) + RSI + Volume (Couleurs Personnalisables)</p>
             </div>
             
             <div class="flex items-center gap-2">
@@ -45,10 +45,13 @@
           "enable_publishing": false,
           "allow_symbol_change": true,
           "container_id": "tradingview_chart",
+          // AJOUT IMPORTANT ICI POUR ACTIVER LA PERSONNALISATION
+          "withdateranges": true,
+          "hide_side_toolbar": false,
           "studies": [
-            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 20 }, "title": "MA 20", "plots": [{ "id": "plot_0", "color": "#4ade80" }] },
-            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 50 }, "title": "MA 50", "plots": [{ "id": "plot_0", "color": "#fb923c" }] },
-            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 200 }, "title": "MA 200", "plots": [{ "id": "plot_0", "color": "#f87171" }] },
+            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 20 }, "title": "MA 20" },
+            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 50 }, "title": "MA 50" },
+            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 200 }, "title": "MA 200" },
             { "id": "RSI@tv-basicstudies", "inputs": { "length": 14 } },
             { "id": "Volume@tv-basicstudies" }
           ],
@@ -66,10 +69,15 @@
     </script>
 </body>
 </html>
+
   
+    
+    
+
 
       
                
        
+
 
 
