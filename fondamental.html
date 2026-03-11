@@ -14,122 +14,50 @@
             min-height: 100vh;
         }
         .container { max-width: 1000px; margin: 0 auto; }
-        
-        /* BOUTON MENU ASSORTI */
         .btn-nav { 
-            display: inline-block;
-            margin-bottom: 20px;
-            text-decoration: none; 
-            background: #233357; 
-            color: #19c37d; 
-            padding: 10px 15px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            border: 1px solid #19c37d; 
+            display: inline-block; margin-bottom: 20px; text-decoration: none; 
+            background: #233357; color: #19c37d; padding: 10px 15px; 
+            border-radius: 8px; font-weight: bold; border: 1px solid #19c37d; 
         }
-
         .header { 
-            text-align: center; 
-            padding: 30px 20px; 
+            text-align: center; padding: 30px 20px; 
             background: linear-gradient(135deg, #1a1f36 0%, #0d1117 100%); 
-            border-radius: 16px; 
-            margin-bottom: 25px; 
-            border: 1px solid #30363d; 
+            border-radius: 16px; margin-bottom: 25px; border: 1px solid #30363d; 
         }
-        .header h1 { color: #ffffff; font-size: 24px; margin-bottom: 10px; }
-
         .card { 
-            background: #161b22; 
-            border: 1px solid #30363d; 
-            border-radius: 16px; 
-            padding: 25px; 
-            margin-bottom: 20px; 
+            background: #161b22; border: 1px solid #30363d; 
+            border-radius: 16px; padding: 25px; margin-bottom: 20px; 
         }
         h2 { color: #19c37d; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 15px; 
-        }
-        .stat-item { 
-            background: #0d1117; 
-            padding: 15px; 
-            border-radius: 10px; 
-            border: 1px solid #21262d; 
-            text-align: center;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-item { background: #0d1117; padding: 15px; border-radius: 10px; border: 1px solid #21262d; text-align: center; }
         .stat-label { color: #8b949e; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
         .stat-value { font-size: 20px; font-weight: bold; color: #f0f6fc; }
-        
-        /* COULEURS DES RATIOS */
-        .good { color: #3fb950; }
-        .warning { color: #f39c12; }
-        .bad { color: #f85149; }
-
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            background: #0d1117; 
-            border: 1px solid #30363d; 
-            color: white; 
-            border-radius: 8px; 
-            margin-bottom: 10px;
-        }
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            background: #19c37d; 
-            color: #0d1117; 
-            border: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer; 
-        }
+        input { width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 8px; margin-bottom: 10px; }
+        button { width: 100%; padding: 12px; background: #19c37d; color: #0d1117; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <a href="index.html" class="btn-nav">🏠 MENU PRINCIPAL</a>
-
     <div class="header">
         <h1>🏛️ ANALYSE FONDAMENTALE</h1>
-        <p style="color: #8b949e;">Évaluation des Ratios de Qualité</p>
+        <p style="color: #8b949e;">Ratios de Qualité - Portefeuille de Maurice</p>
     </div>
-
     <div class="card">
         <h2>🔍 Recherche d'Action</h2>
         <input type="text" placeholder="Entrez un symbole (ex: AAPL, MSFT, GOOG)...">
         <button>LANCER L'ANALYSE</button>
     </div>
-
     <div class="card">
-        <h2>📊 Ratios Clés (Seuils de Maurice)</h2>
+        <h2>📊 Indicateurs Clés</h2>
         <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-label">P/E Ratio</div>
-                <div class="stat-value good">18.5</div>
-                <div style="font-size: 10px; color: #3fb950;">Sain (< 25)</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">PEG Ratio</div>
-                <div class="stat-value warning">1.4</div>
-                <div style="font-size: 10px; color: #f39c12;">Correct (< 1.5)</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">ROE</div>
-                <div class="stat-value good">22%</div>
-                <div style="font-size: 10px; color: #3fb950;">Excellent (> 15%)</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Dette / Fonds Propres</div>
-                <div class="stat-value bad">1.8</div>
-                <div style="font-size: 10px; color: #f85149;">Élevé (< 1.0)</div>
-            </div>
+            <div class="stat-item"><div class="stat-label">P/E Ratio</div><div class="stat-value">--</div></div>
+            <div class="stat-item"><div class="stat-label">PEG Ratio</div><div class="stat-value">--</div></div>
+            <div class="stat-item"><div class="stat-label">ROE</div><div class="stat-value">--</div></div>
+            <div class="stat-item"><div class="stat-label">Dette / Fonds Propres</div><div class="stat-value">--</div></div>
         </div>
     </div>
 </div>
-
 </body>
 </html>
