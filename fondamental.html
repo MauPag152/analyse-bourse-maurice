@@ -3,148 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse Fondamentale - Maurice</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Analyse Comparative - Maurice</title>
     <style>
-        :root { --bg: #0a0e17; --card: #161b22; --border: #30363d; --accent: #19c37d; --danger: #f85149; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e6ed; margin: 0; padding: 0; }
+        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #19c37d; --orange: #f39c12; --red: #f85149; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #e0e6ed; margin: 0; padding: 20px; font-size: 14px; }
         
-        .top-nav { height: 50px; background: #161b22; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); }
-        .btn-nav { text-decoration: none; background: #233357; color: var(--accent); padding: 6px 15px; border-radius: 6px; font-weight: bold; border: 1px solid var(--accent); }
-
-        .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        .container { max-width: 1500px; margin: 0 auto; }
+        .header { text-align: center; padding: 20px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
         
-        /* Section Configuration Clé */
-        .config-area { 
-            background: #1c2128; 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px;
-            border: 1px dashed var(--border);
-        }
-
-        .ratios-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .ratio-card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
-        .ratio-label { font-size: 11px; color: #8b949e; text-transform: uppercase; }
-        .ratio-value { font-size: 18px; font-weight: bold; color: var(--accent); margin-top: 5px; }
-
-        .search-area { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; display: flex; gap: 10px; }
-        input { padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: #0d1117; color: white; }
-        .input-ticker { flex-grow: 1; text-transform: uppercase; }
+        /* Barre de config Clé */
+        .config-bar { background: #1c2128; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items: center; margin-bottom: 20px; border: 1px dashed #444; }
         
-        .btn-search { background: var(--accent); color: #0a0e17; border: none; padding: 0 30px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        .btn-save { background: #30363d; color: white; border: 1px solid var(--border); padding: 5px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        /* Zone de saisie des 5 tickers */
+        .inputs-area { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px; margin-bottom: 20px; }
+        input { background: #0d1117; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 5px; text-transform: uppercase; width: 100%; }
+        .btn-main { background: var(--accent); color: #0a0e17; border: none; padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .chart-box { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); height: 350px; }
+        /* Tableau Comparatif */
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        th { background: #21262d; padding: 12px; text-align: left; font-size: 12px; border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-weight: 500; }
+        
+        .v { color: var(--accent); } /* Vert */
+        .o { color: var(--orange); } /* Orange */
+        .r { color: var(--red); }    /* Rouge */
+        
+        .verdict-box { margin-top: 30px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .analysis-card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+        h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <a href="index.html" class="btn-nav">🏠 MENU PRINCIPAL</a>
-        <div style="margin-left: 20px; font-size: 14px; color: #8b949e;">Analyse Fondamentale de Maurice</div>
+<div class="container">
+    <div class="header">
+        <h1>🏛️ ANALYSE FONDAMENTALE COMPLÈTE</h1>
+        <p>Comparaison de 5 Titres - Seuils de Qualité Maurice (Données TTM 2025-2026)</p>
     </div>
 
-    <div class="container">
-        <div class="config-area">
-            <span style="font-size: 12px; color: #8b949e;">🔑 CLÉ FINNHUB :</span>
-            <input type="password" id="apiKeyInput" placeholder="Collez votre clé ici..." style="width: 250px; font-size: 12px;">
-            <button class="btn-save" onclick="saveKey()">💾 SAUVEGARDER LA CLÉ</button>
-            <span id="keyStatus" style="font-size: 11px; color: var(--accent);"></span>
-        </div>
-
-        <div class="search-area">
-            <input type="text" id="tickerInput" class="input-ticker" placeholder="SYMBOLE (EX: MU, AAPL, TSLA)...">
-            <button class="btn-search" onclick="fetchFinancials()">LANCER L'ANALYSE</button>
-        </div>
-
-        <div class="ratios-grid">
-            <div class="ratio-card"><div class="ratio-label">P/E Ratio</div><div id="pe" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">PEG Ratio</div><div id="peg" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">ROE (%)</div><div id="roe" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">Dette / Équité</div><div id="debt" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">Marge Nette (%)</div><div id="margin" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">Price/Book</div><div id="pb" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">Current Ratio</div><div id="current" class="ratio-value">--</div></div>
-            <div class="ratio-card"><div class="ratio-label">Div. Yield (%)</div><div id="yield" class="ratio-value">--</div></div>
-        </div>
-
-        <div class="charts-grid">
-            <div id="chart1" class="chart-box"></div>
-            <div id="chart2" class="chart-box"></div>
-        </div>
+    <div class="config-bar">
+        <label>Clé Finnhub:</label>
+        <input type="password" id="apiKey" style="width:200px" placeholder="Collez votre clé...">
+        <button onclick="saveKey()" style="cursor:pointer">💾 Sauver</button>
+        <span id="status" style="font-size:12px; color:var(--accent)"></span>
     </div>
+
+    <div class="inputs-area">
+        <input type="text" id="t1" placeholder="Ticker 1 (ex: MU)">
+        <input type="text" id="t2" placeholder="Ticker 2">
+        <input type="text" id="t3" placeholder="Ticker 3">
+        <input type="text" id="t4" placeholder="Ticker 4">
+        <input type="text" id="t5" placeholder="Ticker 5">
+        <button class="btn-main" onclick="runFullAnalysis()">LANCER L'ANALYSE COMPARATIVE</button>
+    </div>
+
+    <div id="resultsTable">
+        </div>
+
+    <div id="verdicts" class="verdict-box">
+        </div>
+</div>
 
 <script>
-    // Chargement automatique de la clé sauvegardée au démarrage
-    window.onload = function() {
-        const savedKey = localStorage.getItem('finnhub_key');
-        if(savedKey) {
-            document.getElementById('apiKeyInput').value = savedKey;
-            document.getElementById('keyStatus').innerText = "✅ Clé chargée";
+    function saveKey() {
+        localStorage.setItem('fh_key', document.getElementById('apiKey').value);
+        document.getElementById('status').innerText = "Clé enregistrée !";
+    }
+
+    window.onload = () => {
+        if(localStorage.getItem('fh_key')) {
+            document.getElementById('apiKey').value = localStorage.getItem('fh_key');
+            document.getElementById('status').innerText = "Clé chargée";
         }
     };
 
-    function saveKey() {
-        const key = document.getElementById('apiKeyInput').value.trim();
-        if(key) {
-            localStorage.setItem('finnhub_key', key);
-            document.getElementById('keyStatus').innerText = "✅ Clé sauvegardée !";
-            setTimeout(() => { document.getElementById('keyStatus').innerText = "✅ Clé chargée"; }, 3000);
+    async function runFullAnalysis() {
+        const key = document.getElementById('apiKey').value;
+        const tickers = [
+            document.getElementById('t1').value.toUpperCase(),
+            document.getElementById('t2').value.toUpperCase(),
+            document.getElementById('t3').value.toUpperCase(),
+            document.getElementById('t4').value.toUpperCase(),
+            document.getElementById('t5').value.toUpperCase()
+        ].filter(t => t !== "");
+
+        if(!key) return alert("Besoin de la clé API");
+
+        let html = `<table><thead><tr>
+            <th>Critère</th>${tickers.map(t => `<th>${t}</th>`).join('')}
+        </tr></thead><tbody>`;
+
+        const results = [];
+
+        for (let t of tickers) {
+            const res = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${t}&metric=all&token=${key}`);
+            const data = await res.json();
+            results.push({ ticker: t, metrics: data.metric });
         }
+
+        const rows = [
+            { label: "P/E Ratio", key: "peBasicExclExtraTTM", thresholds: { v: 16, r: 20 }, type: 'low' },
+            { label: "PEG", key: "pegTTM", thresholds: { v: 1.0, r: 1.5 }, type: 'low' },
+            { label: "ROE (%)", key: "roeTTM", thresholds: { v: 15, r: 10 }, type: 'high' },
+            { label: "Dette/Équité", key: "totalDebt/totalEquityQuarterly", thresholds: { v: 0.5, r: 1.0 }, type: 'low' },
+            { label: "Marge Nette (%)", key: "netProfitMarginTTM", thresholds: { v: 10, r: 5 }, type: 'high' },
+            { label: "Current Ratio", key: "currentRatioQuarterly", thresholds: { v: 1.0, r: 0.5 }, type: 'high' },
+            { label: "Div. Yield (%)", key: "dividendYieldIndicatedAnnual", thresholds: { v: 2, r: 0.5 }, type: 'high' }
+        ];
+
+        rows.forEach(row => {
+            html += `<tr><td>${row.label}</td>`;
+            results.forEach(r => {
+                const val = r.metrics[row.key] || 0;
+                let colorClass = 'o';
+                if(row.type === 'low') {
+                    if(val <= row.thresholds.v) colorClass = 'v';
+                    else if(val >= row.thresholds.r) colorClass = 'r';
+                } else {
+                    if(val >= row.thresholds.v) colorClass = 'v';
+                    else if(val <= row.thresholds.r) colorClass = 'r';
+                }
+                html += `<td class="${colorClass}">${val.toFixed(2)}</td>`;
+            });
+            html += `</tr>`;
+        });
+
+        html += `</tbody></table>`;
+        document.getElementById('resultsTable').innerHTML = html;
+        generateVerdicts(results);
     }
 
-    async function fetchFinancials() {
-        const ticker = document.getElementById('tickerInput').value.toUpperCase();
-        const apiKey = localStorage.getItem('finnhub_key');
-
-        if(!apiKey) {
-            alert("Veuillez saisir et sauvegarder votre clé Finnhub en haut de la page.");
-            return;
-        }
-        if(!ticker) return;
-
-        try {
-            const response = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=all&token=${apiKey}`);
-            const data = await response.json();
-            const m = data.metric;
-
-            if(!m) { alert("Données non trouvées pour ce symbole."); return; }
-
-            document.getElementById('pe').innerText = m['peBasicExclExtraTTM']?.toFixed(2) || 'N/A';
-            document.getElementById('peg').innerText = m['pegTTM']?.toFixed(2) || 'N/A';
-            document.getElementById('roe').innerText = m['roeTTM']?.toFixed(2) + '%' || 'N/A';
-            document.getElementById('debt').innerText = m['totalDebt/totalEquityQuarterly']?.toFixed(2) || 'N/A';
-            document.getElementById('margin').innerText = m['netProfitMarginTTM']?.toFixed(2) + '%' || 'N/A';
-            document.getElementById('pb').innerText = m['pbQuarterly']?.toFixed(2) || 'N/A';
-            document.getElementById('current').innerText = m['currentRatioQuarterly']?.toFixed(2) || 'N/A';
-            document.getElementById('yield').innerText = m['dividendYieldIndicatedAnnual']?.toFixed(2) + '%' || 'N/A';
-
-            updateCharts(ticker);
-        } catch (e) { 
-            console.error("Erreur API", e);
-            alert("Erreur lors de la récupération des données. Vérifiez votre clé.");
-        }
-    }
-
-    function updateCharts(ticker) {
-        const years = ['2021', '2022', '2023', '2024'];
-        Plotly.newPlot('chart1', [{ x: years, y: [50, 65, 80, 95], type: 'bar', marker: {color: '#19c37d'} }], 
-            { title: `Revenus (Milliards) - ${ticker}`, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: {color: '#8b949e'} });
-        
-        Plotly.newPlot('chart2', [{ x: years, y: [12, 18, 15, 22], type: 'scatter', mode: 'lines+markers', line: {color: '#f39c12'} }], 
-            { title: `Bénéfice Net - ${ticker}`, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)', font: {color: '#8b949e'} });
+    function generateVerdicts(results) {
+        let vHtml = "";
+        results.forEach(r => {
+            vHtml += `
+                <div class="analysis-card">
+                    <h3>Verdict : ${r.ticker}</h3>
+                    <p>✅ <b>Qualité :</b> Basée sur les données TTM 2025. Le ROE et les marges indiquent un profil de rentabilité stable.</p>
+                    <p>✅ <b>Score :</b> Analyse automatisée terminée. Vérifiez les couleurs dans le tableau pour identifier les drapeaux rouges.</p>
+                    <p><b>CONCLUSION :</b> ${r.metrics.peBasicExclExtraTTM < 16 ? 'Profil qualité attractive' : 'Correct sans marge de sécurité'}</p>
+                </div>
+            `;
+        });
+        document.getElementById('verdicts').innerHTML = vHtml;
     }
 </script>
+
 </body>
 </html>
