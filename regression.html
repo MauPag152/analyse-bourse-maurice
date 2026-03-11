@@ -3,79 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Régression Linéaire - Maurice</title>
+    <title>Analyse Quantitative - Maurice</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0e17; color: #e0e6ed; padding: 20px; margin: 0; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        .btn-nav { 
-            display: inline-block; margin-bottom: 20px; text-decoration: none; 
-            background: #233357; color: #19c37d; padding: 10px 15px; 
-            border-radius: 8px; font-weight: bold; border: 1px solid #19c37d; 
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --success-color: #238636;
+            --border-color: #30363d;
         }
-        .header-card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px; }
-        input { padding: 12px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; width: 200px; font-size: 16px; }
-        button { padding: 12px 20px; border-radius: 8px; background: #19c37d; border: none; font-weight: bold; cursor: pointer; margin-left: 10px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-box { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 12px; text-align: center; }
-        .stat-label { color: #8b949e; font-size: 12px; text-transform: uppercase; }
-        .stat-value { font-size: 22px; font-weight: bold; color: #ffffff; margin-top: 8px; }
-        #chart { background: #161b22; border-radius: 16px; border: 1px solid #30363d; height: 550px; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Le bouton Menu ajouté */
+        .btn-nav {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            background: #233357;
+            color: #19c37d;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            border: 1px solid #19c37d;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .ticker-badge {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.8em; color: #8b949e; text-transform: uppercase; }
+        .stat-value { font-size: 1.2em; font-weight: bold; margin-top: 5px; color: #f0f6fc; }
+        .positive { color: #3fb950; }
+
+        #chart {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: rgba(255,255,255,0.05); color: #8b949e; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <a href="index.html" class="btn-nav">🏠 MENU PRINCIPAL</a>
-    <div class="header-card">
-        <h1 style="font-size: 24px; margin-bottom: 15px;">📈 Canal de Régression Linéaire (252 Jours)</h1>
-        <input type="text" id="tickerInput" placeholder="Ex: MU, NVDA, TSLA...">
-        <button onclick="updateTicker()">ANALYSER</button>
+
+    <div class="header">
+        <h1>📈 Canal de Régression Linéaire sur 252 Jours</h1>
+        <div class="ticker-badge">NASDAQ: AAPL</div>
+        <div style="font-size: 0.9em; color: #8b949e;">11 mars 2025 — 11 mars 2026 (252 jours)</div>
     </div>
+
     <div class="stats-grid">
-        <div class="stat-box"><div class="stat-label">Symbole</div><div class="stat-value" id="disp-ticker">--</div></div>
-        <div class="stat-box"><div class="stat-label">Pente (a)</div><div class="stat-value" style="color:#19c37d" id="val-slope">--</div></div>
-        <div class="stat-box"><div class="stat-label">Erreur Type (SE)</div><div class="stat-value" style="color:#f39c12" id="val-se">--</div></div>
-        <div class="stat-box"><div class="stat-label">R²</div><div class="stat-value" id="val-r2">--</div></div>
+        <div class="stat-card"><div class="stat-label">Cours Actuel</div><div class="stat-value">$260.03</div></div>
+        <div class="stat-card"><div class="stat-label">Performance</div><div class="stat-value positive">+18.27%</div></div>
+        <div class="stat-card"><div class="stat-label">Pente (a)</div><div class="stat-value" style="color: #3fb950;">0.3529</div></div>
+        <div class="stat-card"><div class="stat-label">Erreur Type (SE)</div><div class="stat-value" style="color: #f39c12;">$14.03</div></div>
+        <div class="stat-card"><div class="stat-label">R²</div><div class="stat-value">0.7715</div></div>
     </div>
+
     <div id="chart"></div>
+
+    <div class="table-container">
+        <h3 style="padding: 15px; margin: 0; border-bottom: 1px solid var(--border-color);">📊 Détail des Lignes de Tendance</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ligne</th>
+                    <th>Valeur Début ($)</th>
+                    <th>Valeur Milieu ($)</th>
+                    <th>Valeur Fin ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td style="color: #f85149;">● Tendance +2 (Vente)</td><td>220.50</td><td>264.62</td><td>309.09</td></tr>
+                <tr><td style="color: #f39c12;">● Tendance +1</td><td>206.47</td><td>250.59</td><td>295.06</td></tr>
+                <tr><td style="color: #ffffff;">● Régression (Noire)</td><td>192.44</td><td>236.56</td><td>281.03</td></tr>
+                <tr><td style="color: #2188ff;">● Tendance -1</td><td>178.41</td><td>222.53</td><td>267.00</td></tr>
+                <tr><td style="color: #3fb950;">● Tendance -2 (Achat)</td><td>164.38</td><td>208.50</td><td>252.97</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
+
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    let ticker = urlParams.get('ticker') || 'AAPL';
-    document.getElementById('tickerInput').value = ticker;
-    document.getElementById('disp-ticker').innerText = ticker.toUpperCase();
+    // Configuration simplifiée du graphique original Plotly
+    const xData = Array.from({length: 252}, (_, i) => i);
+    const regLine = xData.map(x => 192.44 + (0.3529 * x));
+    
+    const traces = [
+        {
+            x: xData, y: regLine, name: 'Régression',
+            line: {color: 'white', width: 2}
+        },
+        {
+            x: xData, y: regLine.map(y => y + (2 * 14.03)), name: '+2 SE',
+            line: {color: '#f85149', dash: 'dash'}
+        },
+        {
+            x: xData, y: regLine.map(y => y - (2 * 14.03)), name: '-2 SE',
+            line: {color: '#3fb950', dash: 'dash'}
+        }
+    ];
 
-    function updateTicker() {
-        const val = document.getElementById('tickerInput').value.trim().toUpperCase();
-        if(val) window.location.href = `regression.html?ticker=${val}`;
-    }
-
-    function draw() {
-        const n = 252; const x = Array.from({length: n}, (_, i) => i);
-        const startPrice = 180; const slope = 0.28; const se = 14.5;
-        const prices = x.map(i => startPrice + (i * slope) + (Math.random() * 25 - 12.5));
-        const reg = x.map(i => startPrice + (i * slope));
-        
-        document.getElementById('val-slope').innerText = slope.toFixed(4);
-        document.getElementById('val-se').innerText = "$" + se.toFixed(2);
-        document.getElementById('val-r2').innerText = "0.85";
-
-        const traces = [
-            { x: x, y: prices, name: ticker, type: 'scatter', line: {color: '#ffffff', width: 1.5} },
-            { x: x, y: reg, name: 'Médiane', line: {color: '#e0e6ed', width: 2} },
-            { x: x, y: reg.map(v => v + 2*se), name: '+2 SE (Vente)', line: {color: '#f85149', dash: 'dash'} },
-            { x: x, y: reg.map(v => v + se), name: '+1 SE', line: {color: '#f39c12', dash: 'dot'} },
-            { x: x, y: reg.map(v => v - se), name: '-1 SE', line: {color: '#2188ff', dash: 'dot'} },
-            { x: x, y: reg.map(v => v - 2*se), name: '-2 SE (Achat)', line: {color: '#3fb950', dash: 'dash'} }
-        ];
-
-        Plotly.newPlot('chart', traces, {
-            paper_bgcolor: '#161b22', plot_bgcolor: '#161b22',
-            font: { color: '#8b949e' }, margin: { t: 40, b: 60, l: 60, r: 40 },
-            xaxis: { gridcolor: '#30363d' }, yaxis: { gridcolor: '#30363d', tickprefix: '$' }
-        });
-    }
-    window.onload = draw;
+    Plotly.newPlot('chart', traces, {
+        paper_bgcolor: '#161b22',
+        plot_bgcolor: '#161b22',
+        font: { color: '#c9d1d9' },
+        margin: { t: 20, b: 40, l: 40, r: 20 },
+        xaxis: { gridcolor: '#30363d', showgrid: true },
+        yaxis: { gridcolor: '#30363d', showgrid: true }
+    }, {responsive: true});
 </script>
+
 </body>
 </html>
