@@ -1,50 +1,28 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analyse Bourse Maurice - Menu</title>
+  <title>Menu Bourse - Maurice</title>
   <style>
-    body { background:#0b1220; color:#e7eefc; font-family:sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
-    .container { width:100%; max-width:800px; padding:20px; text-align:center; }
-    h1 { color:#19c37d; margin-bottom:40px; font-size:2.2rem; text-transform:uppercase; letter-spacing:2px; }
-    .menu-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; }
-    .menu-card { 
-      background:#0f1b33; border:2px solid #233357; border-radius:15px; padding:25px; 
-      text-decoration:none; color:inherit; transition:all 0.3s ease; display:flex; flex-direction:column; align-items:center;
-    }
-    .menu-card:hover { border-color:#19c37d; transform:translateY(-8px); background:#162444; }
-    .icon { font-size:2.5rem; margin-bottom:15px; }
-    .title { font-size:1.1rem; font-weight:bold; color:#ffffff; margin-bottom:8px; }
-    .description { font-size:0.85rem; color:#94a3b8; }
+    body { background:#0b1220; color:white; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; margin:0; }
+    .menu-container { display:grid; gap:20px; width: 300px; }
+    .btn { text-decoration:none; background:#233357; color:#19c37d; padding:20px; border-radius:12px; font-weight:bold; border:2px solid #19c37d; text-align:center; transition: 0.3s; }
+    .btn:hover { background:#19c37d; color:#233357; }
+    h1 { margin-bottom: 30px; font-size: 24px; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>STATION BOURSE MAURICE</h1>
-    <div class="menu-grid">
-      <a href="trading.html" class="menu-card">
-        <div class="icon">📊</div>
-        <div class="title">Plateforme Trading</div>
-        <div class="description">Graphique direct et suivi live.</div>
-      </a>
-      <a href="regression.html" class="menu-card">
-        <div class="icon">📈</div>
-        <div class="title">Régression Linéaire</div>
-        <div class="description">Canaux et tendances techniques.</div>
-      </a>
-      <a href="fondamental.html" class="menu-card">
-        <div class="icon">📑</div>
-        <div class="title">Analyse Fondamentale</div>
-        <div class="description">Score sur 16 et 8 ratios clés.</div>
-      </a>
-    </div>
+  <h1>📊 ANALYSE BOURSIÈRE</h1>
+  <div class="menu-container">
+    <a href="trading.html" class="btn">📈 PLATEFORME TRADING</a>
+    <a href="regression.html" class="btn">📉 RÉGRESSION LINÉAIRE</a>
+    <a href="fondamental.html" class="btn">🏛️ ANALYSE FONDAMENTALE</a>
   </div>
 </body>
 </html>
-
   
      
+
 
 
 
