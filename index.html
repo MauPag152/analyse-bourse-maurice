@@ -1,75 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal Maurice V9.1 - Final</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyse Bourse Maurice - Menu</title>
+  <style>
+    body { background:#0b1220; color:#e7eefc; font-family:sans-serif; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+    .container { width:100%; max-width:800px; padding:20px; text-align:center; }
+    h1 { color:#19c37d; margin-bottom:40px; font-size:2.2rem; text-transform:uppercase; letter-spacing:2px; }
+    .menu-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px; }
+    .menu-card { 
+      background:#0f1b33; border:2px solid #233357; border-radius:15px; padding:25px; 
+      text-decoration:none; color:inherit; transition:all 0.3s ease; display:flex; flex-direction:column; align-items:center;
+    }
+    .menu-card:hover { border-color:#19c37d; transform:translateY(-8px); background:#162444; }
+    .icon { font-size:2.5rem; margin-bottom:15px; }
+    .title { font-size:1.1rem; font-weight:bold; color:#ffffff; margin-bottom:8px; }
+    .description { font-size:0.85rem; color:#94a3b8; }
+  </style>
 </head>
-<body class="bg-[#0f172a] p-4 text-white font-sans">
-    <div class="max-w-[1600px] mx-auto space-y-4">
-        <div class="bg-slate-800 p-4 rounded-xl border-l-8 border-blue-500 shadow-xl flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h1 class="text-xl font-bold text-blue-400 uppercase">Terminal Maurice V9.1</h1>
-                <p class="text-slate-400 text-xs">MA (V, O, R) + RSI Bleu | Volume Nettoyé</p>
-            </div>
-            <div class="flex items-center gap-2">
-                <input type="text" id="symbol-input" placeholder="Ex: SPYM, TSLA" 
-                       class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-lg text-white font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 w-40 md:w-64">
-                <button onclick="changeSymbol()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg font-bold transition-all shadow-lg active:scale-95">Analyser</button>
-            </div>
-        </div>
-        <div class="bg-slate-800 p-2 rounded-xl shadow-2xl border border-slate-700">
-            <div id="tradingview_chart" class="h-[750px]"></div>
-        </div>
+<body>
+  <div class="container">
+    <h1>STATION BOURSE MAURICE</h1>
+    <div class="menu-grid">
+      <a href="trading.html" class="menu-card">
+        <div class="icon">📊</div>
+        <div class="title">Plateforme Trading</div>
+        <div class="description">Graphique direct et suivi live.</div>
+      </a>
+      <a href="regression.html" class="menu-card">
+        <div class="icon">📈</div>
+        <div class="title">Régression Linéaire</div>
+        <div class="description">Canaux et tendances techniques.</div>
+      </a>
+      <a href="fondamental.html" class="menu-card">
+        <div class="icon">📑</div>
+        <div class="title">Analyse Fondamentale</div>
+        <div class="description">Score sur 16 et 8 ratios clés.</div>
+      </a>
     </div>
-
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script type="text/javascript">
-      function loadWidget(symbol) {
-        new TradingView.widget({
-          "autosize": true,
-          "symbol": symbol,
-          "interval": "D",
-          "timezone": "America/New_York",
-          "theme": "dark",
-          "style": "1",
-          "locale": "fr",
-          "enable_publishing": false,
-          "withdateranges": true,
-          "hide_side_toolbar": false,
-          "allow_symbol_change": true,
-          "container_id": "tradingview_chart",
-          "studies": [
-            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 20 }, "title": "MA 20", "plots": [{ "id": "plot_0", "color": "#22c55e" }], "styles": { "plot_0": { "linewidth": 2 } } },
-            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 50 }, "title": "MA 50", "plots": [{ "id": "plot_0", "color": "#f97316" }], "styles": { "plot_0": { "linewidth": 2 } } },
-            { "id": "MASimple@tv-basicstudies", "inputs": { "length": 200 }, "title": "MA 200", "plots": [{ "id": "plot_0", "color": "#ef4444" }], "styles": { "plot_0": { "linewidth": 2 } } },
-            { 
-                "id": "RSI@tv-basicstudies", 
-                "inputs": { "length": 14 },
-                "overrides": {
-                    "plot.color": "#3b82f6",
-                    "band_area.color": "#475569",
-                    "band_area.transparency": 60,
-                    "plot.linewidth": 2
-                }
-            }
-          ],
-          "width": "100%",
-          "height": 750
-        });
-      }
-      function changeSymbol() {
-        const input = document.getElementById('symbol-input').value.trim().toUpperCase();
-        if (input) loadWidget(input);
-      }
-      loadWidget("AMEX:SPYM");
-    </script>
+  </div>
 </body>
 </html>
 
   
      
+
 
 
 
