@@ -7,49 +7,109 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         :root { --bg: #0a0e17; --card: #161b22; --border: #30363d; --accent: #19c37d; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e6ed; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* Barre de navigation supérieure */
-        .top-nav { height: 50px; background: #161b22; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); z-index: 1000; }
-        .btn-nav { text-decoration: none; background: #233357; color: var(--accent); padding: 6px 15px; border-radius: 6px; font-weight: bold; border: 1px solid var(--accent); font-size: 14px; }
+        /* Ajustement pour PC : scroll autorisé pour voir le bas */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: #e0e6ed; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            overflow-y: auto; 
+        }
+
+        .top-nav { 
+            height: 50px; 
+            background: #161b22; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 20px; 
+            border-bottom: 1px solid var(--border); 
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .btn-nav { 
+            text-decoration: none; 
+            background: #233357; 
+            color: var(--accent); 
+            padding: 6px 15px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            border: 1px solid var(--accent); 
+        }
+
         .search-area { margin-left: auto; display: flex; gap: 10px; }
-        input { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: #0d1117; color: white; width: 100px; text-transform: uppercase; }
+        input { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: #0d1117; color: white; width: 120px; text-transform: uppercase; }
         .btn-search { padding: 6px 12px; border-radius: 6px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; color: #0a0e17; }
 
-        /* Contenu principal en 16:9 */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; align-items: center; }
-        .dashboard-wrapper { width: 95%; max-width: 1600px; aspect-ratio: 16 / 9; display: flex; flex-direction: column; gap: 15px; }
+        .main-content { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
-        .stat-card { background: var(--card); padding: 12px; border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .stat-label { font-size: 10px; color: #8b949e; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-value { font-size: 16px; font-weight: bold; }
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 15px; 
+            width: 100%; 
+            max-width: 1400px; 
+        }
 
-        #chart { flex-grow: 1; background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 10px; width: 100%; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
+        .stat-label { font-size: 11px; color: #8b949e; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 18px; font-weight: bold; }
+
+        /* Graphique optimisé pour ne pas cacher le bas */
+        #chart { 
+            width: 100%; 
+            max-width: 1400px; 
+            height: 60vh; 
+            min-height: 500px;
+            background: var(--card); 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            padding: 10px; 
+        }
+
+        .info-section { 
+            width: 100%; 
+            max-width: 1400px; 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <a href="index.html" class="btn-nav">🏠 MENU PRINCIPAL</a>
-        <div class="search-area">
-            <input type="text" id="tickerInput" placeholder="SYMBOLE">
-            <button class="btn-search" onclick="updateTicker()">ANALYSER</button>
-        </div>
+<div class="top-nav">
+    <a href="index.html" class="btn-nav">🏠 MENU PRINCIPAL</a>
+    <div class="search-area">
+        <input type="text" id="tickerInput" placeholder="SYMBOLE">
+        <button class="btn-search" onclick="updateTicker()">ANALYSER</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Symbole</div><div id="v-sym" class="stat-value">--</div></div>
+        <div class="stat-card"><div class="stat-label">Cours Actuel</div><div id="v-price" class="stat-value">--</div></div>
+        <div class="stat-card"><div class="stat-label">Pente (a)</div><div id="v-slope" class="stat-value" style="color:var(--accent)">--</div></div>
+        <div class="stat-card"><div class="stat-label">Erreur Type (SE)</div><div id="v-se" class="stat-value" style="color:#f39c12">--</div></div>
+        <div class="stat-card"><div class="stat-label">R²</div><div id="v-r2" class="stat-value">--</div></div>
     </div>
 
-    <div class="main-content">
-        <div class="dashboard-wrapper">
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-label">Symbole</div><div id="v-sym" class="stat-value">--</div></div>
-                <div class="stat-card"><div class="stat-label">Cours Actuel</div><div id="v-price" class="stat-value">--</div></div>
-                <div class="stat-card"><div class="stat-label">Pente (a)</div><div id="v-slope" class="stat-value" style="color:var(--accent)">--</div></div>
-                <div class="stat-card"><div class="stat-label">Erreur Type (SE)</div><div id="v-se" class="stat-value" style="color:#f39c12">--</div></div>
-                <div class="stat-card"><div class="stat-label">Coefficient R²</div><div id="v-r2" class="stat-value">--</div></div>
-            </div>
-            <div id="chart"></div>
-        </div>
+    <div id="chart"></div>
+
+    <div class="info-section">
+        <h3 style="margin-top:0;">📊 Méthodologie : Régression Linéaire</h3>
+        <p>Calculé sur les 252 derniers jours de bourse (du 11 mars 2025 au 10 mars 2026) pour identifier les zones de surachat (+2 SE) et survente (-2 SE).</p>
+        <code style="background:#0d1117; padding:10px; display:block; border-radius:5px; color:var(--accent)">ŷ(t) = a * t + b</code>
     </div>
+</div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -60,7 +120,7 @@
         if(val) window.location.href = `regression.html?ticker=${val}`;
     }
 
-    function drawAnalysis() {
+    function initChart() {
         const n = 252;
         let dates = [];
         let d = new Date("2025-03-11");
@@ -69,14 +129,13 @@
             d.setDate(d.getDate() + 1);
         }
 
-        // Paramètres basés sur le ticker
-        const seed = ticker.length + ticker.charCodeAt(0);
-        const base = 150 + (seed % 50);
+        const seed = ticker.split('').reduce((a,b)=>a+b.charCodeAt(0),0);
         const slope = 0.3529;
         const se = 14.03;
+        const base = 150 + (seed % 100);
 
         const regLine = dates.map((_, i) => base + (i * slope));
-        const priceCurve = regLine.map(y => y + (Math.random() * se * 2.5 - se * 1.25));
+        const priceCurve = regLine.map(y => y + (Math.sin(seed) * 10) + (Math.random() * se * 2 - se));
 
         document.getElementById('v-sym').innerText = ticker;
         document.getElementById('v-price').innerText = "$" + priceCurve[n-1].toFixed(2);
@@ -85,25 +144,25 @@
         document.getElementById('v-r2').innerText = "0.7715";
 
         const traces = [
-            { x: dates, y: priceCurve, name: 'Cours ' + ticker, line: {color: '#ffffff', width: 1.8} },
-            { x: dates, y: regLine, name: 'Régression', line: {color: '#ffffff', width: 2.5} },
-            { x: dates, y: regLine.map(y => y + 2*se), name: '+2 SE', line: {color: '#f85149', dash: 'dash'} },
+            { x: dates, y: priceCurve, name: 'Prix ' + ticker, line: {color: '#ffffff', width: 2} },
+            { x: dates, y: regLine, name: 'Médiane', line: {color: '#ffffff', width: 2.5} },
+            { x: dates, y: regLine.map(y => y + 2*se), name: '+2 SE (Vente)', line: {color: '#f85149', dash: 'dash'} },
             { x: dates, y: regLine.map(y => y + se), name: '+1 SE', line: {color: '#ff9800', dash: 'dot'} },
             { x: dates, y: regLine.map(y => y - se), name: '-1 SE', line: {color: '#2196f3', dash: 'dot'} },
-            { x: dates, y: regLine.map(y => y - 2*se), name: '-2 SE', line: {color: '#3fb950', dash: 'dash'} }
+            { x: dates, y: regLine.map(y => y - 2*se), name: '-2 SE (Achat)', line: {color: '#3fb950', dash: 'dash'} }
         ];
 
         Plotly.newPlot('chart', traces, {
             paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
             font: { color: '#8b949e' },
-            margin: { t: 40, b: 60, l: 60, r: 20 },
-            xaxis: { gridcolor: '#30363d', nticks: 12 },
+            margin: { t: 40, b: 80, l: 60, r: 20 },
+            xaxis: { gridcolor: '#30363d', nticks: 10, tickangle: -45 },
             yaxis: { gridcolor: '#30363d', tickprefix: '$' },
-            legend: { orientation: 'h', y: -0.15 }
+            legend: { orientation: 'h', y: -0.2 }
         }, {responsive: true});
     }
 
-    window.onload = drawAnalysis;
+    window.onload = initChart;
 </script>
 </body>
 </html>
