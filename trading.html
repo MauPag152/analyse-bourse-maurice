@@ -4,14 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plateforme Trading - Maurice</title>
-    <style> 
-     body { margin: 0; padding: 0; background-color: #0d1117; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-.top-nav { height: 50px; background: #161b22; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #30363d; z-index: 1000; }
-/* Ce calcul force le graphique à s'arrêter avant le bas de l'écran pour laisser le RSI visible */
-.chart-container { height: calc(100vh - 50px); width: 100%; }   
-        body { margin: 0; padding: 0; background-color: #0d1117; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    <style>
+        /* On utilise toute la hauteur de l'écran sans créer de défilement inutile */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #0d1117; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
         
-        /* Barre de navigation en haut, mais qui ne couvre pas le contenu */
+        /* Barre de navigation fixe en haut */
         .top-nav {
             height: 50px;
             background: #161b22;
@@ -32,18 +37,13 @@
             border: 1px solid #19c37d;
             font-family: sans-serif;
             font-size: 14px;
-            transition: 0.2s;
         }
 
-        .btn-nav:hover {
-            background: #19c37d;
-            color: #0d1117;
-        }
-
-        /* Conteneur du graphique */
+        /* Le conteneur s'ajuste pour laisser le RSI visible en bas */
         .chart-container {
-            flex-grow: 1; /* Prend tout le reste de l'espace */
+            flex-grow: 1; 
             width: 100%;
+            height: calc(100vh - 50px);
         }
     </style>
 </head>
@@ -70,7 +70,11 @@
                 "enable_publishing": false,
                 "hide_side_toolbar": false,
                 "allow_symbol_change": true,
-                "container_id": "tradingview_chart"
+                "container_id": "tradingview_chart",
+                // On active les études par défaut pour forcer l'affichage si besoin
+                "studies": [
+                    "RSI@tv-basicstudies"
+                ]
             });
         </script>
     </div>
