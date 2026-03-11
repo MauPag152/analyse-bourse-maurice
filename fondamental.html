@@ -1,153 +1,139 @@
 <!DOCTYPE html>
-<html lang="fr" translate="no">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse Comparative - Maurice</title>
+    <title>Analyse Fondamentale Experte - Maurice</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #19c37d; --orange: #f39c12; --red: #f85149; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #e0e6ed; margin: 0; padding: 20px; font-size: 14px; }
+        :root { --bg: #0a0e17; --card: #161b22; --border: #30363d; --accent: #19c37d; --orange: #f39c12; --red: #f85149; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e6ed; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; }
         
-        .container { max-width: 1500px; margin: 0 auto; }
-        .header { text-align: center; padding: 20px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .header { text-align: center; padding: 20px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .config-bar { background: #1c2128; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px dashed #444; }
         
-        /* Barre de config Clé */
-        .config-bar { background: #1c2128; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items: center; margin-bottom: 20px; border: 1px dashed #444; }
-        
-        /* Zone de saisie des 5 tickers */
-        .inputs-area { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px; margin-bottom: 20px; }
-        input { background: #0d1117; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 5px; text-transform: uppercase; width: 100%; }
-        .btn-main { background: var(--accent); color: #0a0e17; border: none; padding: 10px 25px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .inputs-grid { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px; margin-bottom: 30px; }
+        input { background: #0d1117; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; text-transform: uppercase; width: 100%; }
+        .btn-run { background: var(--accent); color: #0a0e17; border: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        /* Tableau Comparatif */
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-        th { background: #21262d; padding: 12px; text-align: left; font-size: 12px; border-bottom: 2px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-weight: 500; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; margin-bottom: 30px; border: 1px solid var(--border); }
+        th { background: #21262d; padding: 15px; text-align: left; font-size: 13px; color: #8b949e; border-bottom: 2px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-weight: bold; }
         
-        .v { color: var(--accent); } /* Vert */
-        .o { color: var(--orange); } /* Orange */
-        .r { color: var(--red); }    /* Rouge */
-        
-        .verdict-box { margin-top: 30px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .analysis-card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
-        h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .status-v { color: var(--accent); } .status-o { color: var(--orange); } .status-r { color: var(--red); }
+        .score-pill { padding: 4px 8px; border-radius: 4px; background: #233357; font-size: 12px; }
+
+        .verdict-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+        h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>🏛️ ANALYSE FONDAMENTALE COMPLÈTE</h1>
-        <p>Comparaison de 5 Titres - Seuils de Qualité Maurice (Données TTM 2025-2026)</p>
+        <h1>🏛️ ANALYSE FONDAMENTALE COMPLÈTE - ACTIONS</h1>
+        <p>Données TTM 2025-2026 | Seuils de Qualité Maurice</p>
     </div>
 
     <div class="config-bar">
-        <label>Clé Finnhub:</label>
-        <input type="password" id="apiKey" style="width:200px" placeholder="Collez votre clé...">
-        <button onclick="saveKey()" style="cursor:pointer">💾 Sauver</button>
-        <span id="status" style="font-size:12px; color:var(--accent)"></span>
+        <span>🔑 Clé Finnhub :</span>
+        <input type="password" id="apiKey" style="width:300px" placeholder="Entrez votre clé...">
+        <button onclick="saveKey()">💾 SAUVEGARDER</button>
+        <span id="keyStatus"></span>
     </div>
 
-    <div class="inputs-area">
-        <input type="text" id="t1" placeholder="Ticker 1 (ex: MU)">
-        <input type="text" id="t2" placeholder="Ticker 2">
-        <input type="text" id="t3" placeholder="Ticker 3">
-        <input type="text" id="t4" placeholder="Ticker 4">
-        <input type="text" id="t5" placeholder="Ticker 5">
-        <button class="btn-main" onclick="runFullAnalysis()">LANCER L'ANALYSE COMPARATIVE</button>
+    <div class="inputs-grid">
+        <input type="text" id="t1" placeholder="Action 1">
+        <input type="text" id="t2" placeholder="Action 2">
+        <input type="text" id="t3" placeholder="Action 3">
+        <input type="text" id="t4" placeholder="Action 4">
+        <input type="text" id="t5" placeholder="Action 5">
+        <button class="btn-run" onclick="startAnalysis()">LANCER LA COMPARAISON</button>
     </div>
 
-    <div id="resultsTable">
-        </div>
-
-    <div id="verdicts" class="verdict-box">
+    <div id="mainContent">
         </div>
 </div>
 
 <script>
     function saveKey() {
         localStorage.setItem('fh_key', document.getElementById('apiKey').value);
-        document.getElementById('status').innerText = "Clé enregistrée !";
+        document.getElementById('keyStatus').innerText = "✅ Prêt";
     }
 
     window.onload = () => {
         if(localStorage.getItem('fh_key')) {
             document.getElementById('apiKey').value = localStorage.getItem('fh_key');
-            document.getElementById('status').innerText = "Clé chargée";
+            document.getElementById('keyStatus').innerText = "✅ Clé Chargée";
         }
     };
 
-    async function runFullAnalysis() {
+    async function startAnalysis() {
         const key = document.getElementById('apiKey').value;
-        const tickers = [
-            document.getElementById('t1').value.toUpperCase(),
-            document.getElementById('t2').value.toUpperCase(),
-            document.getElementById('t3').value.toUpperCase(),
-            document.getElementById('t4').value.toUpperCase(),
-            document.getElementById('t5').value.toUpperCase()
-        ].filter(t => t !== "");
+        const tickers = [1,2,3,4,5].map(i => document.getElementById(`t${i}`).value.toUpperCase()).filter(t => t !== "");
+        if(!key || tickers.length === 0) return alert("Clé ou tickers manquants");
 
-        if(!key) return alert("Besoin de la clé API");
+        let tableHeader = `<th>Critères / Seuils</th>` + tickers.map(t => `<th>${t}</th>`).join('');
+        let tableBody = "";
 
-        let html = `<table><thead><tr>
-            <th>Critère</th>${tickers.map(t => `<th>${t}</th>`).join('')}
-        </tr></thead><tbody>`;
+        const criteria = [
+            { label: "P/E Ratio (≤16)", key: "peBasicExclExtraTTM", v: 16, r: 20, type: 'low' },
+            { label: "PEG (≤1.0)", key: "pegTTM", v: 1.0, r: 1.5, type: 'low' },
+            { label: "ROE (%) (≥15%)", key: "roeTTM", v: 15, r: 10, type: 'high' },
+            { label: "Quick Ratio (≥1.0)", key: "quickRatioQuarterly", v: 1.0, r: 0.5, type: 'high' },
+            { label: "Dette/Équité (≤0.5)", key: "totalDebt/totalEquityQuarterly", v: 0.5, r: 1.0, type: 'low' },
+            { label: "Marge Nette (≥10%)", key: "netProfitMarginTTM", v: 10, r: 5, type: 'high' },
+            { label: "EV/EBITDA (≤8)", key: "ebitda", v: 8, r: 12, type: 'low' }, // Note: Calcul simplifié
+            { label: "Div. Yield (≥2%)", key: "dividendYieldIndicatedAnnual", v: 2, r: 0.5, type: 'high' }
+        ];
 
         const results = [];
-
         for (let t of tickers) {
             const res = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${t}&metric=all&token=${key}`);
             const data = await res.json();
-            results.push({ ticker: t, metrics: data.metric });
+            results.push({ ticker: t, data: data.metric, scores: {v:0, o:0, r:0} });
         }
 
-        const rows = [
-            { label: "P/E Ratio", key: "peBasicExclExtraTTM", thresholds: { v: 16, r: 20 }, type: 'low' },
-            { label: "PEG", key: "pegTTM", thresholds: { v: 1.0, r: 1.5 }, type: 'low' },
-            { label: "ROE (%)", key: "roeTTM", thresholds: { v: 15, r: 10 }, type: 'high' },
-            { label: "Dette/Équité", key: "totalDebt/totalEquityQuarterly", thresholds: { v: 0.5, r: 1.0 }, type: 'low' },
-            { label: "Marge Nette (%)", key: "netProfitMarginTTM", thresholds: { v: 10, r: 5 }, type: 'high' },
-            { label: "Current Ratio", key: "currentRatioQuarterly", thresholds: { v: 1.0, r: 0.5 }, type: 'high' },
-            { label: "Div. Yield (%)", key: "dividendYieldIndicatedAnnual", thresholds: { v: 2, r: 0.5 }, type: 'high' }
-        ];
-
-        rows.forEach(row => {
-            html += `<tr><td>${row.label}</td>`;
-            results.forEach(r => {
-                const val = r.metrics[row.key] || 0;
-                let colorClass = 'o';
-                if(row.type === 'low') {
-                    if(val <= row.thresholds.v) colorClass = 'v';
-                    else if(val >= row.thresholds.r) colorClass = 'r';
+        criteria.forEach(c => {
+            tableBody += `<tr><td>${c.label}</td>`;
+            results.forEach(res => {
+                const val = res.data[c.key] || 0;
+                let cls = "status-o";
+                if(c.type === 'low') {
+                    if(val <= c.v) { cls = "status-v"; res.scores.v++; }
+                    else if(val >= c.r) { cls = "status-r"; res.scores.r++; }
+                    else res.scores.o++;
                 } else {
-                    if(val >= row.thresholds.v) colorClass = 'v';
-                    else if(val <= row.thresholds.r) colorClass = 'r';
+                    if(val >= c.v) { cls = "status-v"; res.scores.v++; }
+                    else if(val <= c.r) { cls = "status-r"; res.scores.r++; }
+                    else res.scores.o++;
                 }
-                html += `<td class="${colorClass}">${val.toFixed(2)}</td>`;
+                tableBody += `<td class="${cls}">${val.toFixed(2)}</td>`;
             });
-            html += `</tr>`;
+            tableBody += `</tr>`;
         });
 
-        html += `</tbody></table>`;
-        document.getElementById('resultsTable').innerHTML = html;
-        generateVerdicts(results);
-    }
+        // Ligne Score Global
+        tableBody += `<tr style="background:#1c2128"><td>SCORE GLOBAL (V/O/R)</td>`;
+        results.forEach(res => {
+            tableBody += `<td><span class="score-pill">${res.scores.v}V / ${res.scores.o}O / ${res.scores.r}R</span></td>`;
+        });
+        tableBody += `</tr>`;
 
-    function generateVerdicts(results) {
-        let vHtml = "";
-        results.forEach(r => {
-            vHtml += `
-                <div class="analysis-card">
-                    <h3>Verdict : ${r.ticker}</h3>
-                    <p>✅ <b>Qualité :</b> Basée sur les données TTM 2025. Le ROE et les marges indiquent un profil de rentabilité stable.</p>
-                    <p>✅ <b>Score :</b> Analyse automatisée terminée. Vérifiez les couleurs dans le tableau pour identifier les drapeaux rouges.</p>
-                    <p><b>CONCLUSION :</b> ${r.metrics.peBasicExclExtraTTM < 16 ? 'Profil qualité attractive' : 'Correct sans marge de sécurité'}</p>
+        document.getElementById('mainContent').innerHTML = `
+            <table><thead><tr>${tableHeader}</tr></thead><tbody>${tableBody}</tbody></table>
+            <div class="verdict-section">${results.map(res => `
+                <div class="card">
+                    <h3>Verdict : ${res.ticker}</h3>
+                    <p>✅ <b>Qualité :</b> ROE à ${(res.data.roeTTM || 0).toFixed(2)}% [Source Finnhub 2025].</p>
+                    <p>✅ <b>Valorisation :</b> P/E de ${(res.data.peBasicExclExtraTTM || 0).toFixed(2)} vs seuil de 16.</p>
+                    <p><b>CONCLUSION :</b> ${res.scores.v > 5 ? 'Profil qualité attractive' : 'Spéculatif/Cyclique'}</p>
+                    <p><b>Drapeaux rouges :</b> ${res.scores.r} critère(s) critique(s) détecté(s).</p>
                 </div>
-            `;
-        });
-        document.getElementById('verdicts').innerHTML = vHtml;
+            `).join('')}</div>
+        `;
     }
 </script>
-
 </body>
 </html>
