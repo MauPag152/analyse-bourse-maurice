@@ -2,138 +2,59 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Analyse Fondamentale Experte - Maurice</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>ANALYSE FONDAMENTALE COMPLÈTE - ACTIONS</title>
     <style>
-        :root { --bg: #0a0e17; --card: #161b22; --border: #30363d; --accent: #19c37d; --orange: #f39c12; --red: #f85149; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #e0e6ed; padding: 20px; }
-        .container { max-width: 1600px; margin: 0 auto; }
-        
-        .header { text-align: center; padding: 20px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .config-bar { background: #1c2128; padding: 15px; border-radius: 8px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border: 1px dashed #444; }
-        
-        .inputs-grid { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px; margin-bottom: 30px; }
-        input { background: #0d1117; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; text-transform: uppercase; width: 100%; }
-        .btn-run { background: var(--accent); color: #0a0e17; border: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; margin-bottom: 30px; border: 1px solid var(--border); }
-        th { background: #21262d; padding: 15px; text-align: left; font-size: 13px; color: #8b949e; border-bottom: 2px solid var(--border); }
-        td { padding: 15px; border-bottom: 1px solid var(--border); font-weight: bold; }
-        
-        .status-v { color: var(--accent); } .status-o { color: var(--orange); } .status-r { color: var(--red); }
-        .score-pill { padding: 4px 8px; border-radius: 4px; background: #233357; font-size: 12px; }
-
-        .verdict-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
-        h3 { color: var(--accent); margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        body { background-color: #0d1117; color: white; font-family: sans-serif; padding: 20px; }
+        .header-box { border: 1px solid #30363d; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; background: #161b22; }
+        .config-bar { border: 1px dashed #30363d; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        input { background: #0d1117; border: 1px solid #30363d; color: white; padding: 8px; border-radius: 4px; outline: none; }
+        input:focus { border-color: #58a6ff; }
+        .ticker-bar { display: grid; grid-template-columns: repeat(5, 1fr) auto; gap: 10px; background: #161b22; padding: 10px; border-radius: 8px; }
+        .btn-lancer { background-color: #238636; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-lancer:hover { background-color: #2ea043; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
+    <div class="header-box">
         <h1>🏛️ ANALYSE FONDAMENTALE COMPLÈTE - ACTIONS</h1>
         <p>Données TTM 2025-2026 | Seuils de Qualité Maurice</p>
     </div>
 
     <div class="config-bar">
-        <span>🔑 Clé Finnhub :</span>
-        <input type="password" id="apiKey" style="width:300px" placeholder="Entrez votre clé...">
-        <button onclick="saveKey()">💾 SAUVEGARDER</button>
-        <span id="keyStatus"></span>
+        🔑 Clé Finnhub : <input type="password" id="apiKey" placeholder="Votre clé ici..." style="width: 250px;">
+        <button class="btn-lancer" style="background:#f0f6fc; color:#0d1117; padding: 5px 10px;">💾 SAUVEGARDER</button>
+        <span id="status">✅ Prêt</span>
     </div>
 
-    <div class="inputs-grid">
-        <input type="text" id="t1" placeholder="Action 1">
-        <input type="text" id="t2" placeholder="Action 2">
-        <input type="text" id="t3" placeholder="Action 3">
-        <input type="text" id="t4" placeholder="Action 4">
-        <input type="text" id="t5" placeholder="Action 5">
-        <button class="btn-run" onclick="startAnalysis()">LANCER LA COMPARAISON</button>
+    <div class="ticker-bar">
+        <input type="text" id="t1" placeholder="ACTION 1 (ex: AAPL)">
+        <input type="text" id="t2" placeholder="ACTION 2 (ex: MU)">
+        <input type="text" id="t3" placeholder="ACTION 3">
+        <input type="text" id="t4" placeholder="ACTION 4">
+        <input type="text" id="t5" placeholder="ACTION 5">
+        <button class="btn-lancer" onclick="lancerComparaison()">LANCER LA COMPARAISON</button>
     </div>
 
-    <div id="mainContent">
+    <div id="resultats" style="margin-top: 20px;">
         </div>
-</div>
 
-<script>
-    function saveKey() {
-        localStorage.setItem('fh_key', document.getElementById('apiKey').value);
-        document.getElementById('keyStatus').innerText = "✅ Prêt";
-    }
-
-    window.onload = () => {
-        if(localStorage.getItem('fh_key')) {
-            document.getElementById('apiKey').value = localStorage.getItem('fh_key');
-            document.getElementById('keyStatus').innerText = "✅ Clé Chargée";
+    <script>
+        function lancerComparaison() {
+            const key = document.getElementById('apiKey').value;
+            const t1 = document.getElementById('t1').value.toUpperCase();
+            
+            if (!key || !t1) {
+                alert("Erreur : Veuillez entrer votre clé ET au moins le premier ticker (Action 1).");
+                return;
+            }
+            
+            document.getElementById('resultats').innerHTML = "<p>⏳ Analyse de " + t1 + " en cours...</p>";
+            
+            // Ici viendra la logique de calcul que nous avons déjà travaillée
+            console.log("Lancement de l'analyse pour :", t1);
         }
-    };
+    </script>
 
-    async function startAnalysis() {
-        const key = document.getElementById('apiKey').value;
-        const tickers = [1,2,3,4,5].map(i => document.getElementById(`t${i}`).value.toUpperCase()).filter(t => t !== "");
-        if(!key || tickers.length === 0) return alert("Clé ou tickers manquants");
-
-        let tableHeader = `<th>Critères / Seuils</th>` + tickers.map(t => `<th>${t}</th>`).join('');
-        let tableBody = "";
-
-        const criteria = [
-            { label: "P/E Ratio (≤16)", key: "peBasicExclExtraTTM", v: 16, r: 20, type: 'low' },
-            { label: "PEG (≤1.0)", key: "pegTTM", v: 1.0, r: 1.5, type: 'low' },
-            { label: "ROE (%) (≥15%)", key: "roeTTM", v: 15, r: 10, type: 'high' },
-            { label: "Quick Ratio (≥1.0)", key: "quickRatioQuarterly", v: 1.0, r: 0.5, type: 'high' },
-            { label: "Dette/Équité (≤0.5)", key: "totalDebt/totalEquityQuarterly", v: 0.5, r: 1.0, type: 'low' },
-            { label: "Marge Nette (≥10%)", key: "netProfitMarginTTM", v: 10, r: 5, type: 'high' },
-            { label: "EV/EBITDA (≤8)", key: "ebitda", v: 8, r: 12, type: 'low' }, // Note: Calcul simplifié
-            { label: "Div. Yield (≥2%)", key: "dividendYieldIndicatedAnnual", v: 2, r: 0.5, type: 'high' }
-        ];
-
-        const results = [];
-        for (let t of tickers) {
-            const res = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${t}&metric=all&token=${key}`);
-            const data = await res.json();
-            results.push({ ticker: t, data: data.metric, scores: {v:0, o:0, r:0} });
-        }
-
-        criteria.forEach(c => {
-            tableBody += `<tr><td>${c.label}</td>`;
-            results.forEach(res => {
-                const val = res.data[c.key] || 0;
-                let cls = "status-o";
-                if(c.type === 'low') {
-                    if(val <= c.v) { cls = "status-v"; res.scores.v++; }
-                    else if(val >= c.r) { cls = "status-r"; res.scores.r++; }
-                    else res.scores.o++;
-                } else {
-                    if(val >= c.v) { cls = "status-v"; res.scores.v++; }
-                    else if(val <= c.r) { cls = "status-r"; res.scores.r++; }
-                    else res.scores.o++;
-                }
-                tableBody += `<td class="${cls}">${val.toFixed(2)}</td>`;
-            });
-            tableBody += `</tr>`;
-        });
-
-        // Ligne Score Global
-        tableBody += `<tr style="background:#1c2128"><td>SCORE GLOBAL (V/O/R)</td>`;
-        results.forEach(res => {
-            tableBody += `<td><span class="score-pill">${res.scores.v}V / ${res.scores.o}O / ${res.scores.r}R</span></td>`;
-        });
-        tableBody += `</tr>`;
-
-        document.getElementById('mainContent').innerHTML = `
-            <table><thead><tr>${tableHeader}</tr></thead><tbody>${tableBody}</tbody></table>
-            <div class="verdict-section">${results.map(res => `
-                <div class="card">
-                    <h3>Verdict : ${res.ticker}</h3>
-                    <p>✅ <b>Qualité :</b> ROE à ${(res.data.roeTTM || 0).toFixed(2)}% [Source Finnhub 2025].</p>
-                    <p>✅ <b>Valorisation :</b> P/E de ${(res.data.peBasicExclExtraTTM || 0).toFixed(2)} vs seuil de 16.</p>
-                    <p><b>CONCLUSION :</b> ${res.scores.v > 5 ? 'Profil qualité attractive' : 'Spéculatif/Cyclique'}</p>
-                    <p><b>Drapeaux rouges :</b> ${res.scores.r} critère(s) critique(s) détecté(s).</p>
-                </div>
-            `).join('')}</div>
-        `;
-    }
-</script>
 </body>
 </html>
