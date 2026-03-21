@@ -1,361 +1,1497 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Portefeuille boursier CAD - 11 tickers</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0f172a;
-      color: #e5e7eb;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .subtitle {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #9ca3af;
-      margin-bottom: 20px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background-color: #020617;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 1px solid #1f2937;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    .api-key-box {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-    .api-key-box input {
-      padding: 6px 8px;
-      border-radius: 6px;
-      border: 1px solid #4b5563;
-      background-color: #020617;
-      color: #e5e7eb;
-      min-width: 220px;
-    }
-    button {
-      background-color: #2563eb;
-      color: #f9fafb;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    button:hover {
-      background-color: #1d4ed8;
-    }
-    .status {
-      font-size: 0.8rem;
-      color: #9ca3af;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.9rem;
-    }
-    thead {
-      background: linear-gradient(to right, #111827, #1f2937);
-    }
-    th, td {
-      padding: 8px 10px;
-      text-align: right;
-      border-bottom: 1px solid #1f2937;
-    }
-    th:first-child, td:first-child {
-      text-align: left;
-    }
-    tr:hover {
-      background-color: #020617;
-    }
-    .gain {
-      color: #22c55e;
-      font-weight: 600;
-    }
-    .loss {
-      color: #ef4444;
-      font-weight: 600;
-    }
-    .footer-row {
-      background-color: #020617;
-      font-weight: 700;
-    }
-    .footer-row td {
-      border-top: 2px solid #4b5563;
-      font-size: 1rem;
-    }
-    .error {
-      color: #f97316;
-      margin-top: 8px;
-      font-size: 0.8rem;
-    }
-    .edit-note {
-      background-color: #1e293b;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      margin-bottom: 10px;
-      border-left: 4px solid #2563eb;
-    }
-    @media (max-width: 768px) {
-      table { font-size: 0.8rem; }
-      th, td { padding: 6px 4px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Mon Portefeuille Boursier</title>
+    <style>
+        /* ============================================
+           RESET ET VARIABLES CSS
+           ============================================ */
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --bg-row-hover: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --gain: #10b981;
+            --gain-bg: rgba(16, 185, 129, 0.1);
+            --loss: #ef4444;
+            --loss-bg: rgba(239, 68, 68, 0.1);
+            --neutral: #f59e0b;
+            --border: #1e293b;
+            --border-light: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           HEADER
+           ============================================ */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gain);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.error {
+            background: var(--loss);
+            animation: none;
+        }
+
+        .status-dot.loading {
+            background: var(--neutral);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-row-hover);
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+           CARTES RÉSUMÉ
+           ============================================ */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .summary-card:hover::before {
+            opacity: 1;
+        }
+
+        .summary-card:hover {
+            border-color: var(--border-light);
+            box-shadow: var(--shadow);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .card-sub {
+            font-size: 0.85rem;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-value.gain, .card-sub.gain { color: var(--gain); }
+        .card-value.loss, .card-sub.loss { color: var(--loss); }
+        .card-value.neutral { color: var(--text-primary); }
+
+        /* ============================================
+           TABLEAU DU PORTEFEUILLE
+           ============================================ */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-title .count {
+            background: var(--bg-primary);
+            color: var(--text-muted);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        thead th {
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+
+        thead th:hover {
+            color: var(--text-primary);
+        }
+
+        thead th.text-right {
+            text-align: right;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-row-hover);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        td.text-right {
+            text-align: right;
+        }
+
+        /* Cellule ticker */
+        .ticker-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ticker-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.7rem;
+            color: white;
+            flex-shrink: 0;
+            letter-spacing: 0.02em;
+        }
+
+        .ticker-info .symbol {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .ticker-info .name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Gain/Perte avec badge */
+        .pnl-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .pnl-badge.gain {
+            background: var(--gain-bg);
+            color: var(--gain);
+        }
+
+        .pnl-badge.loss {
+            background: var(--loss-bg);
+            color: var(--loss);
+        }
+
+        .pnl-badge.neutral {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--neutral);
+        }
+
+        /* Barre de progression du poids */
+        .weight-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weight-bar {
+            width: 60px;
+            height: 6px;
+            background: var(--bg-primary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .weight-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            transition: width 0.5s ease;
+        }
+
+        .weight-value {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 40px;
+        }
+
+        /* Ligne total */
+        .total-row {
+            background: var(--bg-secondary) !important;
+        }
+
+        .total-row td {
+            font-weight: 700;
+            padding: 18px 20px;
+            font-size: 0.95rem;
+            border-top: 2px solid var(--border-light);
+        }
+
+        /* ============================================
+           SPARKLINE (mini graphique)
+           ============================================ */
+        .sparkline {
+            width: 80px;
+            height: 30px;
+        }
+
+        /* ============================================
+           MODAL / CONFIGURATION
+           ============================================ */
+        .config-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .config-panel.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .config-panel h3 {
+            margin-bottom: 16px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        /* ============================================
+           LOADING / ERREUR
+           ============================================ */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 23, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-banner {
+            background: var(--loss-bg);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            margin-bottom: 16px;
+            color: var(--loss);
+            font-size: 0.875rem;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-banner.active {
+            display: flex;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 2000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--gain);
+            color: white;
+        }
+
+        .toast.error {
+            background: var(--loss);
+            color: white;
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                justify-content: space-between;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .card-value {
+                font-size: 1.3rem;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo h1 {
+                font-size: 1.2rem;
+            }
+
+            .btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Animation d'apparition des lignes */
+        @keyframes fadeInRow {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        tbody tr {
+            animation: fadeInRow 0.3s ease forwards;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        tbody tr:nth-child(6) { animation-delay: 0.3s; }
+        tbody tr:nth-child(7) { animation-delay: 0.35s; }
+        tbody tr:nth-child(8) { animation-delay: 0.4s; }
+        tbody tr:nth-child(9) { animation-delay: 0.45s; }
+        tbody tr:nth-child(10) { animation-delay: 0.5s; }
+
+        /* Indication de tri */
+        th .sort-arrow {
+            font-size: 0.65rem;
+            margin-left: 4px;
+            opacity: 0.3;
+        }
+
+        th.sorted .sort-arrow {
+            opacity: 1;
+            color: var(--accent-cyan);
+        }
+
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-primary) 25%, var(--border) 50%, var(--bg-primary) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s ease-in-out infinite;
+            border-radius: 4px;
+            height: 16px;
+            width: 80px;
+            display: inline-block;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
 </head>
 <body>
-  <h1>Portefeuille boursier CAD</h1>
-  <div class="subtitle">
-    US stocks convertis USD→CAD + RY.TO natif CAD | Finnhub.io
-  </div>
 
-  <div class="container">
-    <div class="controls">
-      <div class="api-key-box">
-        <label for="finnhubKey" style="font-size:0.8rem;">Clé Finnhub :</label>
-        <input id="finnhubKey" type="password" placeholder="Colle ta clé ici" />
-        <button id="saveKeyBtn">Enregistrer la clé</button>
-      </div>
-      <div>
-        <button id="refreshBtn">Rafraîchir maintenant</button>
-        <div class="status" id="statusText">Clé non enregistrée.</div>
-      </div>
+    <!-- ============================================
+         OVERLAY DE CHARGEMENT
+         ============================================ -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
     </div>
-    <div class="edit-note">
-      📝 <strong>Modifier :</strong> Change <code>quantite</code> et <code>prixAchat</code> dans <code>portfolio</code> (lignes 106-117).
-    </div>
-    <div class="error" id="errorText"></div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Symbole</th>
-          <th>Quantité</th>
-          <th>Prix achat</th>
-          <th>Capital investi CAD</th>
-          <th>Prix actuel CAD</th>
-          <th>Valeur actuelle CAD</th>
-          <th>Gain/Perte CAD</th>
-          <th>Gain/Perte %</th>
-        </tr>
-      </thead>
-      <tbody id="portfolioBody"></tbody>
-    </table>
-  </div>
+    <!-- ============================================
+         TOAST NOTIFICATION
+         ============================================ -->
+    <div class="toast" id="toast"></div>
 
-  <script>
-    // === TES 11 POSITIONS (CAD) ================================
-    const portfolio = [
-      { ticker: "NVDA",  quantite: 3,  prixAchat: 400, isCAD: false },
-      { ticker: "AAPL",  quantite: 10, prixAchat: 150, isCAD: false },
-      { ticker: "GOOG",  quantite: 5,  prixAchat: 140, isCAD: false },
-      { ticker: "MSFT",  quantite: 4,  prixAchat: 300, isCAD: false },
-      { ticker: "AMZN",  quantite: 2,  prixAchat: 130, isCAD: false },
-      { ticker: "AVGO",  quantite: 1,  prixAchat: 800, isCAD: false },
-      { ticker: "META",  quantite: 3,  prixAchat: 250, isCAD: false },
-      { ticker: "TSLA",  quantite: 6,  prixAchat: 200, isCAD: false },
-      { ticker: "WMT",   quantite: 8,  prixAchat: 60,  isCAD: false },
-      { ticker: "LLY",   quantite: 2,  prixAchat: 500, isCAD: false },
-      
-    // ===========================================================
+    <!-- ============================================
+         EN-TÊTE
+         ============================================ -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">📈</div>
+                <h1>Mon Portefeuille</h1>
+            </div>
+            <div class="header-actions">
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">En attente...</span>
+                </div>
+                <button class="btn btn-secondary" onclick="toggleConfig()">
+                    ⚙️ Config
+                </button>
+                <button class="btn btn-primary" id="refreshBtn" onclick="rafraichirDonnees()">
+                    🔄 Rafraîchir
+                </button>
+            </div>
+        </div>
+    </header>
 
-    // Taux USD/CAD actuel (≈1.37) - met à jour manuellement [web:61]
-    const USD_TO_CAD = 1.37;
+    <!-- ============================================
+         CONTENU PRINCIPAL
+         ============================================ -->
+    <main class="container">
 
-    let FINNHUB_API_KEY = "";
+        <!-- Bannière d'erreur -->
+        <div class="error-banner" id="errorBanner">
+            <span>⚠️</span>
+            <span id="errorText"></span>
+        </div>
 
-    const keyInput   = document.getElementById("finnhubKey");
-    const saveKeyBtn = document.getElementById("saveKeyBtn");
-    const statusText = document.getElementById("statusText");
-    const errorText  = document.getElementById("errorText");
-    const portfolioBody = document.getElementById("portfolioBody");
-    const refreshBtn = document.getElementById("refreshBtn");
+        <!-- Panneau de configuration (caché par défaut) -->
+        <div class="config-panel" id="configPanel">
+            <h3>⚙️ Configuration</h3>
+            <div class="config-grid">
+                <div class="form-group">
+                    <label for="apiKeyInput">Clé API Finnhub</label>
+                    <input type="text" id="apiKeyInput" placeholder="Entrez votre clé API Finnhub">
+                </div>
+                <div class="form-group">
+                    <label for="refreshInterval">Intervalle de rafraîchissement (sec)</label>
+                    <input type="number" id="refreshInterval" value="60" min="15" max="600">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="portfolioInput">Portefeuille (format JSON)</label>
+                    <textarea id="portfolioInput" placeholder='[{"ticker":"AAPL","quantite":10,"prixAchat":150.00}]'></textarea>
+                </div>
+            </div>
+            <div style="margin-top: 16px; display: flex; gap: 12px;">
+                <button class="btn btn-primary" onclick="sauvegarderConfig()">💾 Sauvegarder</button>
+                <button class="btn btn-secondary" onclick="reinitialiserConfig()">🔄 Réinitialiser</button>
+            </div>
+        </div>
 
-    // Charger clé localStorage
-    const savedKey = localStorage.getItem("FINNHUB_API_KEY");
-    if (savedKey) {
-      FINNHUB_API_KEY = savedKey;
-      keyInput.value = "********";
-      statusText.textContent = "Clé chargée. Prêt !";
-    }
+        <!-- Cartes résumé -->
+        <div class="summary-grid" id="summaryGrid">
+            <div class="summary-card">
+                <div class="card-label">Valeur Totale</div>
+                <div class="card-value neutral" id="totalValue">--</div>
+                <div class="card-sub" id="totalPositions">-- positions</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-label">Coût Total</div>
+                <div class="card-value neutral" id="totalCost">--</div>
+                <div class="card-sub" id="totalInvested">Capital investi</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-label">Gain / Perte</div>
+                <div class="card-value" id="totalPnl">--</div>
+                <div class="card-sub" id="totalPnlPct">--%</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-label">Meilleure Performance</div>
+                <div class="card-value gain" id="bestPerformer">--</div>
+                <div class="card-sub gain" id="bestPerformerPct">--</div>
+            </div>
+        </div>
 
-    saveKeyBtn.addEventListener("click", () => {
-      const val = keyInput.value.trim();
-      if (!val) {
-        alert("Entre une clé Finnhub valide.");
-        return;
-      }
-      FINNHUB_API_KEY = val;
-      localStorage.setItem("FINNHUB_API_KEY", val);
-      keyInput.value = "********";
-      statusText.textContent = "Clé Finnhub enregistrée.";
+        <!-- Tableau du portefeuille -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">
+                    📋 Positions <span class="count" id="positionCount">0</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);" id="lastUpdate">
+                    Dernière mise à jour : --
+                </div>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="trierPar('ticker')">Symbole <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('quantite')">Quantité <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('prixAchat')">Prix d'Achat <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('prixActuel')">Prix Actuel <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('valeur')">Valeur <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('gainPerte')">Gain/Perte <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('gainPertePct')">% <span class="sort-arrow">▲▼</span></th>
+                            <th class="text-right" onclick="trierPar('poids')">Poids <span class="sort-arrow">▲▼</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="portfolioBody">
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">
+                                Cliquez sur <strong>Rafraîchir</strong> pour charger les données...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================
+         PIED DE PAGE
+         ============================================ -->
+    <footer class="footer">
+        <p>Données fournies par <a href="https://finnhub.io/" target="_blank">Finnhub</a> · Rafraîchissement automatique activé · Les données sont différées de ~15 min pour le plan gratuit</p>
+        <p style="margin-top: 6px;">Construit avec ❤️ pour GitHub Pages</p>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT — LOGIQUE PRINCIPALE
+         ============================================ -->
+    <script>
+    /* ============================================================
+       ██████╗  ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
+       ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
+       ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+       ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+       ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+        ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
+       
+       ⚠️ CONFIGURATION À MODIFIER ICI ⚠️
+       ============================================================ */
+
+    // ──────────────────────────────────────────────
+    // 🔑 VOTRE CLÉ API FINNHUB (gratuite sur https://finnhub.io/)
+    //    Créez un compte gratuit et collez votre clé ci-dessous
+    // ──────────────────────────────────────────────
+    let API_KEY = "VOTRE_CLE_API_FINNHUB_ICI";
+
+    // ──────────────────────────────────────────────
+    // 📊 VOTRE PORTEFEUILLE D'ACTIONS
+    //    Modifiez ce tableau avec vos propres positions :
+    //    - ticker    : le symbole boursier (ex: "AAPL" pour Apple)
+    //    - nom       : nom complet de l'entreprise (optionnel, pour l'affichage)
+    //    - quantite  : nombre d'actions détenues
+    //    - prixAchat : prix moyen d'achat par action (en USD)
+    // ──────────────────────────────────────────────
+    let portefeuille = [
+        { ticker: "AAPL",  nom: "Apple Inc.",           quantite: 15,  prixAchat: 142.50 },
+        { ticker: "MSFT",  nom: "Microsoft Corp.",      quantite: 10,  prixAchat: 310.00 },
+        { ticker: "GOOGL", nom: "Alphabet Inc.",        quantite: 8,   prixAchat: 125.75 },
+        { ticker: "AMZN",  nom: "Amazon.com Inc.",      quantite: 12,  prixAchat: 145.30 },
+        { ticker: "NVDA",  nom: "NVIDIA Corp.",         quantite: 20,  prixAchat: 45.00  },
+        { ticker: "TSLA",  nom: "Tesla Inc.",           quantite: 5,   prixAchat: 220.00 },
+        { ticker: "META",  nom: "Meta Platforms",       quantite: 7,   prixAchat: 280.00 },
+        { ticker: "JPM",   nom: "JPMorgan Chase",       quantite: 10,  prixAchat: 155.00 }
+    ];
+
+    // ──────────────────────────────────────────────
+    // ⏱️ Intervalle de rafraîchissement automatique (en secondes)
+    // ──────────────────────────────────────────────
+    let REFRESH_INTERVAL = 60;
+
+
+    /* ============================================================
+       VARIABLES GLOBALES
+       ============================================================ */
+    let donneesMarcheActuelles = {};  // Stockage des prix récupérés
+    let triActuel = { colonne: null, ordre: 'asc' };  // État du tri
+    let intervalleRefresh = null;  // ID de l'intervalle pour le rafraîchissement auto
+    let estEnChargement = false;  // Empêche les appels multiples simultanés
+
+    // Couleurs pour les avatars des tickers
+    const COULEURS_AVATAR = [
+        '#3b82f6', '#06b6d4', '#8b5cf6', '#ec4899',
+        '#f59e0b', '#10b981', '#ef4444', '#6366f1',
+        '#14b8a6', '#f97316', '#84cc16', '#e879f9'
+    ];
+
+
+    /* ============================================================
+       INITIALISATION AU CHARGEMENT
+       ============================================================ */
+    document.addEventListener('DOMContentLoaded', () => {
+        // Charger la configuration sauvegardée (si elle existe)
+        chargerConfigSauvegardee();
+
+        // Remplir les champs de configuration
+        remplirFormConfig();
+
+        // Lancer le premier chargement des données
+        rafraichirDonnees();
+
+        // Démarrer le rafraîchissement automatique
+        demarrerRefreshAuto();
     });
 
-    async function fetchQuote(symbol) {
-      if (!FINNHUB_API_KEY || !symbol) return 0;
-      const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_API_KEY}`;
-      try {
-        const resp = await fetch(url);
-        if (!resp.ok) return 0;
-        const data = await resp.json();
-        return data.c || 0;
-      } catch {
-        return 0;
-      }
+
+    /* ============================================================
+       GESTION DE LA CONFIGURATION
+       ============================================================ */
+
+    /**
+     * Affiche/masque le panneau de configuration
+     */
+    function toggleConfig() {
+        const panel = document.getElementById('configPanel');
+        panel.classList.toggle('active');
     }
 
-    async function fetchAllPrices() {
-      if (!FINNHUB_API_KEY) {
-        errorText.textContent = "Enregistre ta clé Finnhub.";
-        return;
-      }
-      errorText.textContent = "";
-      statusText.textContent = "Chargement… (USD→CAD 1.37)";
-      refreshBtn.disabled = true;
+    /**
+     * Remplit le formulaire de configuration avec les valeurs actuelles
+     */
+    function remplirFormConfig() {
+        document.getElementById('apiKeyInput').value = API_KEY === "VOTRE_CLE_API_FINNHUB_ICI" ? "" : API_KEY;
+        document.getElementById('refreshInterval').value = REFRESH_INTERVAL;
+        document.getElementById('portfolioInput').value = JSON.stringify(portefeuille, null, 2);
+    }
 
-      try {
-        const prices = {};
-        for (const pos of portfolio) {
-          if (pos.ticker) {
-            prices[pos.ticker] = await fetchQuote(pos.ticker);
-          }
+    /**
+     * Sauvegarde la configuration dans le localStorage
+     */
+    function sauvegarderConfig() {
+        try {
+            const nouvelleApiKey = document.getElementById('apiKeyInput').value.trim();
+            const nouvelInterval = parseInt(document.getElementById('refreshInterval').value);
+            const nouveauPortfolio = JSON.parse(document.getElementById('portfolioInput').value);
+
+            // Validation
+            if (!nouvelleApiKey) {
+                afficherToast("Veuillez entrer une clé API valide", "error");
+                return;
+            }
+            if (isNaN(nouvelInterval) || nouvelInterval < 15) {
+                afficherToast("L'intervalle minimum est de 15 secondes", "error");
+                return;
+            }
+            if (!Array.isArray(nouveauPortfolio) || nouveauPortfolio.length === 0) {
+                afficherToast("Le portefeuille doit être un tableau non vide", "error");
+                return;
+            }
+
+            // Vérification de la structure des données
+            for (const pos of nouveauPortfolio) {
+                if (!pos.ticker || !pos.quantite || !pos.prixAchat) {
+                    afficherToast("Chaque position doit avoir : ticker, quantite, prixAchat", "error");
+                    return;
+                }
+            }
+
+            // Appliquer la configuration
+            API_KEY = nouvelleApiKey;
+            REFRESH_INTERVAL = nouvelInterval;
+            portefeuille = nouveauPortfolio;
+
+            // Sauvegarder dans localStorage
+            localStorage.setItem('ptf_apiKey', API_KEY);
+            localStorage.setItem('ptf_interval', REFRESH_INTERVAL.toString());
+            localStorage.setItem('ptf_portfolio', JSON.stringify(portefeuille));
+
+            // Redémarrer le rafraîchissement auto
+            demarrerRefreshAuto();
+
+            // Rafraîchir les données
+            rafraichirDonnees();
+
+            // Fermer le panneau
+            toggleConfig();
+
+            afficherToast("Configuration sauvegardée ✓", "success");
+        } catch (e) {
+            afficherToast("Erreur JSON dans le portefeuille : " + e.message, "error");
         }
-        renderTable(prices);
-        const now = new Date();
-        statusText.textContent = "Mis à jour : " + now.toLocaleTimeString();
-      } catch (err) {
-        errorText.textContent = "Erreur: " + err.message;
-      } finally {
-        refreshBtn.disabled = false;
-      }
     }
 
-    function renderTable(priceMap) {
-      portfolioBody.innerHTML = "";
-      let totalQuantite = 0;
-      let totalCapitalCAD = 0;
-      let totalValeurCAD = 0;
-      let totalGainCAD = 0;
-      let totalInvestiCAD = 0;
+    /**
+     * Charge la configuration depuis le localStorage
+     */
+    function chargerConfigSauvegardee() {
+        const savedKey = localStorage.getItem('ptf_apiKey');
+        const savedInterval = localStorage.getItem('ptf_interval');
+        const savedPortfolio = localStorage.getItem('ptf_portfolio');
 
-      portfolio.forEach(pos => {
-        const prixUSD = priceMap[pos.ticker] || 0;
-        const prixCAD = pos.isCAD ? prixUSD : prixUSD * USD_TO_CAD;
-        const capitalInvestiCAD = pos.quantite * pos.prixAchat;
-        const valeurActuelleCAD = pos.quantite * prixCAD;
-        const gainCAD = valeurActuelleCAD - capitalInvestiCAD;
-        const gainPct = capitalInvestiCAD !== 0 ? (gainCAD / capitalInvestiCAD) * 100 : 0;
-
-        totalQuantite += pos.quantite;
-        totalCapitalCAD += capitalInvestiCAD;
-        totalValeurCAD += valeurActuelleCAD;
-        totalGainCAD += gainCAD;
-        if (capitalInvestiCAD > 0) totalInvestiCAD += capitalInvestiCAD;
-
-        const tr = document.createElement("tr");
-
-        const tdSym = document.createElement("td");
-        tdSym.textContent = pos.ticker;
-        tr.appendChild(tdSym);
-
-        const tdQ = document.createElement("td");
-        tdQ.textContent = pos.quantite;
-        tr.appendChild(tdQ);
-
-        const tdPA = document.createElement("td");
-        tdPA.textContent = pos.prixAchat.toFixed(2);
-        tr.appendChild(tdPA);
-
-        const tdCapital = document.createElement("td");
-        tdCapital.textContent = capitalInvestiCAD.toFixed(2);
-        tr.appendChild(tdCapital);
-
-        const tdPrix = document.createElement("td");
-        tdPrix.textContent = prixCAD ? prixCAD.toFixed(2) : "N/D";
-        tr.appendChild(tdPrix);
-
-        const tdVal = document.createElement("td");
-        tdVal.textContent = valeurActuelleCAD.toFixed(2);
-        tr.appendChild(tdVal);
-
-        const tdGain = document.createElement("td");
-        tdGain.textContent = gainCAD.toFixed(2);
-        tdGain.className = gainCAD >= 0 ? "gain" : "loss";
-        tr.appendChild(tdGain);
-
-        const tdGainPct = document.createElement("td");
-        tdGainPct.textContent = gainPct.toFixed(2) + "%";
-        tdGainPct.className = gainPct >= 0 ? "gain" : "loss";
-        tr.appendChild(tdGainPct);
-
-        portfolioBody.appendChild(tr);
-      });
-
-      // Totaux
-      const trTotal = document.createElement("tr");
-      trTotal.className = "footer-row";
-
-      const tdLabel = document.createElement("td");
-      tdLabel.textContent = "TOTAL CAD";
-      trTotal.appendChild(tdLabel);
-
-      const tdTotalQ = document.createElement("td");
-      tdTotalQ.textContent = totalQuantite.toFixed(0);
-      trTotal.appendChild(tdTotalQ);
-
-      const tdTotalPA = document.createElement("td");
-      tdTotalPA.textContent = "-";
-      trTotal.appendChild(tdTotalPA);
-
-      const tdTotalCapital = document.createElement("td");
-      tdTotalCapital.textContent = totalCapitalCAD.toFixed(2);
-      trTotal.appendChild(tdTotalCapital);
-
-      const tdTotalPrix = document.createElement("td");
-      tdTotalPrix.textContent = "-";
-      trTotal.appendChild(tdTotalPrix);
-
-      const tdTotalVal = document.createElement("td");
-      tdTotalVal.textContent = totalValeurCAD.toFixed(2);
-      trTotal.appendChild(tdTotalVal);
-
-      const tdTotalGain = document.createElement("td");
-      tdTotalGain.textContent = totalGainCAD.toFixed(2);
-      tdTotalGain.className = totalGainCAD >= 0 ? "gain" : "loss";
-      trTotal.appendChild(tdTotalGain);
-
-      const tdTotalPct = document.createElement("td");
-      const totalGainPct = totalInvestiCAD > 0 ? (totalGainCAD / totalInvestiCAD) * 100 : 0;
-      tdTotalPct.textContent = totalGainPct.toFixed(2) + "%";
-      tdTotalPct.className = totalGainPct >= 0 ? "gain" : "loss";
-      trTotal.appendChild(tdTotalPct);
-
-      portfolioBody.appendChild(trTotal);
+        if (savedKey) API_KEY = savedKey;
+        if (savedInterval) REFRESH_INTERVAL = parseInt(savedInterval);
+        if (savedPortfolio) {
+            try {
+                portefeuille = JSON.parse(savedPortfolio);
+            } catch (e) {
+                console.warn("Erreur de parsing du portefeuille sauvegardé :", e);
+            }
+        }
     }
 
-    refreshBtn.addEventListener("click", fetchAllPrices);
-    setInterval(fetchAllPrices, 60000);
-  </script>
+    /**
+     * Réinitialise la configuration aux valeurs par défaut
+     */
+    function reinitialiserConfig() {
+        localStorage.removeItem('ptf_apiKey');
+        localStorage.removeItem('ptf_interval');
+        localStorage.removeItem('ptf_portfolio');
+        location.reload();
+    }
+
+
+    /* ============================================================
+       RÉCUPÉRATION DES DONNÉES FINNHUB
+       ============================================================ */
+
+    /**
+     * Récupère le prix actuel d'un ticker via l'API Finnhub
+     * Endpoint: GET https://finnhub.io/api/v1/quote?symbol=TICKER&token=API_KEY
+     * Retourne: { c: currentPrice, d: change, dp: percentChange, h: high, l: low, o: open, pc: previousClose }
+     */
+    async function recupererPrixFinnhub(ticker) {
+        const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(ticker)}&token=${API_KEY}`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP ${response.status} pour ${ticker}`);
+        }
+
+        const data = await response.json();
+
+        // Finnhub retourne { c: 0, d: null, dp: null, ... } si le ticker est invalide
+        if (!data || data.c === 0 || data.c === undefined || data.c === null) {
+            throw new Error(`Données non disponibles pour ${ticker}`);
+        }
+
+        return {
+            ticker: ticker,
+            prixActuel: data.c,             // Current price
+            variation: data.d,              // Change
+            variationPct: data.dp,          // Percent change
+            haut: data.h,                   // High price of the day
+            bas: data.l,                    // Low price of the day
+            ouverture: data.o,              // Open price of the day
+            fermeturePrecedente: data.pc,   // Previous close price
+            timestamp: data.t               // Timestamp
+        };
+    }
+
+    /**
+     * Récupère les prix de tous les tickers du portefeuille
+     * Note : Finnhub gratuit limite à 60 appels/minute
+     * On fait les appels séquentiellement avec un léger délai
+     */
+    async function recupererTousLesPrix() {
+        const resultats = {};
+        const erreurs = [];
+        const DELAI_ENTRE_APPELS = 200; // 200ms entre chaque appel pour respecter le rate limit
+
+        for (let i = 0; i < portefeuille.length; i++) {
+            const position = portefeuille[i];
+            try {
+                const data = await recupererPrixFinnhub(position.ticker);
+                resultats[position.ticker] = data;
+            } catch (erreur) {
+                console.warn(`Erreur pour ${position.ticker}:`, erreur.message);
+                erreurs.push(`${position.ticker}: ${erreur.message}`);
+                // On garde l'ancien prix si disponible
+                if (donneesMarcheActuelles[position.ticker]) {
+                    resultats[position.ticker] = donneesMarcheActuelles[position.ticker];
+                }
+            }
+
+            // Délai entre les appels (sauf pour le dernier)
+            if (i < portefeuille.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, DELAI_ENTRE_APPELS));
+            }
+        }
+
+        return { resultats, erreurs };
+    }
+
+
+    /* ============================================================
+       FONCTION PRINCIPALE DE RAFRAÎCHISSEMENT
+       ============================================================ */
+
+    /**
+     * Rafraîchit toutes les données du portefeuille
+     */
+    async function rafraichirDonnees() {
+        // Vérifier que la clé API est configurée
+        if (API_KEY === "VOTRE_CLE_API_FINNHUB_ICI" || !API_KEY) {
+            afficherErreur("Veuillez configurer votre clé API Finnhub. Cliquez sur ⚙️ Config pour commencer.");
+            mettreAJourStatut("error", "Clé API manquante");
+            return;
+        }
+
+        // Empêcher les appels simultanés
+        if (estEnChargement) return;
+        estEnChargement = true;
+
+        // UI : état de chargement
+        const btn = document.getElementById('refreshBtn');
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Chargement...';
+        mettreAJourStatut("loading", "Mise à jour...");
+        masquerErreur();
+
+        try {
+            // Récupérer les prix
+            const { resultats, erreurs } = await recupererTousLesPrix();
+
+            // Stocker les données
+            donneesMarcheActuelles = resultats;
+
+            // Mettre à jour l'affichage
+            mettreAJourTableau();
+            mettreAJourCartesSommaire();
+
+            // Gérer les erreurs partielles
+            if (erreurs.length > 0 && erreurs.length < portefeuille.length) {
+                afficherErreur(`Données partielles : ${erreurs.join(' | ')}`);
+                mettreAJourStatut("error", `${Object.keys(resultats).length}/${portefeuille.length} tickers`);
+            } else if (erreurs.length === portefeuille.length) {
+                afficherErreur("Impossible de récupérer les données. Vérifiez votre clé API et votre connexion.");
+                mettreAJourStatut("error", "Erreur complète");
+            } else {
+                mettreAJourStatut("ok", `Mis à jour`);
+                afficherToast("Données mises à jour ✓", "success");
+            }
+
+            // Horodatage
+            const maintenant = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                `Dernière mise à jour : ${maintenant.toLocaleTimeString('fr-FR')}`;
+
+        } catch (erreur) {
+            console.error("Erreur critique :", erreur);
+            afficherErreur("Erreur de connexion : " + erreur.message);
+            mettreAJourStatut("error", "Erreur");
+        } finally {
+            estEnChargement = false;
+            btn.disabled = false;
+            btn.innerHTML = '🔄 Rafraîchir';
+        }
+    }
+
+
+    /* ============================================================
+       MISE À JOUR DE L'INTERFACE
+       ============================================================ */
+
+    /**
+     * Met à jour le tableau avec les données actuelles
+     */
+    function mettreAJourTableau() {
+        const tbody = document.getElementById('portfolioBody');
+        let html = '';
+
+        // Calcul de la valeur totale pour les poids
+        let valeurTotalePortefeuille = 0;
+        let coutTotalPortefeuille = 0;
+
+        // Préparer les données enrichies
+        const lignes = portefeuille.map((pos, index) => {
+            const marche = donneesMarcheActuelles[pos.ticker];
+            const prixActuel = marche ? marche.prixActuel : null;
+            const valeur = prixActuel ? prixActuel * pos.quantite : 0;
+            const cout = pos.prixAchat * pos.quantite;
+            const gainPerte = prixActuel ? valeur - cout : 0;
+            const gainPertePct = prixActuel ? ((prixActuel - pos.prixAchat) / pos.prixAchat) * 100 : 0;
+
+            if (prixActuel) valeurTotalePortefeuille += valeur;
+            coutTotalPortefeuille += cout;
+
+            return {
+                ...pos,
+                prixActuel,
+                valeur,
+                cout,
+                gainPerte,
+                gainPertePct,
+                variation: marche ? marche.variation : null,
+                variationPct: marche ? marche.variationPct : null,
+                index
+            };
+        });
+
+        // Appliquer le tri si nécessaire
+        if (triActuel.colonne) {
+            lignes.sort((a, b) => {
+                let valA, valB;
+                switch (triActuel.colonne) {
+                    case 'ticker': valA = a.ticker; valB = b.ticker; break;
+                    case 'quantite': valA = a.quantite; valB = b.quantite; break;
+                    case 'prixAchat': valA = a.prixAchat; valB = b.prixAchat; break;
+                    case 'prixActuel': valA = a.prixActuel || 0; valB = b.prixActuel || 0; break;
+                    case 'valeur': valA = a.valeur; valB = b.valeur; break;
+                    case 'gainPerte': valA = a.gainPerte; valB = b.gainPerte; break;
+                    case 'gainPertePct': valA = a.gainPertePct; valB = b.gainPertePct; break;
+                    case 'poids': valA = a.valeur; valB = b.valeur; break;
+                    default: return 0;
+                }
+                if (typeof valA === 'string') {
+                    return triActuel.ordre === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+                return triActuel.ordre === 'asc' ? valA - valB : valB - valA;
+            });
+        }
+
+        // Générer le HTML pour chaque ligne
+        lignes.forEach((ligne) => {
+            const couleur = COULEURS_AVATAR[ligne.index % COULEURS_AVATAR.length];
+            const poids = valeurTotalePortefeuille > 0 ? (ligne.valeur / valeurTotalePortefeuille * 100) : 0;
+            const classeGP = ligne.gainPerte > 0 ? 'gain' : (ligne.gainPerte < 0 ? 'loss' : 'neutral');
+            const signeGP = ligne.gainPerte > 0 ? '+' : '';
+            const fleche = ligne.gainPerte > 0 ? '▲' : (ligne.gainPerte < 0 ? '▼' : '●');
+
+            html += `
+                <tr>
+                    <td>
+                        <div class="ticker-cell">
+                            <div class="ticker-avatar" style="background: ${couleur}">
+                                ${ligne.ticker.substring(0, 2)}
+                            </div>
+                            <div class="ticker-info">
+                                <div class="symbol">${ligne.ticker}</div>
+                                <div class="name">${ligne.nom || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-right">${formaterNombre(ligne.quantite, 0)}</td>
+                    <td class="text-right">${formaterDevise(ligne.prixAchat)}</td>
+                    <td class="text-right">
+                        ${ligne.prixActuel ? formaterDevise(ligne.prixActuel) : '<span class="skeleton"></span>'}
+                        ${ligne.variationPct !== null ? `<br><small style="color: ${ligne.variationPct >= 0 ? 'var(--gain)' : 'var(--loss)'}">${ligne.variationPct >= 0 ? '+' : ''}${ligne.variationPct.toFixed(2)}% auj.</small>` : ''}
+                    </td>
+                    <td class="text-right" style="font-weight:600;">${ligne.prixActuel ? formaterDevise(ligne.valeur) : '--'}</td>
+                    <td class="text-right">
+                        <span class="pnl-badge ${classeGP}">
+                            ${fleche} ${signeGP}${formaterDevise(Math.abs(ligne.gainPerte))}
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <span class="pnl-badge ${classeGP}">
+                            ${signeGP}${ligne.gainPertePct.toFixed(2)}%
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <div class="weight-bar-container">
+                            <div class="weight-bar">
+                                <div class="weight-bar-fill" style="width: ${poids}%"></div>
+                            </div>
+                            <span class="weight-value">${poids.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        // Ligne TOTAL
+        const gainTotal = valeurTotalePortefeuille - coutTotalPortefeuille;
+        const gainTotalPct = coutTotalPortefeuille > 0 ? (gainTotal / coutTotalPortefeuille * 100) : 0;
+        const classeTotalGP = gainTotal > 0 ? 'gain' : (gainTotal < 0 ? 'loss' : 'neutral');
+        const signeTotalGP = gainTotal > 0 ? '+' : '';
+
+        html += `
+            <tr class="total-row">
+                <td colspan="4" style="font-size:1rem;">📊 TOTAL DU PORTEFEUILLE</td>
+                <td class="text-right" style="font-size:1rem;">${formaterDevise(valeurTotalePortefeuille)}</td>
+                <td class="text-right">
+                    <span class="pnl-badge ${classeTotalGP}" style="font-size:0.85rem;">
+                        ${signeTotalGP}${formaterDevise(Math.abs(gainTotal))}
+                    </span>
+                </td>
+                <td class="text-right">
+                    <span class="pnl-badge ${classeTotalGP}" style="font-size:0.85rem;">
+                        ${signeTotalGP}${gainTotalPct.toFixed(2)}%
+                    </span>
+                </td>
+                <td class="text-right" style="color: var(--text-muted);">100%</td>
+            </tr>
+        `;
+
+        tbody.innerHTML = html;
+        document.getElementById('positionCount').textContent = portefeuille.length;
+    }
+
+    /**
+     * Met à jour les cartes de résumé en haut
+     */
+    function mettreAJourCartesSommaire() {
+        let valeurTotale = 0;
+        let coutTotal = 0;
+        let meilleurTicker = '';
+        let meilleurPct = -Infinity;
+
+        portefeuille.forEach(pos => {
+            const marche = donneesMarcheActuelles[pos.ticker];
+            const prixActuel = marche ? marche.prixActuel : null;
+            const valeur = prixActuel ? prixActuel * pos.quantite : 0;
+            const cout = pos.prixAchat * pos.quantite;
+            const pct = prixActuel ? ((prixActuel - pos.prixAchat) / pos.prixAchat) * 100 : 0;
+
+            valeurTotale += valeur;
+            coutTotal += cout;
+
+            if (pct > meilleurPct && prixActuel) {
+                meilleurPct = pct;
+                meilleurTicker = pos.ticker;
+            }
+        });
+
+        const gainTotal = valeurTotale - coutTotal;
+        const gainTotalPct = coutTotal > 0 ? (gainTotal / coutTotal * 100) : 0;
+        const classeGT = gainTotal > 0 ? 'gain' : (gainTotal < 0 ? 'loss' : 'neutral');
+        const signeGT = gainTotal > 0 ? '+' : '';
+
+        // Carte : Valeur totale
+        const elValeur = document.getElementById('totalValue');
+        elValeur.textContent = formaterDevise(valeurTotale);
+        elValeur.className = `card-value ${classeGT}`;
+        document.getElementById('totalPositions').textContent = `${portefeuille.length} positions`;
+
+        // Carte : Coût total
+        document.getElementById('totalCost').textContent = formaterDevise(coutTotal);
+
+        // Carte : Gain/Perte
+        const elPnl = document.getElementById('totalPnl');
+        elPnl.textContent = `${signeGT}${formaterDevise(Math.abs(gainTotal))}`;
+        elPnl.className = `card-value ${classeGT}`;
+        const elPnlPct = document.getElementById('totalPnlPct');
+        elPnlPct.textContent = `${signeGT}${gainTotalPct.toFixed(2)}%`;
+        elPnlPct.className = `card-sub ${classeGT}`;
+
+        // Carte : Meilleure performance
+        const elBest = document.getElementById('bestPerformer');
+        elBest.textContent = meilleurTicker || '--';
+        const elBestPct = document.getElementById('bestPerformerPct');
+        elBestPct.textContent = meilleurPct !== -Infinity ? `+${meilleurPct.toFixed(2)}%` : '--';
+    }
+
+
+    /* ============================================================
+       TRI DU TABLEAU
+       ============================================================ */
+
+    /**
+     * Trie le tableau par la colonne spécifiée
+     */
+    function trierPar(colonne) {
+        if (triActuel.colonne === colonne) {
+            triActuel.ordre = triActuel.ordre === 'asc' ? 'desc' : 'asc';
+        } else {
+            triActuel.colonne = colonne;
+            triActuel.ordre = 'desc';
+        }
+        mettreAJourTableau();
+    }
+
+
+    /* ============================================================
+       RAFRAÎCHISSEMENT AUTOMATIQUE
+       ============================================================ */
+
+    /**
+     * Démarre (ou redémarre) le rafraîchissement automatique
+     */
+    function demarrerRefreshAuto() {
+        if (intervalleRefresh) {
+            clearInterval(intervalleRefresh);
+        }
+        intervalleRefresh = setInterval(() => {
+            rafraichirDonnees();
+        }, REFRESH_INTERVAL * 1000);
+    }
+
+
+    /* ============================================================
+       FONCTIONS UTILITAIRES
+       ============================================================ */
+
+    /**
+     * Formate un nombre en devise USD
+     */
+    function formaterDevise(montant) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(montant);
+    }
+
+    /**
+     * Formate un nombre avec séparateurs
+     */
+    function formaterNombre(nombre, decimales = 2) {
+        return new Intl.NumberFormat('fr-FR', {
+            minimumFractionDigits: decimales,
+            maximumFractionDigits: decimales
+        }).format(nombre);
+    }
+
+    /**
+     * Met à jour le badge de statut dans le header
+     */
+    function mettreAJourStatut(type, texte) {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+
+        dot.className = 'status-dot';
+        if (type === 'error') dot.classList.add('error');
+        if (type === 'loading') dot.classList.add('loading');
+
+        text.textContent = texte;
+    }
+
+    /**
+     * Affiche une bannière d'erreur
+     */
+    function afficherErreur(message) {
+        const banner = document.getElementById('errorBanner');
+        document.getElementById('errorText').textContent = message;
+        banner.classList.add('active');
+    }
+
+    /**
+     * Masque la bannière d'erreur
+     */
+    function masquerErreur() {
+        document.getElementById('errorBanner').classList.remove('active');
+    }
+
+    /**
+     * Affiche une notification toast
+     */
+    function afficherToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} active`;
+
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 3000);
+    }
+    </script>
 </body>
 </html>
