@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -32,7 +31,67 @@
         }
         .container { max-width: 1450px; margin: 0 auto; }
 
-        /* HEADER */
+        /* ============================================
+           BOUTON ACCUEIL — Style cohérent
+           ============================================ */
+        .home-nav {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+        .home-btn:hover {
+            background: rgba(31, 111, 235, 0.1);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+            transform: translateX(-2px);
+            box-shadow: 0 4px 15px rgba(31, 111, 235, 0.15);
+        }
+        .home-btn:active {
+            transform: scale(0.97);
+        }
+        .home-btn .home-icon {
+            font-size: 16px;
+        }
+        .home-btn .home-arrow {
+            font-size: 14px;
+            opacity: 0.5;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .home-btn:hover .home-arrow {
+            opacity: 1;
+            transform: translateX(-3px);
+        }
+        .home-breadcrumb {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .home-breadcrumb span {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* ============================================
+           HEADER
+           ============================================ */
         .header {
             text-align: center;
             padding: 28px 20px 22px;
@@ -53,7 +112,9 @@
         .header h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
         .header h2 { font-size: 14px; color: var(--text-muted); font-weight: 400; }
 
-        /* SEARCH BAR */
+        /* ============================================
+           SEARCH BAR
+           ============================================ */
         .search-section {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -129,7 +190,9 @@
         }
         .quick-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(31,111,235,.08); }
 
-        /* STATUS */
+        /* ============================================
+           STATUS BAR
+           ============================================ */
         .status-bar {
             display: none;
             align-items: center;
@@ -152,7 +215,9 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* RESULTS */
+        /* ============================================
+           RESULTS AREA
+           ============================================ */
         #resultsArea { display: none; }
 
         .date-range-bar {
@@ -170,6 +235,9 @@
         .date-item .dlabel { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
         .date-item .dvalue { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 3px; }
 
+        /* ============================================
+           STATS CARDS
+           ============================================ */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
@@ -191,6 +259,9 @@
         .stat-card .value.neg { color: var(--accent-red); }
         .stat-card .sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
+        /* ============================================
+           CHART & TABLES
+           ============================================ */
         .chart-box {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -233,6 +304,9 @@
         tr:hover td { background: #1c2333; }
         .trend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 5px; }
 
+        /* ============================================
+           METHODOLOGY
+           ============================================ */
         .methodology {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
@@ -255,26 +329,52 @@
             color: var(--text-primary);
         }
 
+        /* ============================================
+           FOOTER
+           ============================================ */
         .footer { text-align: center; padding: 18px; color: var(--text-muted); font-size: 11px; }
 
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 768px) {
             .header h1 { font-size: 19px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .search-section { flex-direction: column; }
             .search-input-group { min-width: 100%; }
+            .home-breadcrumb { display: none; }
+            .home-btn { padding: 8px 14px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
 
-    <!-- HEADER -->
+    <!-- ============================================
+         BOUTON RETOUR ACCUEIL
+         ============================================ -->
+    <nav class="home-nav">
+        <a href="index.html" class="home-btn" title="Retour à l'accueil">
+            <span class="home-arrow">←</span>
+            <span class="home-icon">🏠</span>
+            <span>Accueil</span>
+        </a>
+        <div class="home-breadcrumb">
+            <span>Accueil</span> / Régression Linéaire
+        </div>
+    </nav>
+
+    <!-- ============================================
+         HEADER
+         ============================================ -->
     <div class="header">
         <h1>📈 Canal de Régression Linéaire — 252 Jours</h1>
         <h2>Analyse quantitative de la performance boursière avec canal de tendance complet</h2>
     </div>
 
-    <!-- SEARCH -->
+    <!-- ============================================
+         SEARCH
+         ============================================ -->
     <div class="search-section">
         <label for="tickerInput">🔍 Symbole boursier :</label>
         <div class="search-input-group">
@@ -297,13 +397,17 @@
         </div>
     </div>
 
-    <!-- STATUS -->
+    <!-- ============================================
+         STATUS
+         ============================================ -->
     <div class="status-bar" id="statusBar">
         <div class="spinner-sm" id="statusSpinner"></div>
         <span id="statusText"></span>
     </div>
 
-    <!-- RESULTS -->
+    <!-- ============================================
+         RESULTS
+         ============================================ -->
     <div id="resultsArea">
         <div class="date-range-bar">
             <div class="date-item"><div class="dlabel">Téléscripteur</div><div class="dvalue" id="infoTicker">—</div></div>
@@ -342,6 +446,9 @@
         </div>
     </div>
 
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
     <div class="footer">
         <p>Données : Yahoo Finance (cours de clôture ajustés) | ⚠️ Analyse à titre informatif — ne constitue pas un conseil en investissement.</p>
     </div>
@@ -370,7 +477,6 @@ function hideStatus() { $('statusBar').className = 'status-bar'; $('statusBar').
 
 function cleanTicker(raw) {
     let t = raw.trim().toUpperCase();
-    // Remove exchange prefix like "NASDAQ:" or "NYSE:"
     if (t.includes(':')) t = t.split(':').pop();
     return t.replace(/[^A-Z0-9.\-]/g, '');
 }
@@ -388,7 +494,7 @@ function quickSearch(sym) {
    ============================================================ */
 async function fetchData(ticker) {
     const period2 = Math.floor(Date.now() / 1000);
-    const period1 = period2 - 400 * 86400; // ~400 calendar days to ensure 252 trading days
+    const period1 = period2 - 400 * 86400;
 
     const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}`
         + `?period1=${period1}&period2=${period2}&interval=1d&includePrePost=false`;
@@ -449,7 +555,6 @@ async function fetchData(ticker) {
 function computeStats(prices) {
     const N = prices.length;
 
-    // Log returns
     const lr = [];
     for (let i = 1; i < N; i++) lr.push(Math.log(prices[i] / prices[i - 1]));
 
@@ -458,7 +563,6 @@ function computeStats(prices) {
     const stdR  = Math.sqrt(varR);
     const annVol = stdR * Math.sqrt(252);
 
-    // Linear regression Y = a*t + b   t = 1..N
     const t = Array.from({length: N}, (_, i) => i + 1);
     const sT = t.reduce((a, b) => a + b, 0);
     const sY = prices.reduce((a, b) => a + b, 0);
@@ -625,7 +729,6 @@ function renderChart(prices, dates, stats, ticker, currency) {
                 const meta = chart.getDatasetMeta(0);
                 const ctx2 = chart.ctx;
 
-                // Last point
                 const lp = meta.data[meta.data.length - 1];
                 if (lp) {
                     ctx2.save();
@@ -639,7 +742,6 @@ function renderChart(prices, dates, stats, ticker, currency) {
                     ctx2.restore();
                 }
 
-                // First point
                 const fp = meta.data[0];
                 if (fp) {
                     ctx2.save();
@@ -655,7 +757,6 @@ function renderChart(prices, dates, stats, ticker, currency) {
         }]
     });
 
-    // Ensure proper height
     $('mainChart').parentElement.style.height = '560px';
 }
 
@@ -684,9 +785,8 @@ async function launchAnalysis() {
         const stats = computeStats(data.prices);
 
         showStatus('loading', 'Construction du graphique et des tableaux…');
-        await new Promise(r => setTimeout(r, 200)); // let UI update
+        await new Promise(r => setTimeout(r, 200));
 
-        // Fill header info
         $('infoTicker').textContent = `${ticker}${data.name && data.name !== ticker ? ' — ' + data.name : ''}`;
         $('infoStart').textContent = fmtDate(data.dates[0]);
         $('infoEnd').textContent   = fmtDate(data.dates[data.dates.length - 1]);
