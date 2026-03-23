@@ -40,6 +40,39 @@
         }
 
         /* ============================================
+           🏠 BOUTON RETOUR ACCUEIL
+           ============================================ */
+        .home-bar {
+            background: var(--bg-secondary);
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: #000;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+        }
+
+        .home-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ============================================
            HEADER
            ============================================ */
         .header {
@@ -177,7 +210,7 @@
         }
 
         /* ============================================
-           PANNEAU CLÉ API (simple)
+           BARRE CLÉ API
            ============================================ */
         .api-bar {
             display: flex;
@@ -216,7 +249,7 @@
         }
 
         /* ============================================
-           PANNEAU D'ÉDITION DU PORTEFEUILLE
+           PANNEAU D'ÉDITION
            ============================================ */
         .edit-panel {
             background: var(--bg-card);
@@ -247,7 +280,6 @@
             padding: 16px 20px;
         }
 
-        /* Ligne d'ajout / édition */
         .position-row {
             display: flex;
             align-items: center;
@@ -257,9 +289,7 @@
             flex-wrap: wrap;
         }
 
-        .position-row:last-child {
-            border-bottom: none;
-        }
+        .position-row:last-child { border-bottom: none; }
 
         .position-row .pos-num {
             width: 28px;
@@ -298,35 +328,9 @@
             font-family: monospace;
         }
 
-        .position-row .input-nom {
-            width: 160px;
-            flex-shrink: 1;
-        }
-
-        .position-row .input-qty {
-            width: 80px;
-            text-align: right;
-        }
-
-        .position-row .input-prix {
-            width: 100px;
-            text-align: right;
-        }
-
-        .position-row .field-label {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            display: none;
-        }
-
-        .add-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 0;
-            flex-wrap: wrap;
-        }
+        .position-row .input-nom { width: 160px; }
+        .position-row .input-qty { width: 80px; text-align: right; }
+        .position-row .input-prix { width: 100px; text-align: right; }
 
         /* ============================================
            CARTES RÉSUMÉ
@@ -357,15 +361,8 @@
             font-weight: 600;
         }
 
-        .card-value {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
-        .card-sub {
-            font-size: 0.82rem;
-            margin-top: 3px;
-        }
+        .card-value { font-size: 1.6rem; font-weight: 700; }
+        .card-sub { font-size: 0.82rem; margin-top: 3px; }
 
         .gain { color: var(--gain); }
         .loss { color: var(--loss); }
@@ -446,11 +443,7 @@
 
         td.text-right { text-align: right; }
 
-        .ticker-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .ticker-cell { display: flex; align-items: center; gap: 10px; }
 
         .ticker-avatar {
             width: 36px;
@@ -501,9 +494,7 @@
 
         .weight-value { font-size: 0.78rem; color: var(--text-secondary); }
 
-        .total-row {
-            background: var(--bg-secondary) !important;
-        }
+        .total-row { background: var(--bg-secondary) !important; }
 
         .total-row td {
             font-weight: 700;
@@ -573,14 +564,12 @@
             .card-value { font-size: 1.2rem; }
             .container { padding: 14px; }
             .position-row .input-nom { display: none; }
-            .position-row .field-label { display: block; }
         }
 
         @media (max-width: 480px) {
             .summary-grid { grid-template-columns: 1fr; }
         }
 
-        /* Animation lignes */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
@@ -588,6 +577,13 @@
     </style>
 </head>
 <body>
+
+    <!-- ============================================
+         🏠 BOUTON RETOUR ACCUEIL — TRÈS VISIBLE
+         ============================================ -->
+    <div class="home-bar">
+        <a href="index.html" class="home-btn">🏠 Retour à l'accueil</a>
+    </div>
 
     <!-- Toast -->
     <div class="toast" id="toast"></div>
@@ -624,18 +620,14 @@
             <span id="errorText"></span>
         </div>
 
-        <!-- ==========================================
-             🔑 BARRE CLÉ API
-             ========================================== -->
+        <!-- 🔑 BARRE CLÉ API -->
         <div class="api-bar">
             <label>🔑 Clé API Finnhub :</label>
             <input type="text" id="apiKeyInput" placeholder="Collez votre clé Finnhub ici..." />
             <button class="btn btn-primary btn-sm" onclick="sauvegarderApiKey()">Enregistrer</button>
         </div>
 
-        <!-- ==========================================
-             ✏️ ÉDITEUR DE PORTEFEUILLE VISUEL
-             ========================================== -->
+        <!-- ✏️ ÉDITEUR DE PORTEFEUILLE -->
         <div class="edit-panel">
             <div class="edit-panel-header">
                 <h3>✏️ Mes Positions</h3>
@@ -644,9 +636,7 @@
                     <button class="btn btn-secondary btn-sm" onclick="sauvegarderPortefeuille()">💾 Sauvegarder</button>
                 </div>
             </div>
-            <div class="edit-panel-body" id="editBody">
-                <!-- Les lignes seront générées ici -->
-            </div>
+            <div class="edit-panel-body" id="editBody"></div>
         </div>
 
         <!-- Cartes résumé -->
@@ -699,7 +689,7 @@
                     <tbody id="portfolioBody">
                         <tr>
                             <td colspan="8" style="text-align:center; padding:40px; color:var(--text-muted);">
-                                Ajoutez vos positions ci-dessus, puis cliquez sur <strong>💾 Sauvegarder</strong> et <strong>🔄 Rafraîchir</strong>
+                                Ajoutez vos positions ci-dessus, puis cliquez <strong>💾 Sauvegarder</strong> et <strong>🔄 Rafraîchir</strong>
                             </td>
                         </tr>
                     </tbody>
@@ -719,11 +709,8 @@
     /* ============================================================
        VARIABLES GLOBALES
        ============================================================ */
-
-    // Clé API — sera chargée depuis localStorage ou saisie par l'utilisateur
     let API_KEY = "";
 
-    // Portefeuille par défaut (exemples) — l'utilisateur le modifiera via l'éditeur
     let portefeuille = [
         { ticker: "AAPL",  nom: "Apple",     quantite: 15, prixAchat: 142.50 },
         { ticker: "MSFT",  nom: "Microsoft",  quantite: 10, prixAchat: 310.00 },
@@ -746,7 +733,6 @@
        INITIALISATION
        ============================================================ */
     document.addEventListener('DOMContentLoaded', () => {
-        // Charger depuis localStorage
         const savedKey = localStorage.getItem('ptf_apiKey');
         const savedPortfolio = localStorage.getItem('ptf_portfolio');
 
@@ -755,24 +741,18 @@
             try { portefeuille = JSON.parse(savedPortfolio); } catch(e) {}
         }
 
-        // Afficher la clé dans le champ
         document.getElementById('apiKeyInput').value = API_KEY;
-
-        // Générer l'éditeur visuel
         genererEditeur();
 
-        // Premier chargement si clé présente
         if (API_KEY) rafraichirDonnees();
 
-        // Refresh auto
         intervalleRefresh = setInterval(() => {
             if (API_KEY) rafraichirDonnees();
         }, REFRESH_SEC * 1000);
     });
 
-
     /* ============================================================
-       🔑 GESTION CLÉ API
+       🔑 CLÉ API
        ============================================================ */
     function sauvegarderApiKey() {
         const val = document.getElementById('apiKeyInput').value.trim();
@@ -786,20 +766,12 @@
         rafraichirDonnees();
     }
 
-
     /* ============================================================
-       ✏️ ÉDITEUR VISUEL DU PORTEFEUILLE
+       ✏️ ÉDITEUR VISUEL
        ============================================================ */
-
-    /**
-     * Génère les lignes d'édition dans le panneau
-     */
     function genererEditeur() {
         const container = document.getElementById('editBody');
-        let html = '';
-
-        // En-têtes des colonnes
-        html += `
+        let html = `
             <div style="display:flex; gap:10px; padding:4px 0 8px 38px; flex-wrap:wrap;">
                 <span style="width:90px; font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Ticker</span>
                 <span style="width:160px; font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Nom (optionnel)</span>
@@ -809,69 +781,36 @@
         `;
 
         portefeuille.forEach((pos, i) => {
-            html += creerLigneEdition(i, pos);
+            html += `
+                <div class="position-row" id="posRow_${i}">
+                    <div class="pos-num">${i + 1}</div>
+                    <input class="input-ticker" type="text" value="${pos.ticker}" placeholder="AAPL" id="ticker_${i}" />
+                    <input class="input-nom" type="text" value="${pos.nom || ''}" placeholder="Apple Inc." id="nom_${i}" />
+                    <input class="input-qty" type="number" value="${pos.quantite}" placeholder="10" min="0" step="1" id="qty_${i}" />
+                    <input class="input-prix" type="number" value="${pos.prixAchat}" placeholder="150.00" min="0" step="0.01" id="prix_${i}" />
+                    <button class="btn btn-danger btn-sm" onclick="supprimerLigne(${i})">🗑️</button>
+                </div>
+            `;
         });
 
         container.innerHTML = html;
     }
 
-    /**
-     * Crée le HTML d'une ligne d'édition
-     */
-    function creerLigneEdition(index, pos) {
-        return `
-            <div class="position-row" id="posRow_${index}">
-                <div class="pos-num">${index + 1}</div>
-                <input class="input-ticker" type="text" 
-                       value="${pos.ticker}" 
-                       placeholder="AAPL" 
-                       id="ticker_${index}" />
-                <input class="input-nom" type="text" 
-                       value="${pos.nom || ''}" 
-                       placeholder="Apple Inc." 
-                       id="nom_${index}" />
-                <input class="input-qty" type="number" 
-                       value="${pos.quantite}" 
-                       placeholder="10" 
-                       min="0" step="1"
-                       id="qty_${index}" />
-                <input class="input-prix" type="number" 
-                       value="${pos.prixAchat}" 
-                       placeholder="150.00" 
-                       min="0" step="0.01"
-                       id="prix_${index}" />
-                <button class="btn btn-danger btn-sm" onclick="supprimerLigne(${index})" title="Supprimer">🗑️</button>
-            </div>
-        `;
-    }
-
-    /**
-     * Ajoute une ligne vide à l'éditeur
-     */
     function ajouterLigneVide() {
         portefeuille.push({ ticker: "", nom: "", quantite: 1, prixAchat: 0 });
         genererEditeur();
-
-        // Focus sur le nouveau champ ticker
-        const dernierIndex = portefeuille.length - 1;
         setTimeout(() => {
-            const el = document.getElementById(`ticker_${dernierIndex}`);
+            const el = document.getElementById(`ticker_${portefeuille.length - 1}`);
             if (el) el.focus();
         }, 50);
     }
 
-    /**
-     * Supprime une ligne du portefeuille
-     */
     function supprimerLigne(index) {
         portefeuille.splice(index, 1);
         genererEditeur();
         sauvegarderPortefeuille();
     }
 
-    /**
-     * Lit les valeurs depuis les champs, sauvegarde et rafraîchit
-     */
     function sauvegarderPortefeuille() {
         const nouveau = [];
 
@@ -881,52 +820,33 @@
             const quantite = parseFloat(document.getElementById(`qty_${i}`)?.value) || 0;
             const prixAchat = parseFloat(document.getElementById(`prix_${i}`)?.value) || 0;
 
-            // On ignore les lignes sans ticker
             if (!ticker) continue;
-
             nouveau.push({ ticker, nom, quantite, prixAchat });
         }
 
         if (nouveau.length === 0) {
-            afficherToast("Ajoutez au moins une position avec un ticker", "error");
+            afficherToast("Ajoutez au moins une position", "error");
             return;
         }
 
         portefeuille = nouveau;
         localStorage.setItem('ptf_portfolio', JSON.stringify(portefeuille));
-
-        // Regénérer l'éditeur (pour renuméroter proprement)
         genererEditeur();
-
         afficherToast(`${portefeuille.length} position(s) sauvegardée(s) ✓`, "success");
 
-        // Rafraîchir les données si on a une clé API
         if (API_KEY) rafraichirDonnees();
     }
 
-
     /* ============================================================
-       RÉCUPÉRATION DES PRIX FINNHUB
+       FINNHUB API
        ============================================================ */
-
     async function recupererPrix(ticker) {
         const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(ticker)}&token=${API_KEY}`;
         const resp = await fetch(url);
-
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-
         const d = await resp.json();
-
-        if (!d || d.c === 0 || d.c == null) {
-            throw new Error(`Ticker "${ticker}" introuvable`);
-        }
-
-        return {
-            ticker,
-            prixActuel: d.c,
-            variation: d.d,
-            variationPct: d.dp
-        };
+        if (!d || d.c === 0 || d.c == null) throw new Error(`"${ticker}" introuvable`);
+        return { ticker, prixActuel: d.c, variation: d.d, variationPct: d.dp };
     }
 
     async function recupererTousLesPrix() {
@@ -941,33 +861,23 @@
                 erreurs.push(`${t}: ${e.message}`);
                 if (donneesMarcheActuelles[t]) resultats[t] = donneesMarcheActuelles[t];
             }
-            // Pause 200ms entre les appels (rate limit Finnhub: 60/min)
-            if (i < portefeuille.length - 1) {
-                await new Promise(r => setTimeout(r, 200));
-            }
+            if (i < portefeuille.length - 1) await new Promise(r => setTimeout(r, 200));
         }
 
         return { resultats, erreurs };
     }
 
-
     /* ============================================================
-       RAFRAÎCHISSEMENT PRINCIPAL
+       RAFRAÎCHISSEMENT
        ============================================================ */
-
     async function rafraichirDonnees() {
         if (!API_KEY) {
-            afficherErreur("Entrez votre clé API Finnhub ci-dessus pour commencer.");
+            afficherErreur("Entrez votre clé API Finnhub ci-dessus.");
             majStatut("error", "Clé manquante");
             return;
         }
 
-        if (portefeuille.length === 0) {
-            afficherErreur("Aucune position. Ajoutez des tickers ci-dessus.");
-            return;
-        }
-
-        if (estEnChargement) return;
+        if (portefeuille.length === 0 || estEnChargement) return;
         estEnChargement = true;
 
         const btn = document.getElementById('refreshBtn');
@@ -996,7 +906,6 @@
 
             document.getElementById('lastUpdate').textContent =
                 `Dernière MAJ : ${new Date().toLocaleTimeString('fr-FR')}`;
-
         } catch (e) {
             afficherErreur("Erreur : " + e.message);
             majStatut("error", "Erreur");
@@ -1007,16 +916,13 @@
         }
     }
 
-
     /* ============================================================
        AFFICHAGE TABLEAU
        ============================================================ */
-
     function mettreAJourTableau() {
         const tbody = document.getElementById('portfolioBody');
         let html = '';
-        let valTotale = 0;
-        let coutTotal = 0;
+        let valTotale = 0, coutTotal = 0;
 
         const lignes = portefeuille.map((pos, i) => {
             const m = donneesMarcheActuelles[pos.ticker];
@@ -1025,10 +931,8 @@
             const cout = pos.prixAchat * pos.quantite;
             const gp = px ? val - cout : 0;
             const gpPct = px ? ((px - pos.prixAchat) / pos.prixAchat) * 100 : 0;
-
             if (px) valTotale += val;
             coutTotal += cout;
-
             return { ...pos, px, val, cout, gp, gpPct, varPct: m?.variationPct, index: i };
         });
 
@@ -1057,12 +961,8 @@
                         ${l.varPct != null ? `<br><small style="color:${l.varPct >= 0 ? 'var(--gain)' : 'var(--loss)'}">${l.varPct >= 0 ? '+' : ''}${l.varPct.toFixed(2)}%</small>` : ''}
                     </td>
                     <td class="text-right" style="font-weight:600">${l.px ? fmtUSD(l.val) : '--'}</td>
-                    <td class="text-right">
-                        <span class="pnl-badge ${cls}">${fleche} ${signe}${fmtUSD(Math.abs(l.gp))}</span>
-                    </td>
-                    <td class="text-right">
-                        <span class="pnl-badge ${cls}">${signe}${l.gpPct.toFixed(2)}%</span>
-                    </td>
+                    <td class="text-right"><span class="pnl-badge ${cls}">${fleche} ${signe}${fmtUSD(Math.abs(l.gp))}</span></td>
+                    <td class="text-right"><span class="pnl-badge ${cls}">${signe}${l.gpPct.toFixed(2)}%</span></td>
                     <td class="text-right">
                         <div class="weight-bar-container">
                             <div class="weight-bar"><div class="weight-bar-fill" style="width:${poids}%"></div></div>
@@ -1073,7 +973,6 @@
             `;
         });
 
-        // Total
         const gpT = valTotale - coutTotal;
         const gpTPct = coutTotal > 0 ? (gpT / coutTotal * 100) : 0;
         const clsT = gpT > 0 ? 'gain' : gpT < 0 ? 'loss' : 'neutral';
@@ -1102,10 +1001,8 @@
             const val = px ? px * pos.quantite : 0;
             const cout = pos.prixAchat * pos.quantite;
             const pct = px ? ((px - pos.prixAchat) / pos.prixAchat) * 100 : 0;
-
             valTotale += val;
             coutTotal += cout;
-
             if (pct > bestPct && px) { bestPct = pct; bestTicker = pos.ticker; }
         });
 
@@ -1117,7 +1014,6 @@
         document.getElementById('totalValue').textContent = fmtUSD(valTotale);
         document.getElementById('totalValue').className = `card-value ${cls}`;
         document.getElementById('totalPositions').textContent = `${portefeuille.length} positions`;
-
         document.getElementById('totalCost').textContent = fmtUSD(coutTotal);
 
         const elPnl = document.getElementById('totalPnl');
@@ -1133,11 +1029,9 @@
             bestPct !== -Infinity ? `+${bestPct.toFixed(2)}%` : '--';
     }
 
-
     /* ============================================================
        UTILITAIRES
        ============================================================ */
-
     function fmtUSD(n) {
         return new Intl.NumberFormat('en-US', {
             style: 'currency', currency: 'USD',
