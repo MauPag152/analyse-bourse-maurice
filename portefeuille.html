@@ -1,3 +1,6 @@
+Portefeuille · HTML
+Copy
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -28,9 +31,9 @@
             --radius: 12px;
             --radius-sm: 8px;
         }
-
+ 
         * { margin:0; padding:0; box-sizing:border-box; }
-
+ 
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
             background: var(--bg-primary);
@@ -38,7 +41,7 @@
             min-height: 100vh;
             line-height: 1.6;
         }
-
+ 
         /* HOME */
         .home-bar { background:var(--bg-secondary); padding:12px 24px; border-bottom:1px solid var(--border); }
         .home-btn {
@@ -50,7 +53,7 @@
             transition:all 0.2s; box-shadow:0 0 15px rgba(245,158,11,0.3);
         }
         .home-btn:hover { transform:translateY(-2px); box-shadow:0 0 25px rgba(245,158,11,0.5); }
-
+ 
         /* HEADER */
         .header {
             background:linear-gradient(135deg,var(--bg-secondary),var(--bg-card));
@@ -85,7 +88,7 @@
         .status-dot.error { background:var(--loss); animation:none; }
         .status-dot.loading { background:var(--neutral); }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
+ 
         /* BOUTONS */
         .btn {
             display:inline-flex; align-items:center; gap:6px;
@@ -100,10 +103,10 @@
         .btn-danger { background:var(--loss-bg); color:var(--loss); border:1px solid rgba(239,68,68,0.3); }
         .btn-danger:hover { background:rgba(239,68,68,0.2); }
         .btn-sm { padding:6px 12px; font-size:0.78rem; }
-
+ 
         /* CONTAINER */
         .container { max-width:1500px; margin:0 auto; padding:24px; }
-
+ 
         /* API BAR */
         .api-bar {
             display:flex; gap:10px; align-items:center;
@@ -129,7 +132,7 @@
         .api-status { font-size:0.78rem; padding:4px 12px; border-radius:12px; font-weight:600; }
         .api-status.connected { background:var(--gain-bg); color:var(--gain); }
         .api-status.disconnected { background:var(--loss-bg); color:var(--loss); }
-
+ 
         /* ÉDITEUR */
         .edit-panel { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:20px; overflow:hidden; }
         .edit-panel-header {
@@ -155,13 +158,13 @@
         .position-row .input-nom   { width:160px; }
         .position-row .input-qty   { width:80px; text-align:right; }
         .position-row .input-prix  { width:100px; text-align:right; }
-
+ 
         /* CARTES RÉSUMÉ */
         .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:20px; }
         .summary-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:18px 22px; transition:all 0.3s; }
         .summary-card:hover { border-color:var(--border-light); }
         .summary-card.div-card { border-color:rgba(167,139,250,0.3); background:linear-gradient(135deg,var(--bg-card),rgba(167,139,250,0.05)); }
-
+ 
         .card-label { font-size:0.75rem; color:#ffffff; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; font-weight:700; }
         .card-value { font-size:1.6rem; font-weight:700; }
         .card-sub { font-size:0.82rem; margin-top:3px; }
@@ -169,7 +172,7 @@
         .loss { color:var(--loss); }
         .neutral { color:#ffffff; }
         .div-val { color:var(--div-color); }
-
+ 
         /* SECTION TITRE */
         .section-title {
             display:flex; align-items:center; gap:10px;
@@ -181,7 +184,7 @@
             font-size:0.7rem; padding:3px 10px; border-radius:10px;
             font-weight:700; background:var(--div-bg); color:var(--div-color);
         }
-
+ 
         /* TABLEAU */
         .table-container { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:28px; }
         .table-header {
@@ -192,7 +195,7 @@
         .table-title .count { background:var(--bg-primary); color:var(--text-secondary); padding:2px 10px; border-radius:12px; font-size:0.72rem; }
         .table-scroll { overflow-x:auto; }
         table { width:100%; border-collapse:collapse; min-width:1100px; }
-
+ 
         thead th {
             padding:13px 14px; text-align:left;
             font-size:0.72rem; font-weight:800; color:#ffffff;
@@ -204,37 +207,37 @@
         thead th.text-right { text-align:right; }
         thead th.col-capital { color:var(--accent-cyan); }
         thead th.col-div { color:var(--div-color); background:rgba(167,139,250,0.06); }
-
+ 
         tbody tr { border-bottom:1px solid var(--border); transition:background 0.15s; }
         tbody tr:hover { background:var(--bg-row-hover); }
         tbody tr:last-child { border-bottom:none; }
-
+ 
         td { padding:13px 14px; font-size:0.86rem; white-space:nowrap; color:#ffffff; }
         td.text-right { text-align:right; }
         td.col-div-data { background:rgba(167,139,250,0.04); }
-
+ 
         .ticker-cell { display:flex; align-items:center; gap:10px; }
         .ticker-avatar { width:36px; height:36px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.68rem; color:white; flex-shrink:0; }
         .ticker-info .symbol { font-weight:700; color:#ffffff; }
         .ticker-info .name { font-size:0.72rem; color:var(--text-muted); }
-
+ 
         .pnl-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.78rem; }
         .pnl-badge.gain { background:var(--gain-bg); color:var(--gain); }
         .pnl-badge.loss { background:var(--loss-bg); color:var(--loss); }
         .pnl-badge.neutral { background:rgba(245,158,11,0.1); color:var(--neutral); }
-
+ 
         .div-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-weight:600; font-size:0.78rem; background:var(--div-bg); color:var(--div-color); }
         .div-badge.none { background:rgba(100,116,139,0.1); color:var(--text-muted); }
-
+ 
         .capital-cell { color:var(--accent-cyan); font-weight:700; }
         .weight-bar-container { display:flex; align-items:center; gap:8px; }
         .weight-bar { width:50px; height:5px; background:var(--bg-primary); border-radius:3px; overflow:hidden; }
         .weight-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan)); transition:width 0.5s; }
         .weight-value { font-size:0.78rem; color:var(--text-secondary); }
-
+ 
         .total-row { background:var(--bg-secondary) !important; }
         .total-row td { font-weight:700; padding:15px 14px; border-top:2px solid var(--border-light); color:#ffffff; }
-
+ 
         /* PANNEAU DIVIDENDES */
         .div-panel {
             background:var(--bg-card);
@@ -258,7 +261,7 @@
         .div-stat-label { font-size:0.72rem; color:#ffffff; text-transform:uppercase; font-weight:700; letter-spacing:0.05em; }
         .div-stat-value { font-size:1.5rem; font-weight:700; color:var(--div-color); }
         .div-stat-sub { font-size:0.78rem; color:var(--text-muted); }
-
+ 
         /* TABLEAU DIVIDENDES DÉTAIL */
         .div-detail-table { padding:0 20px 20px; }
         .div-detail-table table { min-width:600px; margin-top:16px; }
@@ -266,12 +269,12 @@
         .div-detail-table tbody tr:hover { background:rgba(167,139,250,0.05); }
         .div-detail-table td { border-bottom:1px solid var(--border); }
         .div-detail-table tbody tr:last-child td { border-bottom:none; }
-
+ 
         /* BARRE PROGRESSION RENDEMENT */
         .yield-bar { display:flex; align-items:center; gap:8px; }
         .yield-bar-track { width:60px; height:5px; background:var(--bg-primary); border-radius:3px; overflow:hidden; }
         .yield-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--div-color),var(--accent-cyan)); transition:width 0.5s; }
-
+ 
         /* TOAST / ERREUR */
         .toast {
             position:fixed; bottom:24px; right:24px;
@@ -282,18 +285,18 @@
         .toast.active { transform:translateY(0); opacity:1; }
         .toast.success { background:var(--gain); color:white; }
         .toast.error { background:var(--loss); color:white; }
-
+ 
         .error-banner {
             background:var(--loss-bg); border:1px solid rgba(239,68,68,0.3);
             border-radius:var(--radius-sm); padding:12px 18px; margin-bottom:14px;
             color:var(--loss); font-size:0.85rem; display:none; align-items:center; gap:8px;
         }
         .error-banner.active { display:flex; }
-
+ 
         /* FOOTER */
         .footer { text-align:center; padding:24px; color:var(--text-muted); font-size:0.78rem; border-top:1px solid var(--border); margin-top:40px; }
         .footer a { color:var(--accent-blue); text-decoration:none; }
-
+ 
         /* RESPONSIVE */
         @media (max-width:768px) {
             .header-content { flex-direction:column; align-items:stretch; }
@@ -303,18 +306,18 @@
             .position-row .input-nom { display:none; }
         }
         @media (max-width:480px) { .summary-grid { grid-template-columns:1fr; } }
-
+ 
         @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
     </style>
 </head>
 <body>
-
+ 
 <div class="home-bar">
     <a href="index.html" class="home-btn">🏠 Retour à l'accueil</a>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <header class="header">
     <div class="header-content">
         <div class="logo">
@@ -330,11 +333,11 @@
         </div>
     </div>
 </header>
-
+ 
 <main class="container">
-
+ 
     <div class="error-banner" id="errorBanner"><span>⚠️</span><span id="errorText"></span></div>
-
+ 
     <!-- CLÉ API -->
     <div class="api-bar">
         <label>🔑 Clé API Finnhub :</label>
@@ -345,7 +348,7 @@
         <button class="btn btn-primary btn-sm" onclick="sauvegarderApiKey()">Enregistrer</button>
         <span class="api-status disconnected" id="apiStatus">Non connecté</span>
     </div>
-
+ 
     <!-- ÉDITEUR -->
     <div class="edit-panel">
         <div class="edit-panel-header">
@@ -357,7 +360,7 @@
         </div>
         <div class="edit-panel-body" id="editBody"></div>
     </div>
-
+ 
     <!-- CARTES RÉSUMÉ PERFORMANCE -->
     <div class="section-title">📊 Performance du Portefeuille</div>
     <div class="summary-grid" id="summaryGrid">
@@ -381,7 +384,7 @@
             <div class="card-sub gain" id="bestPerformerPct">--</div>
         </div>
     </div>
-
+ 
     <!-- CARTES RÉSUMÉ DIVIDENDES -->
     <div class="section-title">💰 Revenus de Dividendes <span class="badge">Via Finnhub API</span></div>
     <div class="summary-grid">
@@ -406,7 +409,7 @@
             <div class="card-sub" style="color:var(--text-muted)">Sur capital investi</div>
         </div>
     </div>
-
+ 
     <!-- TABLEAU PRINCIPAL -->
     <div class="table-container">
         <div class="table-header">
@@ -441,7 +444,7 @@
             </table>
         </div>
     </div>
-
+ 
     <!-- PANNEAU DÉTAIL DIVIDENDES -->
     <div class="div-panel" id="divPanel" style="display:none;">
         <div class="div-panel-header">
@@ -492,37 +495,37 @@
             </div>
         </div>
     </div>
-
+ 
 </main>
-
+ 
 <footer class="footer">
     <p>Données par <a href="https://finnhub.io/" target="_blank">Finnhub</a> · Rafraîchissement auto toutes les 60s · Données différées ~15 min (plan gratuit)</p>
 </footer>
-
+ 
 <script>
 /* ================================================================
    VARIABLES GLOBALES
    ================================================================ */
 let API_KEY = "";
-
+ 
 let portefeuille = [
     { ticker:"AAPL",  nom:"Apple",      quantite:15, prixAchat:142.50 },
     { ticker:"MSFT",  nom:"Microsoft",   quantite:10, prixAchat:310.00 },
     { ticker:"NVDA",  nom:"NVIDIA",      quantite:20, prixAchat:45.00  },
     { ticker:"GOOGL", nom:"Alphabet",    quantite:8,  prixAchat:125.75 }
 ];
-
+ 
 let donneesMarcheActuelles = {};
 let donneesDividendes = {};      // ← nouvelles données dividendes
 let estEnChargement = false;
 const REFRESH_SEC = 60;
-
+ 
 const COULEURS = [
     '#3b82f6','#06b6d4','#8b5cf6','#ec4899',
     '#f59e0b','#10b981','#ef4444','#6366f1',
     '#14b8a6','#f97316','#84cc16','#e879f9'
 ];
-
+ 
 /* ================================================================
    INITIALISATION
    ================================================================ */
@@ -535,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (API_KEY) rafraichirDonnees();
     setInterval(() => { if (API_KEY) rafraichirDonnees(); }, REFRESH_SEC * 1000);
 });
-
+ 
 /* ================================================================
    CLÉ API
    ================================================================ */
@@ -550,7 +553,7 @@ function sauvegarderApiKey() {
     document.getElementById('toggleBtn').textContent = '👁️';
     rafraichirDonnees();
 }
-
+ 
 function toggleApiVisibility() {
     const inp = document.getElementById('apiKeyInput');
     const btn = document.getElementById('toggleBtn');
@@ -559,13 +562,13 @@ function toggleApiVisibility() {
         setTimeout(() => { inp.type = 'password'; btn.textContent = '👁️'; }, 3000);
     } else { inp.type = 'password'; btn.textContent = '👁️'; }
 }
-
+ 
 function majApiStatus(ok) {
     const el = document.getElementById('apiStatus');
     el.textContent = ok ? '🔐 Clé enregistrée' : 'Non connecté';
     el.className   = ok ? 'api-status connected' : 'api-status disconnected';
 }
-
+ 
 /* ================================================================
    ÉDITEUR
    ================================================================ */
@@ -589,15 +592,15 @@ function genererEditeur() {
     });
     c.innerHTML = html;
 }
-
+ 
 function ajouterLigneVide() {
     portefeuille.push({ ticker:"", nom:"", quantite:1, prixAchat:0 });
     genererEditeur();
     setTimeout(() => { const el = document.getElementById(`ticker_${portefeuille.length-1}`); if(el) el.focus(); }, 50);
 }
-
+ 
 function supprimerLigne(i) { portefeuille.splice(i,1); genererEditeur(); sauvegarderPortefeuille(); }
-
+ 
 function sauvegarderPortefeuille() {
     const nouveau = [];
     for (let i = 0; i < portefeuille.length; i++) {
@@ -615,7 +618,7 @@ function sauvegarderPortefeuille() {
     afficherToast(`${portefeuille.length} position(s) sauvegardée(s) ✓`,"success");
     if (API_KEY) rafraichirDonnees();
 }
-
+ 
 /* ================================================================
    FINNHUB — PRIX
    ================================================================ */
@@ -626,7 +629,7 @@ async function recupererPrix(ticker) {
     if (!d || d.c === 0 || d.c == null) throw new Error(`"${ticker}" introuvable`);
     return { ticker, prixActuel:d.c, variation:d.d, variationPct:d.dp };
 }
-
+ 
 /* ================================================================
    FINNHUB — DIVIDENDES  (endpoint: stock/metric?metric=all)
    ================================================================ */
@@ -643,7 +646,7 @@ async function recupererDividendes(ticker) {
         divYield     : m.dividendYieldIndicatedAnnual  || 0   // déjà en %
     };
 }
-
+ 
 /* ================================================================
    RÉCUPÉRATION TOTALE
    ================================================================ */
@@ -661,7 +664,7 @@ async function recupererToutesDonnees() {
     }
     return { prix, divs, erreurs };
 }
-
+ 
 /* ================================================================
    RAFRAÎCHISSEMENT
    ================================================================ */
@@ -676,11 +679,11 @@ async function rafraichirDonnees() {
         const { prix, divs, erreurs } = await recupererToutesDonnees();
         donneesMarcheActuelles = prix;
         donneesDividendes = divs;
-
+ 
         mettreAJourTableau();
         mettreAJourCartes();
         mettreAJourDividendes();
-
+ 
         if (erreurs.length > 0 && erreurs.length < portefeuille.length) {
             afficherErreur(`Partiel : ${erreurs.join(' | ')}`);
             majStatut("error",`${Object.keys(prix).length}/${portefeuille.length}`);
@@ -700,14 +703,14 @@ async function rafraichirDonnees() {
         estEnChargement = false; btn.disabled = false; btn.innerHTML = '🔄 Rafraîchir';
     }
 }
-
+ 
 /* ================================================================
    TABLEAU PRINCIPAL
    ================================================================ */
 function mettreAJourTableau() {
     const tbody = document.getElementById('portfolioBody');
     let html = '', valTotale = 0, coutTotal = 0;
-
+ 
     const lignes = portefeuille.map((pos, i) => {
         const m    = donneesMarcheActuelles[pos.ticker];
         const dv   = donneesDividendes[pos.ticker];
@@ -723,7 +726,7 @@ function mettreAJourTableau() {
         coutTotal += cout;
         return { ...pos, px, cout, val, gp, gpPct, divPA, divY, divAn, varPct:m?.variationPct, index:i };
     });
-
+ 
     lignes.forEach(l => {
         const col   = COULEURS[l.index % COULEURS.length];
         const poids = valTotale > 0 ? (l.val / valTotale * 100) : 0;
@@ -731,7 +734,7 @@ function mettreAJourTableau() {
         const signe = l.gp > 0 ? '+' : '';
         const fleche= l.gp > 0 ? '▲' : l.gp < 0 ? '▼' : '●';
         const divCls= l.divPA > 0 ? '' : ' none';
-
+ 
         html += `<tr style="animation:fadeIn 0.3s ease ${l.index*0.05}s both">
             <td>
                 <div class="ticker-cell">
@@ -771,13 +774,13 @@ function mettreAJourTableau() {
             </td>
         </tr>`;
     });
-
+ 
     const gpT    = valTotale - coutTotal;
     const gpTPct = coutTotal > 0 ? (gpT/coutTotal*100) : 0;
     const clsT   = gpT > 0 ? 'gain' : gpT < 0 ? 'loss' : 'neutral';
     const sigT   = gpT > 0 ? '+' : '';
     const divTot = lignes.reduce((s,l) => s + l.divAn, 0);
-
+ 
     html += `<tr class="total-row">
         <td colspan="3" style="font-size:0.95rem">📊 TOTAL</td>
         <td class="text-right capital-cell" style="font-size:0.95rem">${fmtUSD(coutTotal)}</td>
@@ -789,11 +792,11 @@ function mettreAJourTableau() {
         <td class="text-right"><span class="div-badge">${fmtUSD(divTot)}/an</span></td>
         <td class="text-right" style="color:var(--text-muted)">100%</td>
     </tr>`;
-
+ 
     tbody.innerHTML = html;
     document.getElementById('positionCount').textContent = portefeuille.length;
 }
-
+ 
 /* ================================================================
    CARTES RÉSUMÉ PERFORMANCE
    ================================================================ */
@@ -812,28 +815,28 @@ function mettreAJourCartes() {
     const gpTPct = coutTotal > 0 ? (gpT/coutTotal*100) : 0;
     const cls    = gpT > 0 ? 'gain' : gpT < 0 ? 'loss' : 'neutral';
     const signe  = gpT > 0 ? '+' : '';
-
+ 
     document.getElementById('totalValue').textContent    = fmtUSD(valTotale);
     document.getElementById('totalValue').className      = `card-value ${cls}`;
     document.getElementById('totalPositions').textContent= `${portefeuille.length} positions`;
     document.getElementById('totalCost').textContent     = fmtUSD(coutTotal);
-
+ 
     const elPnl = document.getElementById('totalPnl');
     elPnl.textContent = `${signe}${fmtUSD(Math.abs(gpT))}`; elPnl.className = `card-value ${cls}`;
     const elPct = document.getElementById('totalPnlPct');
     elPct.textContent = `${signe}${gpTPct.toFixed(2)}%`;    elPct.className = `card-sub ${cls}`;
-
+ 
     document.getElementById('bestPerformer').textContent    = bestTicker || '--';
     document.getElementById('bestPerformerPct').textContent = bestPct !== -Infinity ? `+${bestPct.toFixed(2)}%` : '--';
 }
-
+ 
 /* ================================================================
    SECTION DIVIDENDES
    ================================================================ */
 function mettreAJourDividendes() {
     let divAnnuelTotal = 0;
     let coutTotal = 0;
-
+ 
     const lignes = portefeuille.map((pos, i) => {
         const dv    = donneesDividendes[pos.ticker];
         const m     = donneesMarcheActuelles[pos.ticker];
@@ -846,17 +849,17 @@ function mettreAJourDividendes() {
         coutTotal += cout;
         return { ...pos, px, cout, divPA, divY, divAn, index:i };
     });
-
+ 
     const divMensuel     = divAnnuelTotal / 12;
     const divJournalier  = divAnnuelTotal / 365;
     const rendementMoyen = coutTotal > 0 ? (divAnnuelTotal / coutTotal * 100) : 0;
-
+ 
     // Cartes résumé
     document.getElementById('divAnnuel').textContent     = fmtUSD(divAnnuelTotal);
     document.getElementById('divMensuel').textContent    = fmtUSD(divMensuel);
     document.getElementById('divJournalier').textContent = fmtUSD(divJournalier);
     document.getElementById('divRendement').textContent  = rendementMoyen.toFixed(2) + '%';
-
+ 
     // Panneau détail
     if (divAnnuelTotal > 0) {
         document.getElementById('divPanel').style.display = 'block';
@@ -864,14 +867,14 @@ function mettreAJourDividendes() {
         document.getElementById('divStatMensuel').textContent   = fmtUSD(divMensuel);
         document.getElementById('divStatJournalier').textContent= fmtUSD(divJournalier);
         document.getElementById('divStatRendement').textContent = rendementMoyen.toFixed(2) + '%';
-
+ 
         // Tableau détail par action
         let html = '';
         lignes.forEach(l => {
             const col = COULEURS[l.index % COULEURS.length];
             const pctDuTotal = divAnnuelTotal > 0 ? (l.divAn / divAnnuelTotal * 100) : 0;
             const hasDiv = l.divPA > 0;
-
+ 
             html += `<tr>
                 <td>
                     <div class="ticker-cell">
@@ -900,7 +903,7 @@ function mettreAJourDividendes() {
                 </td>
             </tr>`;
         });
-
+ 
         // Ligne total
         html += `<tr class="total-row">
             <td colspan="5" style="font-size:0.92rem">💰 TOTAL DIVIDENDES</td>
@@ -909,27 +912,27 @@ function mettreAJourDividendes() {
             <td class="text-right"><span class="div-badge">${fmtUSD(divJournalier)}/jour</span></td>
             <td class="text-right" style="color:var(--div-color)">100%</td>
         </tr>`;
-
+ 
         document.getElementById('divDetailBody').innerHTML = html;
     }
 }
-
+ 
 /* ================================================================
    UTILITAIRES
    ================================================================ */
 function fmtUSD(n) {
     return new Intl.NumberFormat('en-US',{ style:'currency', currency:'USD', minimumFractionDigits:2, maximumFractionDigits:2 }).format(n);
 }
-
+ 
 function majStatut(type, texte) {
     const dot = document.getElementById('statusDot');
     dot.className = 'status-dot' + (type==='error' ? ' error' : type==='loading' ? ' loading' : '');
     document.getElementById('statusText').textContent = texte;
 }
-
+ 
 function afficherErreur(msg) { document.getElementById('errorText').textContent=msg; document.getElementById('errorBanner').classList.add('active'); }
 function masquerErreur()     { document.getElementById('errorBanner').classList.remove('active'); }
-
+ 
 function afficherToast(msg, type) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.className = `toast ${type} active`;
