@@ -866,8 +866,8 @@
     <section class="hero">
         <div class="hero-badge">Plateforme d'analyse v2.0</div>
         <h1>
-            Votre Suite<br>
-            <span class="gradient-text">d'Analyse Boursière</span>
+            Maurice ma suite<br>
+            <span class="gradient-text">d'analyse Boursière</span>
         </h1>
         <p class="hero-subtitle">
             Outils professionnels d'analyse technique, statistique et fondamentale 
@@ -1201,7 +1201,7 @@
                 dot.style.boxShadow = '0 0 10px #ef4444';
                 statusText.textContent = 'Marchés fermés';
             } else if (isAfterHours) {
-                dot.style.background = var('--accent-orange');
+                dot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--accent-orange');
                 dot.style.boxShadow = '0 0 10px var(--accent-orange)';
                 statusText.textContent = 'Hors séance';
             }
@@ -1210,7 +1210,6 @@
 
 </body>
 </html>
-
 
 
 
