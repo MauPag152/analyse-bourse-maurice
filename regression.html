@@ -1,816 +1,611 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse Quantitative Boursière — Canal de Régression Linéaire</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    <style>
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #0d1117;
-            --border: #30363d;
-            --text-primary: #f0f6fc;
-            --text-secondary: #b1bac4;
-            --text-muted: #6e7681;
-            --accent-blue: #1f6feb;
-            --accent-green: #2ecc71;
-            --accent-red: #e74c3c;
-            --accent-orange: #f39c12;
-            --accent-cyan: #3498db;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-secondary);
-            padding: 15px;
-            min-height: 100vh;
-        }
-        .container { max-width: 1450px; margin: 0 auto; }
-
-        /* ============================================
-           BOUTON ACCUEIL — Style cohérent
-           ============================================ */
-        .home-nav {
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .home-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            text-decoration: none;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.25s ease;
-            white-space: nowrap;
-        }
-        .home-btn:hover {
-            background: rgba(31, 111, 235, 0.1);
-            border-color: var(--accent-blue);
-            color: var(--text-primary);
-            transform: translateX(-2px);
-            box-shadow: 0 4px 15px rgba(31, 111, 235, 0.15);
-        }
-        .home-btn:active {
-            transform: scale(0.97);
-        }
-        .home-btn .home-icon {
-            font-size: 16px;
-        }
-        .home-btn .home-arrow {
-            font-size: 14px;
-            opacity: 0.5;
-            transition: opacity 0.2s, transform 0.2s;
-        }
-        .home-btn:hover .home-arrow {
-            opacity: 1;
-            transform: translateX(-3px);
-        }
-        .home-breadcrumb {
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .home-breadcrumb span {
-            color: var(--accent-blue);
-            font-weight: 600;
-        }
-
-        /* ============================================
-           HEADER
-           ============================================ */
-        .header {
-            text-align: center;
-            padding: 28px 20px 22px;
-            background: linear-gradient(135deg, #1a1f36 0%, var(--bg-tertiary) 100%);
-            border-radius: 16px;
-            margin-bottom: 22px;
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-red), var(--accent-orange), var(--accent-green), var(--accent-cyan));
-        }
-        .header h1 { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-        .header h2 { font-size: 14px; color: var(--text-muted); font-weight: 400; }
-
-        /* ============================================
-           SEARCH BAR
-           ============================================ */
-        .search-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 22px 28px;
-            margin-bottom: 22px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 14px;
-        }
-        .search-section label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
-        }
-        .search-input-group {
-            display: flex;
-            flex: 1;
-            min-width: 260px;
-            gap: 0;
-        }
-        .search-input-group input {
-            flex: 1;
-            padding: 12px 16px;
-            font-size: 15px;
-            border: 2px solid var(--border);
-            border-right: none;
-            border-radius: 10px 0 0 10px;
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            outline: none;
-            transition: border-color .2s;
-        }
-        .search-input-group input:focus { border-color: var(--accent-blue); }
-        .search-input-group input::placeholder { color: var(--text-muted); font-weight: 400; }
-        .btn-search {
-            padding: 12px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            border: 2px solid var(--accent-blue);
-            border-radius: 0 10px 10px 0;
-            background: var(--accent-blue);
-            color: #fff;
-            cursor: pointer;
-            transition: background .2s, transform .1s;
-            white-space: nowrap;
-        }
-        .btn-search:hover { background: #1a5ecf; }
-        .btn-search:active { transform: scale(.97); }
-        .btn-search:disabled { opacity: .5; cursor: not-allowed; }
-
-        .quick-tickers {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .quick-tickers span { font-size: 11px; color: var(--text-muted); margin-right: 4px; }
-        .quick-btn {
-            padding: 5px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: var(--bg-tertiary);
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all .15s;
-        }
-        .quick-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(31,111,235,.08); }
-
-        /* ============================================
-           STATUS BAR
-           ============================================ */
-        .status-bar {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            border-radius: 10px;
-            margin-bottom: 18px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .status-bar.loading { display: flex; background: rgba(31,111,235,.1); border: 1px solid rgba(31,111,235,.3); color: var(--accent-blue); }
-        .status-bar.error { display: flex; background: rgba(232,76,60,.1); border: 1px solid rgba(232,76,60,.3); color: var(--accent-red); }
-        .status-bar.success { display: flex; background: rgba(46,204,113,.08); border: 1px solid rgba(46,204,113,.25); color: var(--accent-green); }
-        .spinner-sm {
-            width: 18px; height: 18px;
-            border: 2px solid rgba(31,111,235,.25);
-            border-top: 2px solid var(--accent-blue);
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ============================================
-           RESULTS AREA
-           ============================================ */
-        #resultsArea { display: none; }
-
-        .date-range-bar {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-bottom: 22px;
-            padding: 16px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-        }
-        .date-item { text-align: center; }
-        .date-item .dlabel { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .date-item .dvalue { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 3px; }
-
-        /* ============================================
-           STATS CARDS
-           ============================================ */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-            gap: 13px;
-            margin-bottom: 22px;
-        }
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 11px;
-            padding: 16px;
-            text-align: center;
-            transition: transform .15s, border-color .15s;
-        }
-        .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
-        .stat-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 6px; }
-        .stat-card .value { font-size: 20px; font-weight: 700; color: var(--text-primary); }
-        .stat-card .value.pos { color: var(--accent-green); }
-        .stat-card .value.neg { color: var(--accent-red); }
-        .stat-card .sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-
-        /* ============================================
-           CHART & TABLES
-           ============================================ */
-        .chart-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 22px;
-            position: relative;
-        }
-        .chart-box canvas { max-height: 540px; }
-
-        .table-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 22px;
-            overflow-x: auto;
-        }
-        .table-box h3 { font-size: 16px; margin-bottom: 14px; color: var(--text-primary); }
-
-        table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-        th {
-            background: var(--bg-tertiary);
-            color: var(--text-muted);
-            padding: 10px 12px;
-            text-align: left;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 10.5px;
-            letter-spacing: .4px;
-            border-bottom: 2px solid var(--border);
-            white-space: nowrap;
-        }
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #21262d;
-            color: var(--text-secondary);
-            white-space: nowrap;
-        }
-        tr:hover td { background: #1c2333; }
-        .trend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 5px; }
-
-        /* ============================================
-           METHODOLOGY
-           ============================================ */
-        .methodology {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 28px;
-            margin-bottom: 22px;
-        }
-        .methodology h3 { font-size: 16px; margin-bottom: 14px; color: var(--text-primary); }
-        .methodology h4 { font-size: 13px; color: var(--accent-blue); margin: 16px 0 6px; }
-        .methodology p, .methodology li { font-size: 12.5px; line-height: 1.7; color: var(--text-secondary); }
-        .methodology ul { padding-left: 18px; margin: 6px 0; }
-        .formula-box {
-            background: var(--bg-tertiary);
-            border-left: 3px solid var(--accent-blue);
-            padding: 10px 14px;
-            border-radius: 0 8px 8px 0;
-            margin: 8px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 12.5px;
-            color: var(--text-primary);
-        }
-
-        /* ============================================
-           FOOTER
-           ============================================ */
-        .footer { text-align: center; padding: 18px; color: var(--text-muted); font-size: 11px; }
-
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
-        @media (max-width: 768px) {
-            .header h1 { font-size: 19px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .search-section { flex-direction: column; }
-            .search-input-group { min-width: 100%; }
-            .home-breadcrumb { display: none; }
-            .home-btn { padding: 8px 14px; font-size: 12px; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canal de Régression Linéaire — Recherche Directe (NYSE, NASDAQ, TSX)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #111827;
+      --card-border: #1f2937;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #3b82f6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1360px; margin: 0 auto; }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    h1 { font-size: 1.45rem; font-weight: 700; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    input[type="text"], input[type="number"], .btn {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+    }
+    input[type="text"] {
+      text-transform: uppercase;
+      font-weight: 700;
+      width: 150px;
+      border-color: #374151;
+      color: #60a5fa;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn {
+      cursor: pointer;
+      background: var(--accent);
+      border-color: var(--accent);
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+    .btn-secondary {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    .quick-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .pill {
+      background: #1f2937;
+      color: #d1d5db;
+      border: 1px solid #374151;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pill:hover {
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+    .status-bar {
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      color: #93c5fd;
+      display: none;
+    }
+    .status-bar.error {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .kpi-value { font-size: 1.35rem; font-weight: 700; }
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    .badge-neutre { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-surachat { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-surachat-ext { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .badge-survente { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-survente-ext { background: rgba(5, 150, 105, 0.25); color: #6ee7b7; }
+    .chart-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+      height: 490px;
+      position: relative;
+    }
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .panel h2 { font-size: 1.05rem; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+    }
+    th { color: var(--muted); font-weight: 600; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .dropzone {
+      border: 2px dashed #374151;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .dropzone:hover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.05);
+    }
+    input[type="file"] { display: none; }
+  </style>
 </head>
 <body>
 <div class="container">
+  <header>
+    <div>
+      <h1>Canal de Régression Linéaire — <span id="tickerTitle">SPYM</span></h1>
+      <div class="subtitle" id="periodSubtitle">Fenêtre glissante sur 252 séances boursières (1 an)</div>
+    </div>
+    <div class="controls">
+      <input type="text" id="tickerInput" value="SPYM" placeholder="Ex: RY.TO, AAPL" title="Entrez un symbole (ajoutez .TO pour Toronto)" />
+      <button class="btn" id="fetchBtn">Charger le Ticker</button>
+      <label for="windowInput" style="font-size:0.85rem;color:var(--muted);margin-left:6px;">Jours :</label>
+      <input type="number" id="windowInput" value="252" min="20" max="1000" style="width:80px;" />
+      <label class="btn btn-secondary" for="fileUpload" title="Optionnel : importer un fichier Excel ou CSV">Fichier local</label>
+      <input type="file" id="fileUpload" accept=".xlsx,.xls,.csv" />
+    </div>
+  </header>
 
-    <!-- ============================================
-         BOUTON RETOUR ACCUEIL
-         ============================================ -->
-    <nav class="home-nav">
-        <a href="index.html" class="home-btn" title="Retour à l'accueil">
-            <span class="home-arrow">←</span>
-            <span class="home-icon">🏠</span>
-            <span>Accueil</span>
-        </a>
-        <div class="home-breadcrumb">
-            <span>Accueil</span> / Régression Linéaire
-        </div>
-    </nav>
+  <div class="quick-pills">
+    <span style="font-size:0.8rem;color:var(--muted);align-self:center;margin-right:4px;">Raccourcis :</span>
+    <button class="pill" data-ticker="SPYM">SPYM (Local)</button>
+    <button class="pill" data-ticker="RY.TO">RY.TO (TSX)</button>
+    <button class="pill" data-ticker="TD.TO">TD.TO (TSX)</button>
+    <button class="pill" data-ticker="ENB.TO">ENB.TO (TSX)</button>
+    <button class="pill" data-ticker="VFV.TO">VFV.TO (TSX)</button>
+    <button class="pill" data-ticker="XEQT.TO">XEQT.TO (TSX)</button>
+    <button class="pill" data-ticker="GOOG">GOOG</button>
+    <button class="pill" data-ticker="AAPL">AAPL</button>
+    <button class="pill" data-ticker="MU">MU</button>
+  </div>
 
-    <!-- ============================================
-         HEADER
-         ============================================ -->
-    <div class="header">
-        <h1>📈 Canal de Régression Linéaire — 252 Jours</h1>
-        <h2>Analyse quantitative de la performance boursière avec canal de tendance complet</h2>
+  <div id="statusBar" class="status-bar"></div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Dernier Cours</div>
+      <div class="kpi-value" id="kpiClose">—</div>
+      <div class="kpi-sub" id="kpiDate">—</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Statut du Canal</div>
+      <div id="kpiStatusBadge"><span class="badge badge-neutre">NEUTRE</span></div>
+      <div class="kpi-sub" id="kpiZScore">Z-Score : —</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ligne Régression (0 σ)</div>
+      <div class="kpi-value" id="kpiReg">—</div>
+      <div class="kpi-sub" id="kpiSlope">Pente : — / jour</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Bande Supérieure (+2 σ)</div>
+      <div class="kpi-value" style="color:#f87171;" id="kpiPlus2">—</div>
+      <div class="kpi-sub" id="kpiPlus1">+1 σ : —</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Bande Inférieure (-2 σ)</div>
+      <div class="kpi-value" style="color:#34d399;" id="kpiMinus2">—</div>
+      <div class="kpi-sub" id="kpiMinus1">-1 σ : —</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Volatilité & R²</div>
+      <div class="kpi-value" id="kpiVol">—</div>
+      <div class="kpi-sub" id="kpiR2">R² : — | Err. Type : —</div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <canvas id="regressionChart"></canvas>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="panel">
+      <h2>Niveaux Actuels & Statistiques</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Indicateur</th>
+            <th style="text-align:right;">Valeur</th>
+            <th style="text-align:right;">Écart vs Cours</th>
+          </tr>
+        </thead>
+        <tbody id="levelsTableBody"></tbody>
+      </table>
     </div>
 
-    <!-- ============================================
-         SEARCH
-         ============================================ -->
-    <div class="search-section">
-        <label for="tickerInput">🔍 Symbole boursier :</label>
-        <div class="search-input-group">
-            <input type="text" id="tickerInput" placeholder="Ex : AAPL, MSFT, TSLA, NVDA..." value="AAPL"
-                   onkeydown="if(event.key==='Enter') launchAnalysis()">
-            <button class="btn-search" id="btnSearch" onclick="launchAnalysis()">▶ ANALYSER</button>
-        </div>
-        <div class="quick-tickers">
-            <span>Rapide :</span>
-            <button class="quick-btn" onclick="quickSearch('AAPL')">AAPL</button>
-            <button class="quick-btn" onclick="quickSearch('MSFT')">MSFT</button>
-            <button class="quick-btn" onclick="quickSearch('GOOGL')">GOOGL</button>
-            <button class="quick-btn" onclick="quickSearch('AMZN')">AMZN</button>
-            <button class="quick-btn" onclick="quickSearch('NVDA')">NVDA</button>
-            <button class="quick-btn" onclick="quickSearch('TSLA')">TSLA</button>
-            <button class="quick-btn" onclick="quickSearch('META')">META</button>
-            <button class="quick-btn" onclick="quickSearch('BRK-B')">BRK-B</button>
-            <button class="quick-btn" onclick="quickSearch('JPM')">JPM</button>
-            <button class="quick-btn" onclick="quickSearch('V')">VISA</button>
-        </div>
+    <div class="panel">
+      <h2>Mode d'emploi rapide</h2>
+      <ul style="margin-left:18px;font-size:0.86rem;color:#d1d5db;margin-bottom:14px;">
+        <li><strong>Bourse de Toronto (TSX) :</strong> Ajoutez <code>.TO</code> (ex. <code>RY.TO</code>, <code>CNQ.TO</code>, <code>ZST.TO</code>).</li>
+        <li><strong>Bourses américaines :</strong> Tapez le symbole directement (ex. <code>AAPL</code>, <code>NVDA</code>, <code>VTI</code>).</li>
+        <li><strong>Validation :</strong> Tapez le symbole dans la case bleue en haut puis cliquez sur <em>Charger le Ticker</em> (ou appuyez sur <strong>Entrée</strong>).</li>
+      </ul>
+      <div class="dropzone" id="dropZone" onclick="document.getElementById('fileUpload').click()">
+        <strong>Optionnel : Glissez un fichier Excel (.xlsx) ou CSV ici</strong><br/>
+        <span style="font-size:0.8rem;">Utile si vous souhaitez analyser un fichier hors-ligne.</span>
+      </div>
     </div>
-
-    <!-- ============================================
-         STATUS
-         ============================================ -->
-    <div class="status-bar" id="statusBar">
-        <div class="spinner-sm" id="statusSpinner"></div>
-        <span id="statusText"></span>
-    </div>
-
-    <!-- ============================================
-         RESULTS
-         ============================================ -->
-    <div id="resultsArea">
-        <div class="date-range-bar">
-            <div class="date-item"><div class="dlabel">Téléscripteur</div><div class="dvalue" id="infoTicker">—</div></div>
-            <div class="date-item"><div class="dlabel">Date Début</div><div class="dvalue" id="infoStart">—</div></div>
-            <div class="date-item"><div class="dlabel">Date Aujourd'hui</div><div class="dvalue" id="infoEnd">—</div></div>
-            <div class="date-item"><div class="dlabel">Jours de Trading</div><div class="dvalue" id="infoN">—</div></div>
-        </div>
-        <div class="stats-grid" id="statsGrid"></div>
-        <div class="chart-box"><canvas id="mainChart"></canvas></div>
-        <div class="table-box"><h3>📊 Tableau Récapitulatif des Statistiques</h3><div id="tblMain"></div></div>
-        <div class="table-box"><h3>📐 Détail des Lignes de Tendance</h3><div id="tblTrend"></div></div>
-        <div class="methodology">
-            <h3>📝 Méthodologie et Interprétation</h3>
-            <h4>1. Rendements Logarithmiques</h4>
-            <p>Les rendements journaliers sont calculés en rendements logarithmiques (log-returns) pour leur additivité temporelle :</p>
-            <div class="formula-box">r(t) = ln( P(t) / P(t−1) )</div>
-
-            <h4>2. Volatilité Annualisée (Règle √252)</h4>
-            <p>La volatilité annuelle est obtenue en annualisant l'écart type journalier via la racine du nombre de jours de trading :</p>
-            <div class="formula-box">σ_annuelle = σ_journalière × √252</div>
-            <p>Convention : une année boursière ≈ 252 jours de cotation ; hypothèse de rendements i.i.d.</p>
-
-            <h4>3. Régression Linéaire (Moindres Carrés Ordinaires)</h4>
-            <div class="formula-box">Ŷ(t) = a × t + b &nbsp;&nbsp;(t = 1 … N)</div>
-            <p><em>a</em> = pente (variation moyenne du prix par jour de trading), <em>b</em> = ordonnée à l'origine.</p>
-
-            <h4>4. Erreur Type de la Régression</h4>
-            <div class="formula-box">SE = √[ Σ(Y(t) − Ŷ(t))² / (N − 2) ]</div>
-
-            <h4>5. Interprétation du Canal</h4>
-            <ul>
-                <li><strong>Régression (Noire) :</strong> tendance centrale du modèle linéaire.</li>
-                <li><strong>±1 SE (Orange / Bleue) :</strong> contient ≈ 68 % des observations — évolution « normale ».</li>
-                <li><strong>±2 SE (Rouge / Verte) :</strong> contient ≈ 95 % des observations — un dépassement signale une situation statistiquement extrême (surachat/survente) pouvant indiquer un retour à la moyenne ou une rupture de tendance.</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- ============================================
-         FOOTER
-         ============================================ -->
-    <div class="footer">
-        <p>Données : Yahoo Finance (cours de clôture ajustés) | ⚠️ Analyse à titre informatif — ne constitue pas un conseil en investissement.</p>
-    </div>
+  </div>
 </div>
 
 <script>
-/* ============================================================
-   GLOBAL STATE
-   ============================================================ */
-let currentChart = null;
+// Données locales de sauvegarde (SPYM)
+const LOCAL_SPYM = [["2025-03-03",68.7],["2025-03-04",67.87],["2025-03-05",68.6],["2025-03-06",67.39],["2025-03-07",67.75],["2025-03-10",65.95],["2025-03-11",65.42],["2025-03-12",65.75],["2025-03-13",64.88],["2025-03-14",66.2],["2025-03-17",66.7],["2025-03-18",66.01],["2025-03-19",66.7],["2025-03-20",66.56],["2025-03-21",66.57],["2025-03-24",67.73],["2025-03-25",67.88],["2025-03-26",67.11],["2025-03-27",66.91],["2025-03-28",65.37],["2025-03-31",65.76],["2025-04-01",65.99],["2025-04-02",66.39],["2025-04-03",63.24],["2025-04-04",59.45],["2025-04-07",59.33],["2025-04-08",58.41],["2025-04-09",63.93],["2025-04-10",61.7],["2025-04-11",62.8],["2025-04-14",63.38],["2025-04-15",63.22],["2025-04-16",61.83],["2025-04-17",61.92],["2025-04-21",60.46],["2025-04-22",61.97],["2025-04-23",62.97],["2025-04-24",64.28],["2025-04-25",64.74],["2025-04-28",64.8],["2025-04-29",65.17],["2025-04-30",65.2],["2025-05-01",65.69],["2025-05-02",66.64],["2025-05-05",66.29],["2025-05-06",65.74],["2025-05-07",66.02],["2025-05-08",66.45],["2025-05-09",66.38],["2025-05-12",68.56],["2025-05-13",69.03],["2025-05-14",69.11],["2025-05-15",69.45],["2025-05-16",69.9],["2025-05-19",69.97],["2025-05-20",69.73],["2025-05-21",68.57],["2025-05-22",68.57],["2025-05-23",68.13],["2025-05-27",69.52],["2025-05-28",69.12],["2025-05-29",69.4],["2025-05-30",69.33],["2025-06-02",69.71],["2025-06-03",70.13],["2025-06-04",70.09],["2025-06-05",69.76],["2025-06-06",70.47],["2025-06-09",70.53],["2025-06-10",70.94],["2025-06-11",70.74],["2025-06-12",71.01],["2025-06-13",70.22],["2025-06-16",70.9],["2025-06-17",70.3],["2025-06-18",70.28],["2025-06-20",70.11],["2025-06-23",70.79],["2025-06-24",71.59],["2025-06-25",71.63],["2025-06-26",72.19],["2025-06-27",72.32],["2025-06-30",72.69],["2025-07-01",72.65],["2025-07-02",72.97],["2025-07-03",73.57],["2025-07-07",73.03],["2025-07-08",72.97],["2025-07-09",73.41],["2025-07-10",73.63],["2025-07-11",73.35],["2025-07-14",73.5],["2025-07-15",73.18],["2025-07-16",73.43],["2025-07-17",73.86],["2025-07-18",73.84],["2025-07-21",73.96],["2025-07-22",73.98],["2025-07-23",74.59],["2025-07-24",74.65],["2025-07-25",74.93],["2025-07-28",74.93],["2025-07-29",74.74],["2025-07-30",74.65],["2025-07-31",74.34],["2025-08-01",73.15],["2025-08-04",74.25],["2025-08-05",73.89],["2025-08-06",74.44],["2025-08-07",74.39],["2025-08-08",74.96],["2025-08-11",74.8],["2025-08-12",75.62],["2025-08-13",75.86],["2025-08-14",75.88],["2025-08-15",75.71],["2025-08-18",75.69],["2025-08-19",75.27],["2025-08-20",75.07],["2025-08-21",74.77],["2025-08-22",75.91],["2025-08-25",75.6],["2025-08-26",75.91],["2025-08-27",76.09],["2025-08-28",76.36],["2025-08-29",75.9],["2025-09-02",75.34],["2025-09-03",75.73],["2025-09-04",76.37],["2025-09-05",76.15],["2025-09-08",76.35],["2025-09-09",76.52],["2025-09-10",76.75],["2025-09-11",77.37],["2025-09-12",77.35],["2025-09-15",77.75],["2025-09-16",77.66],["2025-09-17",77.56],["2025-09-18",77.92],["2025-09-19",78.3],["2025-09-22",78.68],["2025-09-23",78.27],["2025-09-24",78.0],["2025-09-25",77.64],["2025-09-26",77.85],["2025-09-29",78.07],["2025-09-30",78.34],["2025-10-01",78.63],["2025-10-02",78.72],["2025-10-03",78.73],["2025-10-06",79.01],["2025-10-07",78.72],["2025-10-08",79.18],["2025-10-09",78.96],["2025-10-10",76.84],["2025-10-13",78.0],["2025-10-14",77.91],["2025-10-15",78.24],["2025-10-16",77.73],["2025-10-17",78.16],["2025-10-20",78.97],["2025-10-21",78.97],["2025-10-22",78.55],["2025-10-23",79.01],["2025-10-24",79.67],["2025-10-27",80.61],["2025-10-28",80.82],["2025-10-29",80.86],["2025-10-30",80.0],["2025-10-31",80.24],["2025-11-03",80.39],["2025-11-04",79.45],["2025-11-05",79.71],["2025-11-06",78.85],["2025-11-07",78.93],["2025-11-10",80.16],["2025-11-11",80.33],["2025-11-12",80.38],["2025-11-13",79.06],["2025-11-14",79.05],["2025-11-17",78.32],["2025-11-18",77.68],["2025-11-19",77.96],["2025-11-20",76.77],["2025-11-21",77.53],["2025-11-24",78.74],["2025-11-25",79.42],["2025-11-26",79.96],["2025-11-28",80.39],["2025-12-01",80.03],["2025-12-02",80.18],["2025-12-03",80.46],["2025-12-04",80.53],["2025-12-05",80.66],["2025-12-08",80.43],["2025-12-09",80.36],["2025-12-10",80.88],["2025-12-11",81.07],["2025-12-12",80.22],["2025-12-15",80.09],["2025-12-16",79.87],["2025-12-17",78.96],["2025-12-18",79.58],["2025-12-19",80.3],["2025-12-22",80.81],["2025-12-23",81.18],["2025-12-24",81.46],["2025-12-26",81.22],["2025-12-29",80.92],["2025-12-30",80.82],["2025-12-31",80.22],["2026-01-02",80.39],["2026-01-05",80.92],["2026-01-06",81.41],["2026-01-07",81.14],["2026-01-08",81.12],["2026-01-09",81.66],["2026-01-12",81.8],["2026-01-13",81.62],["2026-01-14",81.24],["2026-01-15",81.44],["2026-01-16",81.38],["2026-01-20",79.72],["2026-01-21",80.64],["2026-01-22",81.06],["2026-01-23",81.1],["2026-01-26",81.51],["2026-01-27",81.85],["2026-01-28",81.83],["2026-01-29",81.65],["2026-01-30",81.4],["2026-02-02",81.84],["2026-02-03",81.13],["2026-02-04",80.74],["2026-02-05",79.71],["2026-02-06",81.27],["2026-02-09",81.65],["2026-02-10",81.43],["2026-02-11",81.42],["2026-02-12",80.16],["2026-02-13",80.2],["2026-02-17",80.33],["2026-02-18",80.75],["2026-02-19",80.55],["2026-02-20",81.11],["2026-02-23",80.29],["2026-02-24",80.89],["2026-02-25",81.56],["2026-02-26",81.13],["2026-02-27",80.76],["2026-03-02",80.77],["2026-03-03",80.05],["2026-03-04",80.62],["2026-03-05",80.17],["2026-03-06",79.13],["2026-03-09",79.81],["2026-03-10",79.67],["2026-03-11",79.59],["2026-03-12",78.38],["2026-03-13",77.74],["2026-03-16",78.52],["2026-03-17",78.73],["2026-03-18",77.66],["2026-03-19",77.44],["2026-03-20",76.33],["2026-03-23",77.13],["2026-03-24",76.87],["2026-03-25",77.3],["2026-03-26",75.92],["2026-03-27",74.64],["2026-03-30",74.38],["2026-03-31",76.54],["2026-04-01",77.12],["2026-04-02",77.19],["2026-04-06",77.56],["2026-04-07",77.59],["2026-04-08",79.55],["2026-04-09",80.02],["2026-04-10",79.96],["2026-04-13",80.74],["2026-04-14",81.74],["2026-04-15",82.38],["2026-04-16",82.58],["2026-04-17",83.58],["2026-04-20",83.42],["2026-04-21",82.87],["2026-04-22",83.72],["2026-04-23",83.38],["2026-04-24",84.03],["2026-04-27",84.17],["2026-04-28",83.76],["2026-04-29",83.76],["2026-04-30",84.56],["2026-05-01",84.83],["2026-05-04",84.53],["2026-05-05",85.19],["2026-05-06",86.37],["2026-05-07",86.1],["2026-05-08",86.82],["2026-05-11",87.02],["2026-05-12",86.9],["2026-05-13",87.37],["2026-05-14",88.05],["2026-05-15",86.99],["2026-05-18",86.94],["2026-05-19",86.35],["2026-05-20",87.26],["2026-05-21",87.42],["2026-05-22",87.75],["2026-05-26",88.34],["2026-05-27",88.35],["2026-05-28",88.84],["2026-05-29",89.05],["2026-06-01",89.29],["2026-06-02",89.4],["2026-06-03",88.81],["2026-06-04",89.11],["2026-06-05",86.81],["2026-06-08",87.02],["2026-06-09",86.76],["2026-06-10",85.4],["2026-06-11",86.84],["2026-06-12",87.06],["2026-06-15",88.59],["2026-06-16",88.09],["2026-06-17",87.0],["2026-06-18",87.89],["2026-06-22",87.61],["2026-06-23",86.35],["2026-06-24",86.26],["2026-06-25",86.31],["2026-06-26",85.76],["2026-06-29",87.18],["2026-06-30",87.88],["2026-07-01",87.77],["2026-07-02",87.67],["2026-07-06",88.43],["2026-07-07",88.0],["2026-07-08",87.72],["2026-07-09",88.47],["2026-07-10",88.85],["2026-07-13",88.18],["2026-07-14",88.5],["2026-07-15",88.84],["2026-07-16",88.37],["2026-07-17",87.48],["2026-07-20",87.36],["2026-07-21",88.08],["2026-07-22",87.97],["2026-07-23",86.91],["2026-07-24",86.96],["2026-07-27",86.99],["2026-07-28",87.19],["2026-07-29",85.93],["2026-07-30",87.31],["2026-07-31",87.9],["2026-08-03",89.19],["2026-08-04",90.79],["2026-08-05",90.61],["2026-08-06",90.47],["2026-08-07",91.01],["2026-08-10",91.0],["2026-08-11",90.69],["2026-08-12",90.94],["2026-08-13",91.56],["2026-08-14",91.39],["2026-08-17",90.96],["2026-08-18",90.34],["2026-08-19",90.54],["2026-08-20",89.78],["2026-08-21",90.13],["2026-08-24",89.88],["2026-08-25",90.15],["2026-08-26",90.17],["2026-08-27",90.75],["2026-08-28",90.57],["2026-08-31",90.28],["2026-09-01",89.65],["2026-09-02",90.07],["2026-09-03",91.01],["2026-09-04",90.67],["2026-09-08",90.17],["2026-09-09",89.75],["2026-09-10",89.21],["2026-09-11",89.72],["2026-09-14",89.32],["2026-09-15",88.92],["2026-09-16",88.53],["2026-09-17",89.55],["2026-09-18",89.64],["2026-09-21",91.03],["2026-09-22",91.02],["2026-09-23",90.37],["2026-09-24",90.29],["2026-09-25",90.8],["2026-09-28",90.08],["2026-09-29",89.94],["2026-09-30",89.76],["2026-10-01",89.92],["2026-10-02",90.6],["2026-10-05",91.22],["2026-10-06",91.72],["2026-10-07",91.46],["2026-10-08",91.07],["2026-10-09",91.64],["2026-10-12",91.58],["2026-10-13",91.55],["2026-10-14",90.58],["2026-10-15",90.84],["2026-10-16",89.83],["2026-10-19",90.23],["2026-10-20",90.53],["2026-10-21",90.99],["2026-10-22",89.93],["2026-10-23",89.45],["2026-10-26",90.06],["2026-10-27",90.6],["2026-10-28",90.9],["2026-10-29",90.59],["2026-10-30",88.95],["2026-11-02",88.52],["2026-11-03",88.78],["2026-11-04",90.25],["2026-11-05",86.3],["2026-11-06",86.56],["2026-11-09",88.59],["2026-11-10",88.28],["2026-11-11",89.42]];
 
-/* ============================================================
-   UTILITIES
-   ============================================================ */
-const fmtDate   = d => d.toLocaleDateString('fr-FR',{year:'numeric',month:'long',day:'numeric'});
-const fmtShort  = d => d.toISOString().split('T')[0];
-const $ = id => document.getElementById(id);
+let currentTicker = "SPYM";
+let currentCurrency = "USD";
+let fullSeries = LOCAL_SPYM.map(d => ({ date: d[0], close: Number(d[1]) }));
+let chartInstance = null;
 
-function showStatus(type, msg) {
-    const bar = $('statusBar');
-    bar.className = 'status-bar ' + type;
-    $('statusText').textContent = msg;
-    $('statusSpinner').style.display = type === 'loading' ? 'block' : 'none';
-}
-function hideStatus() { $('statusBar').className = 'status-bar'; $('statusBar').style.display = 'none'; }
-
-function cleanTicker(raw) {
-    let t = raw.trim().toUpperCase();
-    if (t.includes(':')) t = t.split(':').pop();
-    return t.replace(/[^A-Z0-9.\-]/g, '');
+function showStatus(msg, isError = false) {
+  const bar = document.getElementById("statusBar");
+  bar.textContent = msg;
+  bar.className = isError ? "status-bar error" : "status-bar";
+  bar.style.display = "block";
 }
 
-/* ============================================================
-   QUICK SEARCH BUTTON
-   ============================================================ */
-function quickSearch(sym) {
-    $('tickerInput').value = sym;
-    launchAnalysis();
+function hideStatus() {
+  document.getElementById("statusBar").style.display = "none";
 }
 
-/* ============================================================
-   DATA FETCHING — Yahoo Finance via CORS proxies
-   ============================================================ */
-async function fetchData(ticker) {
-    const period2 = Math.floor(Date.now() / 1000);
-    const period1 = period2 - 400 * 86400;
+// Récupération en direct depuis Yahoo Finance via relais CORS
+async function fetchLiveTicker(symbol) {
+  const cleanSymbol = symbol.trim().toUpperCase();
+  if (!cleanSymbol) return;
 
-    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}`
-        + `?period1=${period1}&period2=${period2}&interval=1d&includePrePost=false`;
+  const btn = document.getElementById("fetchBtn");
+  btn.disabled = true;
+  btn.textContent = "Chargement...";
+  showStatus(`Téléchargement de l'historique boursier pour ${cleanSymbol}...`);
 
-    const proxies = [
-        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-        url => `https://thingproxy.freeboard.io/fetch/${url}`
-    ];
+  const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSymbol)}?range=2y&interval=1d`;
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+  ];
 
-    for (const proxy of proxies) {
-        try {
-            showStatus('loading', `Connexion à Yahoo Finance pour ${ticker}…`);
-            const res = await fetch(proxy(yahooUrl), { signal: AbortSignal.timeout(12000) });
-            if (!res.ok) continue;
-            const json = await res.json();
-
-            if (json?.chart?.error) throw new Error(json.chart.error.description || 'Symbole introuvable');
-
-            const r = json?.chart?.result?.[0];
-            if (!r || !r.timestamp) continue;
-
-            const ts = r.timestamp;
-            const q  = r.indicators.quote[0];
-            const adj = r.indicators.adjclose ? r.indicators.adjclose[0].adjclose : null;
-
-            const dates = [], prices = [];
-            for (let i = 0; i < ts.length; i++) {
-                const p = adj ? (adj[i] ?? q.close[i]) : q.close[i];
-                if (p && !isNaN(p)) {
-                    dates.push(new Date(ts[i] * 1000));
-                    prices.push(+p.toFixed(4));
-                }
-            }
-            if (dates.length < 50) throw new Error('Pas assez de données disponibles');
-
-            const n = Math.min(dates.length, 252);
-            return {
-                dates: dates.slice(-n),
-                prices: prices.slice(-n),
-                source: 'Yahoo Finance (données réelles)',
-                currency: r.meta?.currency || 'USD',
-                name: r.meta?.longName || r.meta?.shortName || ticker
-            };
-        } catch (e) {
-            console.warn('Proxy attempt failed:', e.message);
-            if (e.message.includes('introuvable')) throw e;
-            continue;
-        }
-    }
-    throw new Error(`Impossible de récupérer les données pour « ${ticker} ». Vérifiez le symbole et réessayez.`);
-}
-
-/* ============================================================
-   STATISTICS
-   ============================================================ */
-function computeStats(prices) {
-    const N = prices.length;
-
-    const lr = [];
-    for (let i = 1; i < N; i++) lr.push(Math.log(prices[i] / prices[i - 1]));
-
-    const meanR = lr.reduce((a, b) => a + b, 0) / lr.length;
-    const varR  = lr.reduce((s, r) => s + (r - meanR) ** 2, 0) / (lr.length - 1);
-    const stdR  = Math.sqrt(varR);
-    const annVol = stdR * Math.sqrt(252);
-
-    const t = Array.from({length: N}, (_, i) => i + 1);
-    const sT = t.reduce((a, b) => a + b, 0);
-    const sY = prices.reduce((a, b) => a + b, 0);
-    const sTY = t.reduce((s, ti, i) => s + ti * prices[i], 0);
-    const sT2 = t.reduce((s, ti) => s + ti * ti, 0);
-
-    const a = (N * sTY - sT * sY) / (N * sT2 - sT * sT);
-    const b = (sY - a * sT) / N;
-
-    const fitted = t.map(ti => a * ti + b);
-    const resid  = prices.map((p, i) => p - fitted[i]);
-    const sse    = resid.reduce((s, r) => s + r * r, 0);
-    const se     = Math.sqrt(sse / (N - 2));
-
-    const meanP = sY / N;
-    const sst   = prices.reduce((s, p) => s + (p - meanP) ** 2, 0);
-    const r2    = 1 - sse / sst;
-
-    return {
-        N, meanR, stdR, annVol,
-        slope: a, intercept: b, se, r2,
-        fitted,
-        tp2: fitted.map(v => v + 2 * se),
-        tp1: fitted.map(v => v + se),
-        tm1: fitted.map(v => v - se),
-        tm2: fitted.map(v => v - 2 * se)
-    };
-}
-
-/* ============================================================
-   RENDER — STAT CARDS
-   ============================================================ */
-function renderCards(stats, prices, currency) {
-    const perf = (prices[prices.length - 1] - prices[0]) / prices[0] * 100;
-    const cur = currency || 'USD';
-    const items = [
-        { l:'Cours Actuel',          v:`${prices[prices.length-1].toFixed(2)} ${cur}`, c:'',  s:'Dernier cours de clôture' },
-        { l:'Performance Période',   v:`${perf>=0?'+':''}${perf.toFixed(2)}%`,         c:perf>=0?'pos':'neg', s:`${prices[0].toFixed(2)} → ${prices[prices.length-1].toFixed(2)}` },
-        { l:'Variation/Jour (moy.)', v:`${(stats.meanR*100).toFixed(4)}%`,             c:stats.meanR>=0?'pos':'neg', s:'Rendement log. moyen' },
-        { l:'Écart Type Journalier', v:`${(stats.stdR*100).toFixed(4)}%`,              c:'', s:'σ journalière' },
-        { l:'Volatilité Annuelle',   v:`${(stats.annVol*100).toFixed(2)}%`,            c:'', s:'σ × √252' },
-        { l:'Pente (a)',             v:stats.slope.toFixed(4),                         c:stats.slope>=0?'pos':'neg', s:`${cur} / jour de trading` },
-        { l:'Ordonnée (b)',          v:stats.intercept.toFixed(2),                     c:'', s:'Intercept' },
-        { l:'Erreur Type (SE)',      v:stats.se.toFixed(2),                            c:'', s:'Écart type des résidus' },
-        { l:'R²',                    v:stats.r2.toFixed(4),                            c:'', s:'Coeff. de détermination' }
-    ];
-    $('statsGrid').innerHTML = items.map(i => `
-        <div class="stat-card">
-            <div class="label">${i.l}</div>
-            <div class="value ${i.c}">${i.v}</div>
-            <div class="sub">${i.s}</div>
-        </div>`).join('');
-}
-
-/* ============================================================
-   RENDER — TABLES
-   ============================================================ */
-function renderMainTable(stats, dates, ticker, currency) {
-    const c = currency || 'USD';
-    $('tblMain').innerHTML = `<table>
-        <thead><tr><th>Paramètre</th><th>Valeur</th><th>Détail / Formule</th></tr></thead>
-        <tbody>
-        <tr><td>Téléscripteur</td><td><strong>${ticker}</strong></td><td>Symbole boursier</td></tr>
-        <tr><td>Nombre de jours</td><td><strong>${stats.N}</strong></td><td>Jours de trading analysés</td></tr>
-        <tr><td>Date début</td><td><strong>${fmtShort(dates[0])}</strong></td><td>${fmtDate(dates[0])}</td></tr>
-        <tr><td>Date aujourd'hui</td><td><strong>${fmtShort(dates[dates.length-1])}</strong></td><td>${fmtDate(dates[dates.length-1])}</td></tr>
-        <tr><td>Variation/jour (moy.)</td><td><strong>${(stats.meanR*100).toFixed(4)} %</strong></td><td>Moyenne des rendements log. journaliers</td></tr>
-        <tr><td>Écart Type journalier</td><td><strong>${(stats.stdR*100).toFixed(4)} %</strong></td><td>σ des rendements log (N−1)</td></tr>
-        <tr><td>Volatilité Annuelle</td><td><strong>${(stats.annVol*100).toFixed(2)} %</strong></td><td>σ_jour × √252</td></tr>
-        <tr><td>Pente (a)</td><td><strong>${stats.slope.toFixed(4)}</strong></td><td>${c} / jour de trading</td></tr>
-        <tr><td>Ordonnée (b)</td><td><strong>${stats.intercept.toFixed(2)}</strong></td><td>Intercept MCO</td></tr>
-        <tr><td>Erreur Type (SE)</td><td><strong>${stats.se.toFixed(2)}</strong></td><td>√[Σ(Yi−Ŷi)²/(N−2)]</td></tr>
-        <tr><td>R²</td><td><strong>${stats.r2.toFixed(4)}</strong></td><td>Coefficient de détermination</td></tr>
-        </tbody></table>`;
-}
-
-function renderTrendTable(stats) {
-    const last = stats.N - 1, mid = Math.floor(last / 2);
-    const rows = [
-        { n:'Tendance +2', col:'#e74c3c', f:'a×t + b + 2×SE', s:stats.tp2[0], m:stats.tp2[mid], e:stats.tp2[last] },
-        { n:'Tendance +1', col:'#f39c12', f:'a×t + b + 1×SE', s:stats.tp1[0], m:stats.tp1[mid], e:stats.tp1[last] },
-        { n:'Régression',  col:'#ffffff', f:'a×t + b',         s:stats.fitted[0], m:stats.fitted[mid], e:stats.fitted[last] },
-        { n:'Tendance −1', col:'#3498db', f:'a×t + b − 1×SE', s:stats.tm1[0], m:stats.tm1[mid], e:stats.tm1[last] },
-        { n:'Tendance −2', col:'#2ecc71', f:'a×t + b − 2×SE', s:stats.tm2[0], m:stats.tm2[mid], e:stats.tm2[last] }
-    ];
-    $('tblTrend').innerHTML = `<table>
-        <thead><tr><th>Ligne</th><th>Formule</th><th>Début ($)</th><th>Milieu ($)</th><th>Fin ($)</th></tr></thead>
-        <tbody>${rows.map(r=>`<tr>
-            <td><span class="trend-dot" style="background:${r.col}"></span><strong style="color:${r.col}">${r.n}</strong></td>
-            <td style="font-family:monospace;color:${r.col}">${r.f}</td>
-            <td>${r.s.toFixed(2)}</td><td>${r.m.toFixed(2)}</td><td>${r.e.toFixed(2)}</td>
-        </tr>`).join('')}</tbody></table>
-        <p style="margin-top:10px;font-size:11px;color:var(--text-muted)">
-            a = ${stats.slope.toFixed(4)} &nbsp;|&nbsp; b = ${stats.intercept.toFixed(2)} &nbsp;|&nbsp; SE = ${stats.se.toFixed(2)}
-        </p>`;
-}
-
-/* ============================================================
-   RENDER — CHART
-   ============================================================ */
-function renderChart(prices, dates, stats, ticker, currency) {
-    if (currentChart) { currentChart.destroy(); currentChart = null; }
-
-    const labels = dates.map(fmtShort);
-    const lastPrice = prices[prices.length - 1];
-    const lastLabel = labels[labels.length - 1];
-    const cur = currency || 'USD';
-
-    const ctx = $('mainChart').getContext('2d');
-    currentChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                { label: 'Cours de Clôture', data: prices, borderColor:'#8b949e', borderWidth:1.5, pointRadius:0, pointHoverRadius:4, fill:false, order:6, tension:0 },
-                { label: 'Tendance +2', data: stats.tp2, borderColor:'#e74c3c', borderWidth:2, borderDash:[8,4], pointRadius:0, fill:false, order:2, tension:0 },
-                { label: 'Tendance +1', data: stats.tp1, borderColor:'#f39c12', borderWidth:2, borderDash:[6,3], pointRadius:0, fill:false, order:3, tension:0 },
-                { label: 'Régression',  data: stats.fitted, borderColor:'#ffffff', borderWidth:2.5, pointRadius:0, fill:false, order:1, tension:0 },
-                { label: 'Tendance −1', data: stats.tm1, borderColor:'#3498db', borderWidth:2, borderDash:[6,3], pointRadius:0, fill:false, order:4, tension:0 },
-                { label: 'Tendance −2', data: stats.tm2, borderColor:'#2ecc71', borderWidth:2, borderDash:[8,4], pointRadius:0, fill:false, order:5, tension:0 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode:'index', intersect:false },
-            plugins: {
-                title: {
-                    display: true,
-                    text: [
-                        `Canal de Régression Linéaire sur ${stats.N} Jours — ${ticker}`,
-                        `${fmtDate(dates[0])} → ${fmtDate(dates[dates.length-1])}  |  Dernier cours : ${lastPrice.toFixed(2)} ${cur}`
-                    ],
-                    color: '#f0f6fc',
-                    font: { size: 14, weight: '600' },
-                    padding: { bottom: 18 }
-                },
-                legend: {
-                    position: 'top',
-                    labels: { color:'#b1bac4', usePointStyle:true, pointStyle:'line', padding:18, font:{size:11} }
-                },
-                tooltip: {
-                    backgroundColor:'#161b22', borderColor:'#30363d', borderWidth:1,
-                    titleColor:'#f0f6fc', bodyColor:'#b1bac4', padding:10,
-                    callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(2)} ${cur}` }
-                }
-            },
-            scales: {
-                x: {
-                    title: { display:true, text:'Date', color:'#8b949e', font:{size:12,weight:'600'} },
-                    ticks: { color:'#6e7681', maxTicksLimit:12, maxRotation:45, font:{size:10} },
-                    grid: { color:'rgba(48,54,61,.45)' }
-                },
-                y: {
-                    title: { display:true, text:`Cours de Clôture (${cur})`, color:'#8b949e', font:{size:12,weight:'600'} },
-                    ticks: { color:'#6e7681', font:{size:11}, callback: v => v.toFixed(0) },
-                    grid: { color:'rgba(48,54,61,.45)' }
-                }
-            }
-        },
-        plugins: [{
-            id: 'endpointAnnotations',
-            afterDraw(chart) {
-                const meta = chart.getDatasetMeta(0);
-                const ctx2 = chart.ctx;
-
-                const lp = meta.data[meta.data.length - 1];
-                if (lp) {
-                    ctx2.save();
-                    ctx2.beginPath(); ctx2.arc(lp.x, lp.y, 5, 0, Math.PI*2);
-                    ctx2.fillStyle = '#f39c12'; ctx2.fill();
-                    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 2; ctx2.stroke();
-                    ctx2.fillStyle = '#f0f6fc'; ctx2.font = 'bold 12px Segoe UI'; ctx2.textAlign = 'right';
-                    ctx2.fillText(`${lastPrice.toFixed(2)} ${cur}`, lp.x - 10, lp.y - 12);
-                    ctx2.font = '10px Segoe UI'; ctx2.fillStyle = '#8b949e';
-                    ctx2.fillText(lastLabel, lp.x - 10, lp.y - 26);
-                    ctx2.restore();
-                }
-
-                const fp = meta.data[0];
-                if (fp) {
-                    ctx2.save();
-                    ctx2.beginPath(); ctx2.arc(fp.x, fp.y, 4, 0, Math.PI*2);
-                    ctx2.fillStyle = '#3498db'; ctx2.fill();
-                    ctx2.strokeStyle = '#fff'; ctx2.lineWidth = 1.5; ctx2.stroke();
-                    ctx2.font = '10px Segoe UI'; ctx2.fillStyle = '#8b949e'; ctx2.textAlign = 'left';
-                    ctx2.fillText(`${prices[0].toFixed(2)} ${cur}`, fp.x + 8, fp.y - 8);
-                    ctx2.fillText(labels[0], fp.x + 8, fp.y - 20);
-                    ctx2.restore();
-                }
-            }
-        }]
-    });
-
-    $('mainChart').parentElement.style.height = '560px';
-}
-
-/* ============================================================
-   MAIN — LAUNCH ANALYSIS
-   ============================================================ */
-async function launchAnalysis() {
-    const raw = $('tickerInput').value;
-    const ticker = cleanTicker(raw);
-    if (!ticker) {
-        showStatus('error', 'Veuillez entrer un symbole boursier valide (ex: AAPL, MSFT, TSLA…)');
-        return;
-    }
-
-    $('tickerInput').value = ticker;
-    $('btnSearch').disabled = true;
-    $('resultsArea').style.display = 'none';
-    $('statusBar').style.display = 'flex';
-
+  let jsonData = null;
+  for (const proxyUrl of proxies) {
     try {
-        showStatus('loading', `Récupération des données pour ${ticker} depuis Yahoo Finance…`);
-
-        const data = await fetchData(ticker);
-
-        showStatus('loading', `${data.prices.length} jours reçus — calcul des statistiques…`);
-        const stats = computeStats(data.prices);
-
-        showStatus('loading', 'Construction du graphique et des tableaux…');
-        await new Promise(r => setTimeout(r, 200));
-
-        $('infoTicker').textContent = `${ticker}${data.name && data.name !== ticker ? ' — ' + data.name : ''}`;
-        $('infoStart').textContent = fmtDate(data.dates[0]);
-        $('infoEnd').textContent   = fmtDate(data.dates[data.dates.length - 1]);
-        $('infoN').textContent     = stats.N;
-
-        renderCards(stats, data.prices, data.currency);
-        renderChart(data.prices, data.dates, stats, ticker, data.currency);
-        renderMainTable(stats, data.dates, ticker, data.currency);
-        renderTrendTable(stats);
-
-        $('resultsArea').style.display = 'block';
-        showStatus('success', `✅ Analyse complète de ${ticker} — ${stats.N} jours de trading — Source : ${data.source}`);
-        setTimeout(hideStatus, 6000);
-
-    } catch (err) {
-        console.error(err);
-        showStatus('error', `❌ ${err.message}`);
-    } finally {
-        $('btnSearch').disabled = false;
+      const resp = await fetch(proxyUrl);
+      if (!resp.ok) continue;
+      jsonData = await resp.json();
+      if (jsonData && jsonData.chart && jsonData.chart.result) break;
+    } catch (e) {
+      // Essayer le relais suivant
     }
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Charger le Ticker";
+
+  if (!jsonData || !jsonData.chart || !jsonData.chart.result || !jsonData.chart.result[0]) {
+    if (cleanSymbol === "SPYM") {
+      currentTicker = "SPYM";
+      currentCurrency = "USD";
+      fullSeries = LOCAL_SPYM.map(d => ({ date: d[0], close: Number(d[1]) }));
+      showStatus("Données locales SPYM chargées (mode hors-ligne).");
+      renderDashboard();
+      return;
+    }
+    showStatus(`Impossible de trouver "${cleanSymbol}". Vérifiez le symbole (ex: ajoutez .TO pour la Bourse de Toronto comme RY.TO).`, true);
+    return;
+  }
+
+  const result = jsonData.chart.result[0];
+  const timestamps = result.timestamp || [];
+  const closes = result.indicators?.quote?.[0]?.close || [];
+  currentCurrency = result.meta?.currency || (cleanSymbol.endsWith(".TO") ? "CAD" : "USD");
+
+  const parsed = [];
+  for (let i = 0; i < timestamps.length; i++) {
+    if (closes[i] != null && !isNaN(closes[i])) {
+      const d = new Date(timestamps[i] * 1000);
+      const isoDate = d.toISOString().split("T")[0];
+      parsed.push({ date: isoDate, close: Number(closes[i]) });
+    }
+  }
+
+  if (parsed.length < 10) {
+    showStatus(`Données insuffisantes pour ${cleanSymbol}.`, true);
+    return;
+  }
+
+  currentTicker = cleanSymbol;
+  fullSeries = parsed;
+  hideStatus();
+  renderDashboard();
 }
 
-/* Auto-launch on page load */
-window.addEventListener('DOMContentLoaded', () => { launchAnalysis(); });
+function computeRegressionChannel(data, windowSize) {
+  const slice = data.slice(-windowSize);
+  const n = slice.length;
+  if (n < 2) return null;
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+  for (let i = 0; i < n; i++) {
+    const x = i;
+    const y = slice[i].close;
+    sumX += x; sumY += y; sumXY += x * y; sumX2 += x * x; sumY2 += y * y;
+  }
+
+  const denom = (n * sumX2 - sumX * sumX);
+  const slope = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0;
+  const intercept = (sumY - slope * sumX) / n;
+
+  const numR = (n * sumXY - sumX * sumY);
+  const denR = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+  const r2 = denR !== 0 ? Math.pow(numR / denR, 2) : 0;
+
+  let sumSqRes = 0;
+  const regLine = [];
+  for (let i = 0; i < n; i++) {
+    const yHat = slope * i + intercept;
+    regLine.push(yHat);
+    const res = slice[i].close - yHat;
+    sumSqRes += res * res;
+  }
+  const steyx = n > 2 ? Math.sqrt(sumSqRes / (n - 2)) : 0;
+
+  const returns = [];
+  for (let i = 1; i < n; i++) {
+    returns.push((slice[i].close - slice[i - 1].close) / slice[i - 1].close);
+  }
+  const meanRet = returns.length ? returns.reduce((a, b) => a + b, 0) / returns.length : 0;
+  const varRet = returns.length > 1 ? returns.reduce((a, b) => a + Math.pow(b - meanRet, 2), 0) / (returns.length - 1) : 0;
+  const annualVol = Math.sqrt(varRet) * Math.sqrt(252);
+
+  return {
+    slice, n, slope, intercept, r2, steyx, meanRet, annualVol, regLine,
+    plus2: regLine.map(v => v + 2 * steyx),
+    plus1: regLine.map(v => v + steyx),
+    minus1: regLine.map(v => v - steyx),
+    minus2: regLine.map(v => v - 2 * steyx)
+  };
+}
+
+function getStatus(close, reg, steyx) {
+  if (close > reg + 2 * steyx) return { label: "SURACHAT EXTRÊME", cls: "badge-surachat-ext" };
+  if (close > reg + steyx)     return { label: "SURACHAT", cls: "badge-surachat" };
+  if (close < reg - 2 * steyx) return { label: "SURVENTE EXTRÊME", cls: "badge-survente-ext" };
+  if (close < reg - steyx)     return { label: "SURVENTE", cls: "badge-survente" };
+  return { label: "NEUTRE", cls: "badge-neutre" };
+}
+
+function renderDashboard() {
+  const reqWindow = parseInt(document.getElementById("windowInput").value, 10) || 252;
+  const stats = computeRegressionChannel(fullSeries, reqWindow);
+  if (!stats) return;
+
+  const lastIdx = stats.n - 1;
+  const lastPoint = stats.slice[lastIdx];
+  const lastClose = lastPoint.close;
+  const lastReg = stats.regLine[lastIdx];
+  const p2 = stats.plus2[lastIdx];
+  const p1 = stats.plus1[lastIdx];
+  const m1 = stats.minus1[lastIdx];
+  const m2 = stats.minus2[lastIdx];
+  const zScore = stats.steyx > 0 ? (lastClose - lastReg) / stats.steyx : 0;
+  const status = getStatus(lastClose, lastReg, stats.steyx);
+
+  document.getElementById("tickerTitle").textContent = `${currentTicker} (${currentCurrency})`;
+  document.getElementById("periodSubtitle").textContent =
+    `Fenêtre de ${stats.n} séances (${stats.slice[0].date} au ${lastPoint.date})`;
+
+  document.getElementById("kpiClose").textContent = lastClose.toFixed(2) + " $";
+  document.getElementById("kpiDate").textContent = "Clôture du " + lastPoint.date;
+  document.getElementById("kpiStatusBadge").innerHTML = `<span class="badge ${status.cls}">${status.label}</span>`;
+  document.getElementById("kpiZScore").textContent = `Écart : ${zScore >= 0 ? "+" : ""}${zScore.toFixed(2)} σ`;
+  document.getElementById("kpiReg").textContent = lastReg.toFixed(2) + " $";
+  document.getElementById("kpiSlope").textContent = `Pente : ${stats.slope >= 0 ? "+" : ""}${stats.slope.toFixed(4)} $/j`;
+  document.getElementById("kpiPlus2").textContent = p2.toFixed(2) + " $";
+  document.getElementById("kpiPlus1").textContent = `+1 σ : ${p1.toFixed(2)} $`;
+  document.getElementById("kpiMinus2").textContent = m2.toFixed(2) + " $";
+  document.getElementById("kpiMinus1").textContent = `-1 σ : ${m1.toFixed(2)} $`;
+  document.getElementById("kpiVol").textContent = (stats.annualVol * 100).toFixed(2) + " %";
+  document.getElementById("kpiR2").textContent = `R² : ${stats.r2.toFixed(3)} | Err. Type : ${stats.steyx.toFixed(2)} $`;
+
+  const rows = [
+    ["Tendance +2 σ (Résistance extrême)", p2],
+    ["Tendance +1 σ (Zone haute)", p1],
+    ["Régression Centrale (0 σ)", lastReg],
+    ["Tendance -1 σ (Zone basse)", m1],
+    ["Tendance -2 σ (Support extrême)", m2]
+  ];
+
+  document.getElementById("levelsTableBody").innerHTML = rows.map(r => {
+    const diffPct = ((r[1] - lastClose) / lastClose) * 100;
+    return `<tr>
+      <td>${r[0]}</td>
+      <td class="num"><strong>${r[1].toFixed(2)} $</strong></td>
+      <td class="num" style="color:${diffPct >= 0 ? '#34d399' : '#f87171'};">
+        ${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(2)} %
+      </td>
+    </tr>`;
+  }).join("");
+
+  const labels = stats.slice.map(d => d.date);
+  const closes = stats.slice.map(d => d.close);
+
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById("regressionChart").getContext("2d");
+
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: `Cours (${currentTicker})`, data: closes, borderColor: "#ffffff", borderWidth: 2, pointRadius: 0, tension: 0.05 },
+        { label: "Tendance +2 σ", data: stats.plus2, borderColor: "#ef4444", borderWidth: 1.5, borderDash: [5, 5], pointRadius: 0 },
+        { label: "Tendance +1 σ", data: stats.plus1, borderColor: "#f59e0b", borderWidth: 1.2, borderDash: [3, 3], pointRadius: 0, backgroundColor: "rgba(59, 130, 246, 0.08)", fill: "+2" },
+        { label: "Régression (0 σ)", data: stats.regLine, borderColor: "#3b82f6", borderWidth: 2, pointRadius: 0 },
+        { label: "Tendance -1 σ", data: stats.minus1, borderColor: "#10b981", borderWidth: 1.2, borderDash: [3, 3], pointRadius: 0 },
+        { label: "Tendance -2 σ", data: stats.minus2, borderColor: "#059669", borderWidth: 1.5, borderDash: [5, 5], pointRadius: 0 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { color: "#e5e7eb", usePointStyle: true } },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label} : ${ctx.parsed.y.toFixed(2)} $` } }
+      },
+      scales: {
+        x: { ticks: { color: "#9ca3af", maxTicksLimit: 12 }, grid: { color: "rgba(255,255,255,0.05)" } },
+        y: { ticks: { color: "#9ca3af", callback: v => v.toFixed(2) + " $" }, grid: { color: "rgba(255,255,255,0.06)" } }
+      }
+    }
+  });
+}
+
+// Événements utilisateur
+document.getElementById("fetchBtn").addEventListener("click", () => {
+  fetchLiveTicker(document.getElementById("tickerInput").value);
+});
+
+document.getElementById("tickerInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") fetchLiveTicker(e.target.value);
+});
+
+document.querySelectorAll(".pill").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const t = btn.getAttribute("data-ticker");
+    document.getElementById("tickerInput").value = t;
+    if (t === "SPYM") {
+      currentTicker = "SPYM";
+      currentCurrency = "USD";
+      fullSeries = LOCAL_SPYM.map(d => ({ date: d[0], close: Number(d[1]) }));
+      hideStatus();
+      renderDashboard();
+    } else {
+      fetchLiveTicker(t);
+    }
+  });
+});
+
+document.getElementById("windowInput").addEventListener("input", renderDashboard);
+
+// Importation manuelle d'un fichier local (secours)
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array", cellDates: true });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
+
+    let detectedTicker = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
+    if (rows[1] && rows[1][0] && typeof rows[1][0] === "string" && rows[1][0].trim().length <= 10) {
+      detectedTicker = rows[1][0].trim().toUpperCase();
+    }
+
+    let dateCol = 0, closeCol = 1, startRow = 1;
+    for (let r = 0; r < Math.min(10, rows.length); r++) {
+      if (!rows[r]) continue;
+      const dIdx = rows[r].findIndex(c => typeof c === "string" && c.toLowerCase().includes("date"));
+      const cIdx = rows[r].findIndex(c => typeof c === "string" && (c.toLowerCase().includes("close") || c.toLowerCase().includes("clôture")));
+      if (dIdx !== -1 && cIdx !== -1) {
+        dateCol = dIdx; closeCol = cIdx; startRow = r + 1; break;
+      }
+    }
+
+    const parsed = [];
+    for (let r = startRow; r < rows.length; r++) {
+      const row = rows[r];
+      if (!row || row[dateCol] == null || row[closeCol] == null) continue;
+      const rawDate = String(row[dateCol]).split(" ")[0];
+      const val = parseFloat(String(row[closeCol]).replace(",", "."));
+      if (!isNaN(val) && rawDate.length >= 8) parsed.push({ date: rawDate, close: val });
+    }
+
+    if (parsed.length >= 2) {
+      currentTicker = detectedTicker;
+      currentCurrency = detectedTicker.endsWith(".TO") ? "CAD" : "USD";
+      document.getElementById("tickerInput").value = currentTicker;
+      fullSeries = parsed;
+      hideStatus();
+      renderDashboard();
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+document.getElementById("fileUpload").addEventListener("change", e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+const dz = document.getElementById("dropZone");
+dz.addEventListener("dragover", e => { e.preventDefault(); dz.style.borderColor = "#3b82f6"; });
+dz.addEventListener("dragleave", () => { dz.style.borderColor = "#374151"; });
+dz.addEventListener("drop", e => {
+  e.preventDefault(); dz.style.borderColor = "#374151";
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+renderDashboard();
 </script>
 </body>
 </html>
