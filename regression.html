@@ -1,980 +1,655 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<title>Analyse de Régression Linéaire sur 252 Séances — USA & CAD (100% Autonome)</title>
-<style>
-:root{--primary:#60a5fa;--accent:#2563eb;--bg:#0b1120;--card:#162032;--card2:#1b2a41;--border:#2d3f5a;--text:#e2e8f0;--muted:#94a3b8;--input:#0f1a2c}
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-body{background:var(--bg);color:var(--text);padding:20px;line-height:1.5}
-.container{max-width:1380px;margin:0 auto}
-header{background:linear-gradient(135deg,#16365c,#0f2744);color:#fff;padding:22px 28px;border-radius:10px;margin-bottom:20px;border:1px solid var(--border)}
-header h1{font-size:1.5rem;margin-bottom:6px}header p{font-size:.92rem;opacity:.85}
-.tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.tab-btn{padding:10px 20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:600;border-radius:8px;cursor:pointer;transition:.2s}
-.tab-btn:hover{border-color:var(--primary)}
-.tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.tab-content{display:none}.tab-content.active{display:block}
-.card{background:var(--card);border-radius:10px;padding:22px;border:1px solid var(--border);margin-bottom:20px}
-.controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
-.control-group{display:flex;flex-direction:column;gap:5px}
-.control-group label{font-size:.85rem;font-weight:600;color:var(--primary)}
-input[type=text],input[type=number],select{padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:.95rem;background:var(--input);color:var(--text);font-weight:600}
-input:focus,select:focus{outline:2px solid var(--accent);border-color:var(--accent)}
-button{font-size:.92rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;padding:10px 16px;color:#fff;transition:.15s}
-.btn-primary{background:var(--accent)}.btn-primary:hover{background:#3b82f6}
-.btn-success{background:#15803d}.btn-success:hover{background:#16a34a}
-.btn-import{background:#0369a1}.btn-import:hover{background:#0284c7}
-.btn-secondary{background:#334155;color:#e2e8f0;padding:9px 14px}.btn-secondary:hover{background:#475569}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:22px}
-.stat-box{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
-.stat-box .label{font-size:.8rem;color:var(--muted);font-weight:600;margin-bottom:4px}
-.stat-box .value{font-size:1.25rem;font-weight:700;color:var(--primary)}
-.stat-box.good{background:#12351f;border-color:#166534}.stat-box.good .value{color:#86efac}
-.stat-box.bad{background:#3b161b;border-color:#7f1d1d}.stat-box.bad .value{color:#fca5a5}
-.chart-wrapper{position:relative;height:440px;width:100%;background:#0f1a2c;border:1px solid var(--border);border-radius:8px;padding:10px}
-canvas{width:100%;height:100%;display:block;cursor:crosshair}
-.legend-bar{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;font-size:.85rem}
-.legend-item{display:flex;align-items:center;gap:6px}
-.legend-line{width:22px;height:3px;display:inline-block}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
-th{background:#1e3a5f;color:#fff;font-weight:600;position:sticky;top:0;z-index:1}
-.c{text-align:center}
-tbody tr:hover{background:var(--card2)}
-.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
-.sig-strong-buy{background:#14532d;color:#86efac}.sig-buy{background:#1c3d2b;color:#bbf7d0}
-.sig-neutral{background:#334155;color:#cbd5e1}.sig-sell{background:#5c4410;color:#fde68a}
-.sig-strong-sell{background:#5f1d24;color:#fecaca}
-.r2-high{background:#1e3a5f;color:#bfdbfe;font-weight:700;border-radius:4px;padding:2px 6px}
-.sim{background:#5c4410;color:#fde68a;border-radius:4px;padding:1px 6px;font-size:.75rem;font-weight:700;margin-left:4px}
-.status-bar{font-size:.88rem;color:var(--muted);margin-bottom:12px;background:var(--card2);padding:8px 12px;border-radius:6px;border:1px solid var(--border)}
-.status-bar.warn{color:#fde68a;border-color:#92400e;background:#2d2008}
-.table-scroll{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:8px}
-.ticker-link{color:var(--primary);font-weight:700;text-decoration:underline;cursor:pointer}
-th.sortable{cursor:pointer;user-select:none}th.sortable:hover{background:#27508a}
-th.sortable::after{content:" \2195";opacity:.35;font-size:.8em}
-th.sortable.asc::after{content:" \25B2";opacity:1}th.sortable.desc::after{content:" \25BC";opacity:1}
-.del-btn{background:transparent;color:#f87171;padding:0 4px;margin-left:6px;font-size:1rem}
-.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.guide-item{background:var(--card2);border-left:4px solid var(--accent);padding:16px;border-radius:6px}
-.guide-item h4{color:var(--primary);margin-bottom:8px}
-.guide-item ul{padding-left:18px;font-size:.9rem}.guide-item li{margin-bottom:6px}
-code{background:#0f1a2c;padding:1px 5px;border-radius:4px}
-h3{color:var(--primary)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyse TSX (252 jours) — Régression Linéaire &amp; Gemini IA</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --border: #334155;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 5px; color: var(--accent); }
+    p.subtitle { color: var(--muted); margin-top: 0; margin-bottom: 20px; font-size: 0.95rem; }
+    .panel {
+      background: var(--card); padding: 16px; border-radius: 10px; border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .favorites-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .favorites-label {
+      font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-right: 4px;
+    }
+    .fav-chip {
+      display: inline-flex; align-items: center;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden; transition: all 0.15s;
+    }
+    .fav-chip:hover { border-color: var(--accent); }
+    .fav-chip.active { background: var(--accent); border-color: var(--accent); }
+    .fav-chip.priority { border-color: #f59e0b; }
+    .fav-chip.active.priority { background: var(--accent); border-color: #f59e0b; }
+    .fav-select-btn {
+      background: transparent; color: var(--text); border: none;
+      padding: 6px 10px; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; height: auto;
+    }
+    .fav-chip.active .fav-select-btn { color: #0f172a; }
+    .fav-del-btn {
+      background: transparent; color: var(--muted); border: none; border-left: 1px solid var(--border);
+      padding: 6px 8px; font-size: 0.8rem; cursor: pointer; height: auto;
+    }
+    .fav-del-btn:hover { background: var(--red); color: #fff; }
+    .fav-chip.active .fav-del-btn { color: #0f172a; border-left-color: rgba(15, 23, 42, 0.2); }
+    .fav-chip.active .fav-del-btn:hover { background: var(--red); color: #fff; }
+
+    .add-fav-group {
+      display: inline-flex; align-items: center; gap: 6px; margin-left: auto;
+    }
+    .add-fav-input {
+      width: 115px; height: 32px; padding: 4px 8px; font-size: 0.85rem;
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px;
+    }
+    .add-fav-btn {
+      height: 32px; padding: 0 10px; font-size: 0.8rem; font-weight: 600;
+      background: #334155; color: var(--text); border: none; border-radius: 6px; cursor: pointer;
+    }
+    .add-fav-btn:hover { background: var(--accent); color: #0f172a; }
+    .reset-fav-btn {
+      height: 32px; padding: 0 8px; font-size: 0.75rem;
+      background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    }
+    .reset-fav-btn:hover { color: var(--text); border-color: var(--muted); }
+
+    .controls {
+      display: grid; grid-template-columns: 1fr 160px 2fr auto; gap: 12px;
+    }
+    @media (max-width: 820px) {
+      .controls { grid-template-columns: 1fr; }
+      .add-fav-group { margin-left: 0; width: 100%; margin-top: 6px; }
+    }
+    .input-group { display: flex; flex-direction: column; gap: 5px; }
+    label { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    input, select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; height: 41px;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    button.primary-btn {
+      background: var(--accent); color: #0f172a; font-weight: 700; border: none;
+      padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+      align-self: end; height: 41px; transition: background 0.2s;
+    }
+    button.primary-btn:hover { background: var(--accent-hover); color: #fff; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .metrics {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px; margin-bottom: 20px;
+    }
+    .metric-card {
+      background: var(--card); padding: 14px; border-radius: 8px; border: 1px solid var(--border);
+    }
+    .metric-label { font-size: 0.8rem; color: var(--muted); }
+    .metric-value { font-size: 1.3rem; font-weight: 700; margin-top: 4px; }
+    .chart-box {
+      background: var(--card); padding: 16px; border-radius: 10px; border: 1px solid var(--border);
+      margin-bottom: 20px; position: relative;
+    }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+      margin-bottom: 10px; font-size: 0.85rem; color: #cbd5e1;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-line { width: 18px; height: 3px; display: inline-block; }
+    canvas { width: 100%; height: 380px; display: block; cursor: crosshair; }
+    .tooltip {
+      position: absolute; display: none; pointer-events: none;
+      background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent);
+      border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: var(--text);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); z-index: 10; min-width: 190px;
+    }
+    .tooltip-date { font-weight: 700; color: var(--accent); margin-bottom: 4px; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
+    .tooltip-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 2px; }
+    .ai-box {
+      background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border);
+    }
+    .ai-header { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+    #ai-output { white-space: pre-wrap; color: #e2e8f0; font-size: 0.95rem; }
+    .status { font-size: 0.9rem; color: var(--accent); margin-bottom: 15px; min-height: 20px; }
+  </style>
 </head>
 <body>
+
 <div class="container">
-<header>
-  <h1>Analyse de Régression Linéaire sur 252 Séances — Actions USA & CAD</h1>
-  <p>Application 100 % autonome (zéro dépendance externe) : droite des moindres carrés, canaux ±1σ / ±2σ, screener multi-actions et import/export CSV/TXT.</p>
-</header>
+  <h1>Analyse TSX — Régression Linéaire (252 jours) &amp; Gemini IA</h1>
+  <p class="subtitle">Approche hybride autonome : données Bourse de Toronto (.TO), calculs mathématiques locaux et interprétation par Gemini.</p>
 
-<div class="tabs">
-  <button class="tab-btn active" data-tab="analyse">1. Analyse Graphique (252j)</button>
-  <button class="tab-btn" data-tab="screener">2. Screener Multi-Actions (USA & CAD)</button>
-  <button class="tab-btn" data-tab="donnees">3. Tableau des 252 Séances</button>
-  <button class="tab-btn" data-tab="aide">4. Mode d'emploi & Import CSV/TXT</button>
-</div>
+  <div class="panel">
+    <div class="favorites-bar">
+      <span class="favorites-label">Favoris :</span>
+      <div id="favorites-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
 
-<!-- ONGLET 1 : ANALYSE GRAPHIQUE -->
-<div id="tab-analyse" class="tab-content active"><div class="card">
-  <div class="controls">
-    <div class="control-group">
-      <label for="tickerInput">Symbole (ex: RY.TO, XEQT.TO, AAPL, BRK-B)</label>
-      <input type="text" id="tickerInput" value="RY.TO" autocomplete="off" spellcheck="false">
+      <div class="add-fav-group">
+        <input type="text" id="newFavInput" class="add-fav-input" placeholder="Ex: RY.TO" onkeydown="if(event.key==='Enter') ajouterFavori()">
+        <button type="button" class="add-fav-btn" onclick="ajouterFavori()">+ Ajouter</button>
+        <button type="button" class="reset-fav-btn" title="Réinitialiser les favoris par défaut" onclick="reinitialiserFavoris()">↺</button>
+      </div>
     </div>
-    <div class="control-group">
-      <label for="periodsInput">Nombre de séances</label>
-      <input type="number" id="periodsInput" value="252" min="30" max="1000" style="width:120px">
+
+    <div class="controls">
+      <div class="input-group">
+        <label for="ticker">Symbole TSX</label>
+        <input type="text" id="ticker" value="XEQT.TO" placeholder="XEQT.TO" oninput="afficherFavoris()">
+      </div>
+      <div class="input-group">
+        <label for="period">Période</label>
+        <select id="period">
+          <option value="252" selected>252 jours (1 an)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="apiKey">Clé API Gemini Gratuite (locale)</label>
+        <input type="password" id="apiKey" placeholder="Collez votre clé AIza... ici (1 seule fois)">
+      </div>
+      <button type="button" class="primary-btn" id="btnRun" onclick="lancerAnalyse()">Analyser le titre</button>
     </div>
-    <button class="btn-primary" id="btnAnalyse">Analyser l'action</button>
-    <button class="btn-success" data-export="single">Exporter (CSV)</button>
-    <button class="btn-import" id="btnImportHist">Importer historique CSV</button>
-    <input type="file" id="singleHistoryFileInput" accept=".csv,.txt" hidden>
-    <div style="display:flex;gap:6px;flex-wrap:wrap" id="quick">
-      <button class="btn-secondary" data-q="RY.TO">RY.TO</button>
-      <button class="btn-secondary" data-q="DOL.TO">DOL.TO</button>
-      <button class="btn-secondary" data-q="SHOP.TO">SHOP.TO</button>
-      <button class="btn-secondary" data-q="AAPL">AAPL</button>
-      <button class="btn-secondary" data-q="MSFT">MSFT</button>
-      <button class="btn-secondary" data-q="NVDA">NVDA</button>
-    </div>
-  </div>
-  <div id="singleStatus" class="status-bar" role="status">Chargement des données en cours...</div>
-  <div class="stats-grid">
-    <div class="stat-box"><div class="label">Séances analysées</div><div class="value" id="statCount">—</div></div>
-    <div class="stat-box"><div class="label">Dernier cours de clôture</div><div class="value" id="statLastPrice">—</div></div>
-    <div class="stat-box"><div class="label">Valeur théorique (droite)</div><div class="value" id="statRegPrice">—</div></div>
-    <div class="stat-box" id="boxSigma"><div class="label">Position actuelle (en σ)</div><div class="value" id="statZScore">—</div></div>
-    <div class="stat-box"><div class="label">R² (force de la tendance)</div><div class="value" id="statR2">—</div></div>
-    <div class="stat-box"><div class="label">Pente ($ / séance)</div><div class="value" id="statSlope">—</div></div>
-    <div class="stat-box"><div class="label">Ordonnée à l'origine ($)</div><div class="value" id="statIntercept">—</div></div>
-    <div class="stat-box"><div class="label">Écart-type des résidus (σ)</div><div class="value" id="statStdErr">—</div></div>
   </div>
 
-  <div class="legend-bar">
-    <div class="legend-item"><span class="legend-line" style="background:#60a5fa"></span>Cours Clôture</div>
-    <div class="legend-item"><span class="legend-line" style="background:#f8fafc"></span>Droite Régression</div>
-    <div class="legend-item"><span class="legend-line" style="border-top:2px dashed #f87171"></span>Bande Haute (+2σ)</div>
-    <div class="legend-item"><span class="legend-line" style="border-top:2px dashed #fbbf24"></span>Bande Haute (+1σ)</div>
-    <div class="legend-item"><span class="legend-line" style="border-top:2px dashed #38bdf8"></span>Bande Basse (-1σ)</div>
-    <div class="legend-item"><span class="legend-line" style="border-top:2px dashed #4ade80"></span>Bande Basse (-2σ)</div>
-  </div>
-  <div class="chart-wrapper">
-    <canvas id="regressionCanvas"></canvas>
-  </div>
-</div></div>
+  <div class="status" id="status">Initialisation et chargement automatique de XEQT.TO...</div>
 
-<!-- ONGLET 2 : SCREENER MULTI-ACTIONS -->
-<div id="tab-screener" class="tab-content"><div class="card">
-  <div class="controls">
-    <div class="control-group">
-      <label for="newTickerInput">Ajouter un symbole (USA ou .TO)</label>
-      <input type="text" id="newTickerInput" placeholder="Ex: TD.TO ou GOOGL" autocomplete="off" spellcheck="false">
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-label">Dernier Prix</div>
+      <div class="metric-value" id="m-price">--</div>
     </div>
-    <button class="btn-primary" id="btnAddTicker">+ Ajouter</button>
-    <div class="control-group">
-      <label for="marketFilter">Filtre marché / signal</label>
-      <select id="marketFilter">
-        <option value="ALL">Tous les titres</option>
-        <option value="CAD">CAD (.TO) uniquement</option>
-        <option value="USA">USA uniquement</option>
-        <option value="OVERSOLD">Survente (≤ -1,00 σ)</option>
-        <option value="OVERBOUGHT">Surachat (≥ +1,00 σ)</option>
-      </select>
+    <div class="metric-card">
+      <div class="metric-label">Valeur Théorique (Droite)</div>
+      <div class="metric-value" id="m-reg">--</div>
     </div>
-    <button class="btn-import" id="btnImportList">Importer liste (.csv / .txt)</button>
-    <input type="file" id="tickerListFileInput" accept=".csv,.txt" hidden>
-    <button class="btn-secondary" id="btnRefreshScreener">Actualiser</button>
-    <button class="btn-secondary" id="btnResetScreener">Réinitialiser</button>
-    <button class="btn-success" data-export="screener">Exporter Screener (CSV)</button>
+    <div class="metric-card">
+      <div class="metric-label">Pente / 252 j (Tendance)</div>
+      <div class="metric-value" id="m-slope">--</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Coefficient R²</div>
+      <div class="metric-value" id="m-r2">--</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Position (Écart-type σ)</div>
+      <div class="metric-value" id="m-zscore">--</div>
+    </div>
   </div>
-  <div id="screenerStatus" class="status-bar" role="status">Cliquez sur un en-tête de colonne pour trier, ou sur un symbole pour afficher son graphique.</div>
-  <div class="table-scroll" style="max-height:600px">
-    <table>
-      <thead>
-        <tr>
-          <th class="sortable c" data-sort="symbol">Symbole</th>
-          <th class="sortable c" data-sort="market">Marché</th>
-          <th class="sortable" data-sort="lastClose">Dernier Cours ($)</th>
-          <th class="sortable" data-sort="lastReg">Droite 252j ($)</th>
-          <th class="sortable" data-sort="slope">Pente / Séance ($)</th>
-          <th class="sortable" data-sort="annualizedPct">Tendance Annualisée</th>
-          <th class="sortable" data-sort="stdErr">Écart-Type σ ($)</th>
-          <th class="sortable" data-sort="zScore">Position (σ)</th>
-          <th class="sortable" data-sort="r2">R²</th>
-          <th class="sortable c" data-sort="zScore">Signal Statistique</th>
-        </tr>
-      </thead>
-      <tbody id="screenerBody"></tbody>
-    </table>
-  </div>
-</div></div>
 
-<!-- ONGLET 3 : TABLEAU DES DONNÉES -->
-<div id="tab-donnees" class="tab-content"><div class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
-    <h3>Détail des séances retenues (<span id="tableTickerTitle">RY.TO</span>)</h3>
-    <button class="btn-success" data-export="single">Télécharger ce tableau en CSV</button>
+  <div class="chart-box" id="chartContainer">
+    <div class="legend">
+      <div class="legend-item"><span class="legend-line" style="background:#38bdf8;"></span> Cours de clôture</div>
+      <div class="legend-item"><span class="legend-line" style="background:#f59e0b;"></span> Droite de régression</div>
+      <div class="legend-item"><span class="legend-line" style="border-top: 2px dashed rgba(16,185,129,0.8);"></span> Canaux ±1σ</div>
+      <div class="legend-item"><span class="legend-line" style="border-top: 2px dashed rgba(239,68,68,0.8);"></span> Extrêmes ±2σ</div>
+    </div>
+    <div class="tooltip" id="chartTooltip"></div>
+    <canvas id="regressionChart"></canvas>
   </div>
-  <div class="table-scroll">
-    <table>
-      <thead>
-        <tr>
-          <th class="c">Séance</th>
-          <th class="c">Date</th>
-          <th>Clôture ($)</th>
-          <th>Droite Régression ($)</th>
-          <th>Bande +2σ ($)</th>
-          <th>Bande +1σ ($)</th>
-          <th>Bande -1σ ($)</th>
-          <th>Bande -2σ ($)</th>
-        </tr>
-      </thead>
-      <tbody id="detailTableBody"></tbody>
-    </table>
-  </div>
-</div></div>
 
-<!-- ONGLET 4 : MODE D'EMPLOI -->
-<div id="tab-aide" class="tab-content"><div class="card">
-  <h3 style="margin-bottom:16px">Guide d'utilisation — Fonctionnement 100 % Autonome (Hors-ligne & En ligne)</h3>
-  <div class="guide-grid">
-    <div class="guide-item">
-      <h4>1. Zéro dépendance externe</h4>
-      <ul>
-        <li>Ce fichier HTML embarque son propre moteur de rendu graphique <strong>HTML5 Canvas haute précision</strong> avec infobulle interactive au survol de la souris.</li>
-        <li>Il fonctionne instantanément même sans connexion Internet (aucune librairie CDN externe requise).</li>
-      </ul>
-    </div>
-    <div class="guide-item">
-      <h4>2. Importer un fichier historique existant en CSV</h4>
-      <ul>
-        <li>Dans l'onglet <strong>1. Analyse Graphique</strong>, cliquez sur <strong>Importer historique CSV</strong>.</li>
-        <li>Compatible avec Yahoo Finance, Investing.com, Excel ou un export précédent (colonnes <code>Date</code> et <code>Close / Clôture</code>).</li>
-      </ul>
-    </div>
-    <div class="guide-item">
-      <h4>3. Importer une liste de symboles (.csv ou .txt)</h4>
-      <ul>
-        <li>Dans l'onglet <strong>2. Screener Multi-Actions</strong>, cliquez sur <strong>Importer liste (.csv / .txt)</strong>.</li>
-        <li>Accepte un symbole par ligne (ex: <code>RY.TO</code>, <code>XEQT.TO</code>, <code>BRK-B</code>) ou un export CSV complet.</li>
-      </ul>
-    </div>
-    <div class="guide-item">
-      <h4>4. Exportation CSV compatible Excel</h4>
-      <ul>
-        <li>Les fichiers exportés utilisent l'encodage <strong>UTF-8 avec BOM</strong>, le séparateur <code>;</code> et la virgule décimale <code>,</code> pour une ouverture directe dans Excel.</li>
-      </ul>
-    </div>
+  <div class="ai-box">
+    <div class="ai-header">Analyse financière par Gemini (gemini-2.5-flash)</div>
+    <div id="ai-output">Chargement automatique de XEQT.TO en cours...</div>
   </div>
-</div></div>
 </div>
 
 <script>
-let currentSingleData = null;
-let screenerResults = [];
-let sortState = { key: "zScore", dir: "asc" };
-let hoverIndex = -1;
+  const DEFAULT_FAVORITES = ["XEQT.TO", "XIU.TO", "VFV.TO", "XIC.TO", "XEI.TO"];
+  const STORAGE_FAV_KEY = "tsx_custom_favorites_v1";
+  let lastChartState = null;
 
-const defaultTickers = [
-  "RY.TO", "TD.TO", "SHOP.TO", "DOL.TO", "CNR.TO",
-  "ENB.TO", "BCE.TO", "ATD.TO", "CSU.TO", "BN.TO",
-  "AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "JPM", "KO", "V"
-];
-
-let screenerTickers = JSON.parse(localStorage.getItem("reg252_tickers")) || [...defaultTickers];
-
-// Navigation par onglets
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-    document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
-    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
-    btn.classList.add("active");
-    if (btn.dataset.tab === "analyse" && currentSingleData) {
-      drawNativeChart(currentSingleData.symbol, currentSingleData.reg.points);
-    }
-  });
-});
-
-// Raccourcis rapides
-document.querySelectorAll("#quick button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.getElementById("tickerInput").value = btn.dataset.q;
-    loadSingleStock();
-  });
-});
-
-document.getElementById("btnAnalyse").addEventListener("click", loadSingleStock);
-document.getElementById("tickerInput").addEventListener("keydown", e => { if (e.key === "Enter") loadSingleStock(); });
-document.getElementById("btnImportHist").addEventListener("click", () => document.getElementById("singleHistoryFileInput").click());
-document.getElementById("singleHistoryFileInput").addEventListener("change", handleImportSingleHistory);
-
-document.getElementById("btnAddTicker").addEventListener("click", addScreenerTicker);
-document.getElementById("newTickerInput").addEventListener("keydown", e => { if (e.key === "Enter") addScreenerTicker(); });
-document.getElementById("btnImportList").addEventListener("click", () => document.getElementById("tickerListFileInput").click());
-document.getElementById("tickerListFileInput").addEventListener("change", handleImportTickerList);
-document.getElementById("btnRefreshScreener").addEventListener("click", refreshScreener);
-document.getElementById("btnResetScreener").addEventListener("click", resetDefaultTickers);
-document.getElementById("marketFilter").addEventListener("change", renderScreenerTable);
-
-document.querySelectorAll("[data-export='single']").forEach(btn => btn.addEventListener("click", exportSingleCSV));
-document.querySelectorAll("[data-export='screener']").forEach(btn => btn.addEventListener("click", exportScreenerCSV));
-
-document.querySelectorAll("th.sortable").forEach(th => {
-  th.addEventListener("click", () => {
-    const key = th.dataset.sort;
-    if (sortState.key === key) {
-      sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
-    } else {
-      sortState.key = key;
-      sortState.dir = "asc";
-    }
-    document.querySelectorAll("th.sortable").forEach(h => h.classList.remove("asc", "desc"));
-    th.classList.add(sortState.dir);
-    renderScreenerTable();
-  });
-});
-
-// ==========================================================
-// MOTEUR GRAPHIQUE NATIF CANVAS 2D (100% AUTONOME HORS-LIGNE)
-// ==========================================================
-const canvas = document.getElementById("regressionCanvas");
-
-canvas.addEventListener("mousemove", e => {
-  if (!currentSingleData) return;
-  const rect = canvas.getBoundingClientRect();
-  const padLeft = 65, padRight = 24;
-  const plotW = rect.width - padLeft - padRight;
-  const x = e.clientX - rect.left - padLeft;
-  const pts = currentSingleData.reg.points;
-  if (x < 0 || x > plotW || pts.length < 2) {
-    hoverIndex = -1;
-  } else {
-    hoverIndex = Math.round((x / plotW) * (pts.length - 1));
-    hoverIndex = Math.max(0, Math.min(pts.length - 1, hoverIndex));
-  }
-  drawNativeChart(currentSingleData.symbol, pts);
-});
-
-canvas.addEventListener("mouseleave", () => {
-  hoverIndex = -1;
-  if (currentSingleData) drawNativeChart(currentSingleData.symbol, currentSingleData.reg.points);
-});
-
-window.addEventListener("resize", () => {
-  if (currentSingleData) drawNativeChart(currentSingleData.symbol, currentSingleData.reg.points);
-});
-
-function drawNativeChart(symbol, points) {
-  const rect = canvas.parentElement.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-  const width = Math.max(300, rect.width - 20);
-  const height = Math.max(250, rect.height - 20);
-
-  canvas.width = Math.floor(width * dpr);
-  canvas.height = Math.floor(height * dpr);
-  const ctx = canvas.getContext("2d");
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, width, height);
-
-  if (!points || points.length < 2) return;
-
-  const pad = { top: 34, right: 24, bottom: 38, left: 65 };
-  const plotW = width - pad.left - pad.right;
-  const plotH = height - pad.top - pad.bottom;
-
-  let minVal = Infinity, maxVal = -Infinity;
-  for (const p of points) {
-    minVal = Math.min(minVal, p.close, p.minus2);
-    maxVal = Math.max(maxVal, p.close, p.plus2);
-  }
-  const margin = (maxVal - minVal) * 0.06 || 1;
-  minVal -= margin;
-  maxVal += margin;
-
-  const getX = i => pad.left + (i / (points.length - 1)) * plotW;
-  const getY = v => pad.top + ((maxVal - v) / (maxVal - minVal)) * plotH;
-
-  // Titre
-  ctx.fillStyle = "#e2e8f0";
-  ctx.font = "bold 14px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(`Canal de Régression Linéaire sur ${points.length} Séances — ${symbol}`, width / 2, 20);
-
-  // Grille horizontale et axe Y
-  ctx.strokeStyle = "rgba(148,163,184,0.15)";
-  ctx.lineWidth = 1;
-  ctx.fillStyle = "#94a3b8";
-  ctx.font = "11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-  ctx.textAlign = "right";
-  ctx.textBaseline = "middle";
-
-  const yTicks = 6;
-  for (let i = 0; i <= yTicks; i++) {
-    const val = minVal + (i / yTicks) * (maxVal - minVal);
-    const y = getY(val);
-    ctx.beginPath();
-    ctx.moveTo(pad.left, y);
-    ctx.lineTo(pad.left + plotW, y);
-    ctx.stroke();
-    ctx.fillText(val.toFixed(2) + " $", pad.left - 8, y);
+  function chargerFavoris() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_FAV_KEY));
+      if (Array.isArray(saved) && saved.length > 0) {
+        const sansXeqt = saved.filter(s => s !== "XEQT.TO");
+        return ["XEQT.TO", ...sansXeqt];
+      }
+    } catch (e) {}
+    return [...DEFAULT_FAVORITES];
   }
 
-  // Grille verticale et axe X (Dates)
-  ctx.textAlign = "center";
-  ctx.textBaseline = "top";
-  const xTicks = Math.min(8, points.length - 1);
-  for (let i = 0; i <= xTicks; i++) {
-    const idx = Math.round((i / xTicks) * (points.length - 1));
-    const x = getX(idx);
-    ctx.beginPath();
-    ctx.moveTo(x, pad.top);
-    ctx.lineTo(x, pad.top + plotH);
-    ctx.stroke();
-    ctx.fillText(points[idx].date, x, pad.top + plotH + 8);
+  function sauvegarderFavoris(list) {
+    const sansXeqt = list.filter(s => s !== "XEQT.TO");
+    const ordonne = ["XEQT.TO", ...sansXeqt];
+    localStorage.setItem(STORAGE_FAV_KEY, JSON.stringify(ordonne));
+    afficherFavoris();
   }
 
-  // Remplissage léger entre -2σ et +2σ
-  ctx.save();
-  ctx.beginPath();
-  points.forEach((p, i) => {
-    const x = getX(i), y = getY(p.plus2);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  for (let i = points.length - 1; i >= 0; i--) {
-    ctx.lineTo(getX(i), getY(points[i].minus2));
-  }
-  ctx.closePath();
-  ctx.fillStyle = "rgba(96, 165, 250, 0.05)";
-  ctx.fill();
-  ctx.restore();
+  function afficherFavoris() {
+    const list = chargerFavoris();
+    const container = document.getElementById("favorites-list");
+    const currentSymbol = document.getElementById("ticker").value.trim().toUpperCase();
+    container.innerHTML = "";
 
-  // Fonction tracé de courbe
-  function drawSeries(key, color, lineWidth, dash = []) {
-    ctx.save();
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.setLineDash(dash);
-    ctx.beginPath();
-    points.forEach((p, i) => {
-      const x = getX(i), y = getY(p[key]);
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    list.forEach((sym) => {
+      const isPriority = sym === "XEQT.TO";
+      const chip = document.createElement("div");
+      chip.className = "fav-chip" + (sym === currentSymbol ? " active" : "") + (isPriority ? " priority" : "");
+
+      const btnSelect = document.createElement("button");
+      btnSelect.type = "button";
+      btnSelect.className = "fav-select-btn";
+      btnSelect.textContent = isPriority ? `★ ${sym}` : sym;
+      btnSelect.title = isPriority ? "Favori prioritaire" : `Analyser ${sym}`;
+      btnSelect.onclick = () => selectionnerFavori(sym);
+      chip.appendChild(btnSelect);
+
+      if (!isPriority) {
+        const btnDel = document.createElement("button");
+        btnDel.type = "button";
+        btnDel.className = "fav-del-btn";
+        btnDel.textContent = "×";
+        btnDel.title = `Retirer ${sym}`;
+        btnDel.onclick = (e) => {
+          e.stopPropagation();
+          supprimerFavori(sym);
+        };
+        chip.appendChild(btnDel);
+      }
+
+      container.appendChild(chip);
     });
-    ctx.stroke();
-    ctx.restore();
   }
 
-  drawSeries("plus2", "#f87171", 1.5, [6, 4]);
-  drawSeries("minus2", "#4ade80", 1.5, [6, 4]);
-  drawSeries("plus1", "#fbbf24", 1.2, [3, 3]);
-  drawSeries("minus1", "#38bdf8", 1.2, [3, 3]);
-  drawSeries("reg", "#f8fafc", 2.0, []);
-  drawSeries("close", "#60a5fa", 2.3, []);
+  function ajouterFavori() {
+    const input = document.getElementById("newFavInput");
+    let sym = input.value.trim().toUpperCase();
+    if (!sym) return;
+    if (!sym.includes(".")) sym += ".TO";
 
-  // Infobulle interactive au survol
-  if (hoverIndex >= 0 && hoverIndex < points.length) {
-    const pt = points[hoverIndex];
-    const hx = getX(hoverIndex);
-    const hy = getY(pt.close);
-
-    // Ligne verticale de repère
-    ctx.save();
-    ctx.strokeStyle = "rgba(226, 232, 240, 0.45)";
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(hx, pad.top);
-    ctx.lineTo(hx, pad.top + plotH);
-    ctx.stroke();
-    ctx.restore();
-
-    // Point sur le cours
-    ctx.fillStyle = "#60a5fa";
-    ctx.beginPath();
-    ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Boîte infobulle
-    const lines = [
-      `Séance #${pt.index} — ${pt.date}`,
-      `Clôture : ${pt.close.toFixed(2)} $`,
-      `Droite : ${pt.reg.toFixed(2)} $`,
-      `+2σ / -2σ : ${pt.plus2.toFixed(2)} $ / ${pt.minus2.toFixed(2)} $`
-    ];
-    const boxW = 215, boxH = 86;
-    let bx = hx + 14;
-    if (bx + boxW > width - 10) bx = hx - boxW - 14;
-    let by = Math.max(pad.top + 6, Math.min(pad.top + plotH - boxH - 6, hy - boxH / 2));
-
-    ctx.fillStyle = "rgba(15, 23, 42, 0.94)";
-    ctx.strokeStyle = "#475569";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(bx, by, boxW, boxH, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = "#f8fafc";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.font = "bold 11.5px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-    ctx.fillText(lines[0], bx + 10, by + 9);
-    ctx.font = "11.5px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-    ctx.fillStyle = "#93c5fd";
-    ctx.fillText(lines[1], bx + 10, by + 28);
-    ctx.fillStyle = "#e2e8f0";
-    ctx.fillText(lines[2], bx + 10, by + 46);
-    ctx.fillStyle = "#cbd5e1";
-    ctx.fillText(lines[3], bx + 10, by + 64);
+    const list = chargerFavoris();
+    if (!list.includes(sym)) {
+      list.push(sym);
+      sauvegarderFavoris(list);
+    }
+    input.value = "";
+    selectionnerFavori(sym);
   }
-}
 
-// ==========================================================
-// RÉCUPÉRATION DES DONNÉES ET CALCULS STATISTIQUES
-// ==========================================================
-async function fetchStockHistory(symbol, targetSessions = 252) {
-  const cleanSymbol = symbol.trim().toUpperCase();
-  const range = targetSessions <= 252 ? "2y" : "5y";
-  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSymbol)}?range=${range}&interval=1d`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
+  function supprimerFavori(sym) {
+    if (sym === "XEQT.TO") return;
+    const list = chargerFavoris().filter(s => s !== sym);
+    sauvegarderFavoris(list);
+  }
 
-  try {
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error("Erreur réseau");
-    const data = await res.json();
+  function reinitialiserFavoris() {
+    sauvegarderFavoris([...DEFAULT_FAVORITES]);
+    selectionnerFavori("XEQT.TO");
+  }
+
+  function selectionnerFavori(symbol) {
+    document.getElementById("ticker").value = symbol;
+    afficherFavoris();
+    lancerAnalyse();
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedKey = localStorage.getItem("gemini_api_key");
+    if (savedKey) document.getElementById("apiKey").value = savedKey;
+    document.getElementById("ticker").value = "XEQT.TO";
+    afficherFavoris();
+    initChartHover();
+    lancerAnalyse();
+  });
+
+  window.addEventListener("resize", () => {
+    if (lastChartState) {
+      drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, -1);
+    }
+  });
+
+  async function fetchTSXData(symbol, maxDays) {
+    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1y&interval=1d`;
+    
+    try {
+      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`);
+      if (!res.ok) throw new Error("Relais 1 indisponible");
+      const json = await res.json();
+      return parseYahooPayload(JSON.parse(json.contents), maxDays);
+    } catch (e) {
+      const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`);
+      if (!res2.ok) throw new Error("Impossible de joindre Yahoo Finance via les relais.");
+      const data2 = await res2.json();
+      return parseYahooPayload(data2, maxDays);
+    }
+  }
+
+  function parseYahooPayload(data, maxDays) {
+    if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
+      throw new Error("Symbole introuvable. Assurez-vous d'ajouter .TO pour Toronto (ex: XEQT.TO).");
+    }
     const result = data.chart.result[0];
     const timestamps = result.timestamp;
     const closes = result.indicators.quote[0].close;
+    const currency = result.meta.currency || "CAD";
 
-    const rows = [];
+    const cleanData = [];
     for (let i = 0; i < timestamps.length; i++) {
-      if (closes[i] !== null && closes[i] !== undefined && !isNaN(closes[i])) {
-        const d = new Date(timestamps[i] * 1000);
-        rows.push({ date: d.toISOString().split("T")[0], close: Number(closes[i]) });
+      if (closes[i] !== null && closes[i] !== undefined) {
+        cleanData.push({
+          date: new Date(timestamps[i] * 1000).toISOString().split("T")[0],
+          close: closes[i]
+        });
       }
     }
-    if (rows.length < 20) throw new Error("Données insuffisantes");
+    return { points: cleanData.slice(-maxDays), currency };
+  }
+
+  function calculateLinearRegression(points) {
+    const n = points.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+
+    for (let i = 0; i < n; i++) {
+      const x = i;
+      const y = points[i].close;
+      sumX += x;
+      sumY += y;
+      sumXY += x * y;
+      sumXX += x * x;
+    }
+
+    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    let ssRes = 0;
+    let ssTot = 0;
+    const meanY = sumY / n;
+    const regLine = [];
+
+    for (let i = 0; i < n; i++) {
+      const yPred = slope * i + intercept;
+      regLine.push(yPred);
+      ssRes += Math.pow(points[i].close - yPred, 2);
+      ssTot += Math.pow(points[i].close - meanY, 2);
+    }
+
+    const r2 = 1 - (ssRes / ssTot);
+    const stdDev = Math.sqrt(ssRes / n);
+
+    const upper1 = regLine.map(v => v + stdDev);
+    const lower1 = regLine.map(v => v - stdDev);
+    const upper2 = regLine.map(v => v + 2 * stdDev);
+    const lower2 = regLine.map(v => v - 2 * stdDev);
+
+    const currentPrice = points[n - 1].close;
+    const currentReg = regLine[n - 1];
+    const zScore = (currentPrice - currentReg) / stdDev;
+    const annualReturnPct = ((regLine[n - 1] - regLine[0]) / regLine[0]) * 100;
+
     return {
-      symbol: cleanSymbol,
-      currency: result.meta.currency || (cleanSymbol.endsWith(".TO") ? "CAD" : "USD"),
-      rows: rows.slice(-targetSessions),
-      isLive: true
+      slope, intercept, r2, stdDev, regLine,
+      upper1, lower1, upper2, lower2,
+      currentPrice, currentReg, zScore, annualReturnPct
     };
-  } catch (err) {
-    return generateFallbackData(cleanSymbol, targetSessions);
-  }
-}
-
-function generateFallbackData(symbol, n) {
-  let seed = 0;
-  for (let i = 0; i < symbol.length; i++) seed += symbol.charCodeAt(i) * (i + 1);
-  const basePrice = 80 + (seed % 180);
-  const drift = ((seed % 11) - 4) * 0.0005;
-  const vol = 0.012 + (seed % 8) * 0.0015;
-
-  const rows = [];
-  let price = basePrice;
-  const now = new Date();
-  let d = new Date(now);
-  d.setDate(d.getDate() - Math.ceil(n * 1.45));
-
-  while (rows.length < n) {
-    const day = d.getDay();
-    if (day !== 0 && day !== 6) {
-      seed = (seed * 9301 + 49297) % 233280;
-      const rnd = (seed / 233280) - 0.5;
-      price = price * (1 + drift + rnd * vol * 2.2);
-      rows.push({ date: d.toISOString().split("T")[0], close: Number(price.toFixed(2)) });
-    }
-    d.setDate(d.getDate() + 1);
-  }
-  return {
-    symbol,
-    currency: symbol.endsWith(".TO") ? "CAD" : "USD",
-    rows,
-    isLive: false
-  };
-}
-
-function computeRegression(rows) {
-  const n = rows.length;
-  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-
-  for (let i = 0; i < n; i++) {
-    const x = i + 1;
-    const y = rows[i].close;
-    sumX += x;
-    sumY += y;
-    sumXY += x * y;
-    sumXX += x * x;
   }
 
-  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
-  const meanY = sumY / n;
+  function drawCustomChart(symbol, points, reg, currency, hoverIdx = -1) {
+    lastChartState = { symbol, points, reg, currency };
+    const canvas = document.getElementById("regressionChart");
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
 
-  let ssRes = 0, ssTot = 0;
-  const series = rows.map((r, i) => {
-    const x = i + 1;
-    const reg = slope * x + intercept;
-    ssRes += Math.pow(r.close - reg, 2);
-    ssTot += Math.pow(r.close - meanY, 2);
-    return { index: x, date: r.date, close: r.close, reg };
-  });
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    const width = rect.width;
+    const height = rect.height;
 
-  const r2 = ssTot === 0 ? 0 : 1 - (ssRes / ssTot);
-  const stdErr = n > 2 ? Math.sqrt(ssRes / (n - 2)) : 0;
+    ctx.clearRect(0, 0, width, height);
 
-  const enriched = series.map(pt => ({
-    ...pt,
-    plus2: pt.reg + 2 * stdErr,
-    minus2: pt.reg - 2 * stdErr,
-    plus1: pt.reg + stdErr,
-    minus1: pt.reg - stdErr
-  }));
+    const padLeft = 58, padRight = 20, padTop = 15, padBottom = 35;
+    const plotW = width - padLeft - padRight;
+    const plotH = height - padTop - padBottom;
 
-  const last = enriched[enriched.length - 1];
-  const zScore = stdErr === 0 ? 0 : (last.close - last.reg) / stdErr;
-  const startReg = enriched[0].reg;
-  const annualizedPct = startReg === 0 ? 0 : (slope * n) / startReg;
+    const prices = points.map(p => p.close);
+    const allValues = [...prices, ...reg.upper2, ...reg.lower2];
+    const minVal = Math.min(...allValues);
+    const maxVal = Math.max(...allValues);
+    const range = (maxVal - minVal) || 1;
 
-  return {
-    n, slope, intercept, stdErr, r2,
-    lastClose: last.close,
-    lastReg: last.reg,
-    zScore,
-    annualizedPct,
-    points: enriched
-  };
-}
+    const getX = (i) => padLeft + (i / (points.length - 1)) * plotW;
+    const getY = (v) => padTop + plotH - ((v - minVal) / range) * plotH;
 
-function getSignalInfo(z) {
-  if (z >= 2) return { text: "Surachat fort (> +2σ)", cls: "sig-strong-sell" };
-  if (z >= 1) return { text: "Haut de canal (+1σ à +2σ)", cls: "sig-sell" };
-  if (z <= -2) return { text: "Survente forte (< -2σ)", cls: "sig-strong-buy" };
-  if (z <= -1) return { text: "Bas de canal (-1σ à -2σ)", cls: "sig-buy" };
-  return { text: "Zone neutre (±1σ)", cls: "sig-neutral" };
-}
+    lastChartState.layout = { padLeft, padRight, padTop, padBottom, plotW, plotH, getX, getY };
 
-function applySingleAnalysisUI(symbol, currency, rows, sourceLabel, statusType = "") {
-  const reg = computeRegression(rows);
-  currentSingleData = { symbol, currency, reg };
+    ctx.strokeStyle = "#334155";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    const gridSteps = 5;
+    for (let s = 0; s <= gridSteps; s++) {
+      const val = minVal + (s / gridSteps) * range;
+      const y = getY(val);
+      ctx.beginPath();
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(width - padRight, y);
+      ctx.stroke();
+      ctx.fillText(val.toFixed(2), padLeft - 8, y);
+    }
 
-  const statusEl = document.getElementById("singleStatus");
-  statusEl.textContent = sourceLabel;
-  statusEl.className = "status-bar" + (statusType ? " " + statusType : "");
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    const xTicks = 6;
+    for (let t = 0; t <= xTicks; t++) {
+      const idx = Math.round((t / xTicks) * (points.length - 1));
+      const x = getX(idx);
+      ctx.fillText(points[idx].date, x, height - padBottom + 10);
+    }
 
-  document.getElementById("statCount").textContent = reg.n;
-  document.getElementById("statLastPrice").textContent = `${reg.lastClose.toFixed(2)} $`;
-  document.getElementById("statRegPrice").textContent = `${reg.lastReg.toFixed(2)} $`;
-
-  const zEl = document.getElementById("statZScore");
-  const boxSigma = document.getElementById("boxSigma");
-  zEl.textContent = `${reg.zScore >= 0 ? "+" : ""}${reg.zScore.toFixed(2)} σ`;
-
-  boxSigma.classList.remove("good", "bad");
-  if (reg.zScore <= -1.5) boxSigma.classList.add("good");
-  else if (reg.zScore >= 1.5) boxSigma.classList.add("bad");
-
-  document.getElementById("statR2").textContent = `${(reg.r2 * 100).toFixed(2)} %`;
-  document.getElementById("statSlope").textContent = `${reg.slope >= 0 ? "+" : ""}${reg.slope.toFixed(4)} $`;
-  document.getElementById("statIntercept").textContent = `${reg.intercept.toFixed(2)} $`;
-  document.getElementById("statStdErr").textContent = `${reg.stdErr.toFixed(2)} $`;
-
-  drawNativeChart(symbol, reg.points);
-  renderDetailTable(symbol, reg.points);
-}
-
-async function loadSingleStock() {
-  const symbol = document.getElementById("tickerInput").value.trim().toUpperCase();
-  const periods = parseInt(document.getElementById("periodsInput").value, 10) || 252;
-  if (!symbol) return;
-
-  const statusEl = document.getElementById("singleStatus");
-  statusEl.className = "status-bar";
-  statusEl.textContent = `Téléchargement des ${periods} dernières séances pour ${symbol}...`;
-
-  const data = await fetchStockHistory(symbol, periods);
-  const label = data.isLive
-    ? `Données en direct chargées pour ${data.symbol} (${data.currency}) — ${data.rows.length} séances analysées.`
-    : `Mode simulation hors-ligne pour ${data.symbol} (${data.currency}) — ${data.rows.length} séances générées.`;
-
-  applySingleAnalysisUI(data.symbol, data.currency, data.rows, label, data.isLive ? "" : "warn");
-}
-
-function handleImportTickerList(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result.replace(/^\uFEFF/, "");
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    const ignored = new Set(["SYMBOLE", "SYMBOL", "TICKER", "TICKERS", "ACTION", "ACTIONS", "STOCK", "MARCHE", "MARCHÉ"]);
-    const extracted = [];
-
-    for (const line of lines) {
-      const tokens = line.split(/[;,\t\s]+/).map(t => t.replace(/^"|"$/g, "").trim().toUpperCase()).filter(Boolean);
-      for (const tok of tokens) {
-        if (ignored.has(tok)) continue;
-        if (/^[A-Z0-9]{1,8}(\.[A-Z]{1,4}|-[A-Z]{1,2})?$/.test(tok)) {
-          if (!extracted.includes(tok)) extracted.push(tok);
-          if (line.includes(";") || line.includes(",")) break;
-        }
+    function plotSeries(arr, color, lineWidth, dash) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath();
+      for (let i = 0; i < arr.length; i++) {
+        const x = getX(i);
+        const y = getY(arr[i]);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
+      ctx.stroke();
+      ctx.restore();
     }
 
-    if (extracted.length === 0) {
-      alert("Aucun symbole boursier valide détecté dans ce fichier.");
-      return;
+    plotSeries(reg.upper2, "rgba(239, 68, 68, 0.7)", 1.5, [4, 4]);
+    plotSeries(reg.lower2, "rgba(239, 68, 68, 0.7)", 1.5, [4, 4]);
+    plotSeries(reg.upper1, "rgba(16, 185, 129, 0.7)", 1.5, [5, 5]);
+    plotSeries(reg.lower1, "rgba(16, 185, 129, 0.7)", 1.5, [5, 5]);
+    plotSeries(reg.regLine, "#f59e0b", 2, []);
+    plotSeries(prices, "#38bdf8", 2, []);
+
+    if (hoverIdx >= 0 && hoverIdx < points.length) {
+      const hx = getX(hoverIdx);
+      const hyPrice = getY(prices[hoverIdx]);
+      const hyReg = getY(reg.regLine[hoverIdx]);
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(248, 250, 252, 0.35)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(hx, padTop);
+      ctx.lineTo(hx, padTop + plotH);
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = "#38bdf8";
+      ctx.beginPath();
+      ctx.arc(hx, hyPrice, 4.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#f59e0b";
+      ctx.beginPath();
+      ctx.arc(hx, hyReg, 4, 0, Math.PI * 2);
+      ctx.fill();
     }
+  }
 
-    const replaceMode = confirm(
-      `${extracted.length} symbole(s) détecté(s) : ${extracted.slice(0, 8).join(", ")}${extracted.length > 8 ? "..." : ""}.\n\n` +
-      `OK = REMPLACER la liste actuelle | Annuler = AJOUTER à la liste existante.`
-    );
+  function initChartHover() {
+    const canvas = document.getElementById("regressionChart");
+    const tooltip = document.getElementById("chartTooltip");
+    const container = document.getElementById("chartContainer");
 
-    if (replaceMode) {
-      screenerTickers = extracted;
-    } else {
-      for (const sym of extracted) {
-        if (!screenerTickers.includes(sym)) screenerTickers.push(sym);
+    canvas.addEventListener("mousemove", (e) => {
+      if (!lastChartState || !lastChartState.layout) return;
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const { padLeft, plotW } = lastChartState.layout;
+      const n = lastChartState.points.length;
+
+      if (mouseX < padLeft || mouseX > padLeft + plotW) {
+        tooltip.style.display = "none";
+        drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, -1);
+        return;
       }
-    }
 
-    localStorage.setItem("reg252_tickers", JSON.stringify(screenerTickers));
-    refreshScreener();
-  };
-  reader.readAsText(file, "UTF-8");
-  event.target.value = "";
-}
+      const ratio = (mouseX - padLeft) / plotW;
+      const idx = Math.max(0, Math.min(n - 1, Math.round(ratio * (n - 1))));
 
-function handleImportSingleHistory(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+      drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, idx);
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result.replace(/^\uFEFF/, "");
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if (lines.length < 5) {
-      alert("Le fichier CSV ne contient pas suffisamment de lignes.");
-      return;
-    }
+      const pt = lastChartState.points[idx];
+      const regVal = lastChartState.reg.regLine[idx];
+      const zLocal = (pt.close - regVal) / lastChartState.reg.stdDev;
+      const cur = lastChartState.currency;
 
-    const sep = lines[0].includes(";") ? ";" : ",";
-    const headers = lines[0].split(sep).map(h => h.replace(/^"|"$/g, "").trim().toLowerCase());
+      tooltip.innerHTML = `
+        <div class="tooltip-date">${pt.date} (Jour ${idx + 1}/${n})</div>
+        <div class="tooltip-row"><span>Clôture :</span><strong>${pt.close.toFixed(2)} ${cur}</strong></div>
+        <div class="tooltip-row"><span>Droite :</span><span>${regVal.toFixed(2)} ${cur}</span></div>
+        <div class="tooltip-row"><span>Écart :</span><span>${zLocal >= 0 ? "+" : ""}${zLocal.toFixed(2)} σ</span></div>
+      `;
+      tooltip.style.display = "block";
 
-    let dateCol = headers.findIndex(h => h.includes("date"));
-    let closeCol = headers.findIndex(h => h.includes("close") || h.includes("clôture") || h.includes("cloture") || h.includes("prix") || h.includes("price"));
-
-    let startRow = 1;
-    if (dateCol === -1 || closeCol === -1) {
-      dateCol = 0;
-      closeCol = 1;
-      startRow = 0;
-    }
-
-    const parsedRows = [];
-    for (let i = startRow; i < lines.length; i++) {
-      const cols = lines[i].split(sep).map(c => c.replace(/^"|"$/g, "").trim());
-      if (cols.length <= Math.max(dateCol, closeCol)) continue;
-      const dateVal = cols[dateCol];
-      const numStr = cols[closeCol].replace(/\s/g, "").replace(",", ".");
-      const closeVal = parseFloat(numStr);
-      if (dateVal && !isNaN(closeVal) && closeVal > 0) {
-        parsedRows.push({ date: dateVal, close: closeVal });
+      const containerRect = container.getBoundingClientRect();
+      let leftPos = e.clientX - containerRect.left + 14;
+      if (leftPos + 205 > containerRect.width) {
+        leftPos = e.clientX - containerRect.left - 210;
       }
-    }
+      const topPos = Math.max(10, e.clientY - containerRect.top - 45);
+      tooltip.style.left = `${leftPos}px`;
+      tooltip.style.top = `${topPos}px`;
+    });
 
-    if (parsedRows.length < 5) {
-      alert("Impossible d'extraire les colonnes Date et Clôture de ce fichier CSV.");
-      return;
-    }
-
-    if (parsedRows[0].date > parsedRows[parsedRows.length - 1].date) {
-      parsedRows.reverse();
-    }
-
-    const targetPeriods = parseInt(document.getElementById("periodsInput").value, 10) || 252;
-    const slicedRows = parsedRows.slice(-targetPeriods);
-    const fileNameSymbol = file.name.replace(/\.(csv|txt)$/i, "").toUpperCase();
-
-    document.getElementById("tickerInput").value = fileNameSymbol;
-    applySingleAnalysisUI(
-      fileNameSymbol,
-      "CSV Local",
-      slicedRows,
-      `Fichier CSV local « ${file.name} » chargé — ${slicedRows.length} séances analysées.`
-    );
-  };
-  reader.readAsText(file, "UTF-8");
-  event.target.value = "";
-}
-
-function renderDetailTable(symbol, points) {
-  document.getElementById("tableTickerTitle").textContent = symbol;
-  const tbody = document.getElementById("detailTableBody");
-  const reversed = [...points].reverse();
-  tbody.innerHTML = reversed.map(p => `
-    <tr>
-      <td class="c">${p.index}</td>
-      <td class="c">${p.date}</td>
-      <td><strong>${p.close.toFixed(2)}</strong></td>
-      <td>${p.reg.toFixed(2)}</td>
-      <td style="color:#f87171;">${p.plus2.toFixed(2)}</td>
-      <td>${p.plus1.toFixed(2)}</td>
-      <td>${p.minus1.toFixed(2)}</td>
-      <td style="color:#4ade80;">${p.minus2.toFixed(2)}</td>
-    </tr>
-  `).join("");
-}
-
-async function refreshScreener() {
-  const statusEl = document.getElementById("screenerStatus");
-  statusEl.textContent = "Calcul en cours pour les actions du screener...";
-  screenerResults = [];
-
-  for (const sym of screenerTickers) {
-    const data = await fetchStockHistory(sym, 252);
-    const reg = computeRegression(data.rows);
-    const sig = getSignalInfo(reg.zScore);
-    const market = sym.endsWith(".TO") ? "CAD (TSX)" : "USA";
-
-    screenerResults.push({
-      symbol: sym,
-      market,
-      isLive: data.isLive,
-      lastClose: reg.lastClose,
-      lastReg: reg.lastReg,
-      slope: reg.slope,
-      annualizedPct: reg.annualizedPct,
-      stdErr: reg.stdErr,
-      zScore: reg.zScore,
-      r2: reg.r2,
-      signalText: sig.text,
-      signalCls: sig.cls
+    canvas.addEventListener("mouseleave", () => {
+      tooltip.style.display = "none";
+      if (lastChartState) {
+        drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, -1);
+      }
     });
   }
 
-  renderScreenerTable();
-  statusEl.textContent = `Screener à jour (${screenerTickers.length} actions). Cliquez sur un en-tête pour trier ou sur un symbole pour voir son graphique.`;
-}
+  async function askGemini(apiKey, symbol, currency, count, reg) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-function renderScreenerTable() {
-  const tbody = document.getElementById("screenerBody");
-  const filter = document.getElementById("marketFilter").value;
+    const prompt = `Tu es un analyste financier quantitatif spécialisé sur la Bourse de Toronto (TSX).
+Analyse les résultats mathématiques exacts d'une régression linéaire calculée sur les ${count} derniers jours de bourse pour le titre ou FNB ${symbol} (en ${currency}) :
+- Prix actuel : ${reg.currentPrice.toFixed(2)} ${currency}
+- Prix théorique sur la droite de régression : ${reg.currentReg.toFixed(2)} ${currency}
+- Tendance sur la période (252 jours) : ${reg.annualReturnPct >= 0 ? "+" : ""}${reg.annualReturnPct.toFixed(2)} %
+- Coefficient de détermination R² : ${reg.r2.toFixed(3)}
+- Écart-type (1σ) : ${reg.stdDev.toFixed(2)} ${currency}
+- Position actuelle (Z-Score) : ${reg.zScore >= 0 ? "+" : ""}${reg.zScore.toFixed(2)} σ par rapport à la droite
 
-  let filtered = [...screenerResults];
-  if (filter === "CAD") filtered = filtered.filter(r => r.symbol.endsWith(".TO"));
-  else if (filter === "USA") filtered = filtered.filter(r => !r.symbol.endsWith(".TO"));
-  else if (filter === "OVERSOLD") filtered = filtered.filter(r => r.zScore <= -1);
-  else if (filter === "OVERBOUGHT") filtered = filtered.filter(r => r.zScore >= 1);
+Rédige une analyse claire, structurée et objective en français (sans conseil d'investissement personnalisé) couvrant :
+1. La direction et la régularité de la tendance (interprétation de la pente et du R²).
+2. Le positionnement actuel du prix dans le canal de volatilité (entre -2σ et +2σ) et ce que cela suggère statistiquement.
+3. Un point de vigilance technique à surveiller.`;
 
-  filtered.sort((a, b) => {
-    const valA = a[sortState.key];
-    const valB = b[sortState.key];
-    if (typeof valA === "string") {
-      return sortState.dir === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `Erreur API Gemini (${response.status})`);
     }
-    return sortState.dir === "asc" ? valA - valB : valB - valA;
-  });
 
-  tbody.innerHTML = filtered.map(r => {
-    const r2Badge = r.r2 >= 0.7
-      ? `<span class="r2-high">${(r.r2 * 100).toFixed(1)} %</span>`
-      : `${(r.r2 * 100).toFixed(1)} %`;
-    const simTag = r.isLive ? "" : `<span class="sim" title="Données simulées hors-ligne">SIM</span>`;
-
-    return `
-      <tr>
-        <td class="c">
-          <span class="ticker-link" onclick="openFromScreener('${r.symbol}')">${r.symbol}</span>${simTag}
-          <button class="del-btn" title="Retirer" onclick="removeScreenerTicker('${r.symbol}')">×</button>
-        </td>
-        <td class="c">${r.market}</td>
-        <td><strong>${r.lastClose.toFixed(2)}</strong></td>
-        <td>${r.lastReg.toFixed(2)}</td>
-        <td>${r.slope >= 0 ? "+" : ""}${r.slope.toFixed(3)}</td>
-        <td>${r.annualizedPct >= 0 ? "+" : ""}${(r.annualizedPct * 100).toFixed(1)} %</td>
-        <td>${r.stdErr.toFixed(2)}</td>
-        <td><strong>${r.zScore >= 0 ? "+" : ""}${r.zScore.toFixed(2)} σ</strong></td>
-        <td>${r2Badge}</td>
-        <td class="c"><span class="badge ${r.signalCls}">${r.signalText}</span></td>
-      </tr>
-    `;
-  }).join("");
-}
-
-function openFromScreener(sym) {
-  document.getElementById("tickerInput").value = sym;
-  document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-  document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
-  document.getElementById("tab-analyse").classList.add("active");
-  document.querySelector(".tab-btn[data-tab='analyse']").classList.add("active");
-  loadSingleStock();
-}
-
-function addScreenerTicker() {
-  const input = document.getElementById("newTickerInput");
-  const val = input.value.trim().toUpperCase();
-  if (!val) return;
-  if (!screenerTickers.includes(val)) {
-    screenerTickers.push(val);
-    localStorage.setItem("reg252_tickers", JSON.stringify(screenerTickers));
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
   }
-  input.value = "";
-  refreshScreener();
-}
 
-function removeScreenerTicker(sym) {
-  screenerTickers = screenerTickers.filter(t => t !== sym);
-  localStorage.setItem("reg252_tickers", JSON.stringify(screenerTickers));
-  refreshScreener();
-}
+  async function lancerAnalyse() {
+    const symbol = document.getElementById("ticker").value.trim().toUpperCase();
+    const maxDays = parseInt(document.getElementById("period").value, 10) || 252;
+    const apiKey = document.getElementById("apiKey").value.trim();
+    const statusEl = document.getElementById("status");
+    const aiOutputEl = document.getElementById("ai-output");
+    const btn = document.getElementById("btnRun");
 
-function resetDefaultTickers() {
-  screenerTickers = [...defaultTickers];
-  localStorage.setItem("reg252_tickers", JSON.stringify(screenerTickers));
-  refreshScreener();
-}
+    if (!symbol) {
+      statusEl.textContent = "Veuillez entrer un symbole boursier (ex: XEQT.TO).";
+      return;
+    }
 
-function downloadCSV(filename, headers, rows) {
-  const csvLines = [
-    headers.join(";"),
-    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(";"))
-  ];
-  const bom = "\uFEFF";
-  const blob = new Blob([bom + csvLines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
+    if (apiKey) {
+      localStorage.setItem("gemini_api_key", apiKey);
+    }
 
-function exportScreenerCSV() {
-  if (!screenerResults.length) {
-    alert("Veuillez patienter pendant le chargement des données du screener.");
-    return;
+    btn.disabled = true;
+    statusEl.textContent = `Téléchargement des ${maxDays} jours pour ${symbol}...`;
+
+    try {
+      const { points, currency } = await fetchTSXData(symbol, maxDays);
+      const reg = calculateLinearRegression(points);
+
+      document.getElementById("m-price").textContent = `${reg.currentPrice.toFixed(2)} ${currency}`;
+      document.getElementById("m-reg").textContent = `${reg.currentReg.toFixed(2)} ${currency}`;
+      
+      const slopeEl = document.getElementById("m-slope");
+      slopeEl.textContent = `${reg.annualReturnPct >= 0 ? "+" : ""}${reg.annualReturnPct.toFixed(1)} %`;
+      slopeEl.style.color = reg.annualReturnPct >= 0 ? "var(--green)" : "var(--red)";
+
+      document.getElementById("m-r2").textContent = reg.r2.toFixed(3);
+      
+      const zEl = document.getElementById("m-zscore");
+      zEl.textContent = `${reg.zScore >= 0 ? "+" : ""}${reg.zScore.toFixed(2)} σ`;
+      zEl.style.color = Math.abs(reg.zScore) > 1.5 ? "#f59e0b" : "var(--text)";
+
+      drawCustomChart(symbol, points, reg, currency, -1);
+
+      if (!apiKey) {
+        statusEl.textContent = `Graphique généré (${points.length} jours). Ajoutez votre clé Gemini pour l'analyse IA.`;
+        aiOutputEl.textContent = "Aucune clé API Gemini renseignée. Le graphique et les calculs mathématiques fonctionnent tout de même ! Collez votre clé AIza... ci-dessus pour obtenir le commentaire de l'IA.";
+      } else {
+        statusEl.textContent = "Interrogation de Gemini en cours...";
+        aiOutputEl.textContent = "Analyse des données mathématiques par Gemini...";
+        const analysis = await askGemini(apiKey, symbol, currency, points.length, reg);
+        aiOutputEl.textContent = analysis;
+        statusEl.textContent = `Analyse terminée pour ${symbol} (${points.length} séances).`;
+      }
+    } catch (err) {
+      statusEl.textContent = `Erreur : ${err.message}`;
+      aiOutputEl.textContent = "Impossible de terminer l'analyse. Vérifiez le symbole (ex: XEQT.TO, VFV.TO) ou votre connexion.";
+    } finally {
+      btn.disabled = false;
+    }
   }
-  const todayStr = new Date().toISOString().split("T")[0];
-  const headers = [
-    "Symbole", "Marché", "Dernier Cours ($)", "Droite 252j ($)",
-    "Pente / Séance ($)", "Tendance Annualisée (%)", "Écart-Type σ ($)",
-    "Position Actuelle (σ)", "Coefficient R² (%)", "Signal Statistique"
-  ];
-  const rows = screenerResults.map(r => [
-    r.symbol,
-    r.market,
-    r.lastClose.toFixed(2).replace(".", ","),
-    r.lastReg.toFixed(2).replace(".", ","),
-    r.slope.toFixed(4).replace(".", ","),
-    (r.annualizedPct * 100).toFixed(2).replace(".", ","),
-    r.stdErr.toFixed(2).replace(".", ","),
-    r.zScore.toFixed(2).replace(".", ","),
-    (r.r2 * 100).toFixed(2).replace(".", ","),
-    r.signalText
-  ]);
-  downloadCSV(`Screener_Regression_252j_${todayStr}.csv`, headers, rows);
-}
-
-function exportSingleCSV() {
-  if (!currentSingleData) return;
-  const { symbol, reg } = currentSingleData;
-  const todayStr = new Date().toISOString().split("T")[0];
-  const headers = [
-    "Séance", "Date", "Clôture ($)", "Droite Régression ($)",
-    "Bande +2σ ($)", "Bande +1σ ($)", "Bande -1σ ($)", "Bande -2σ ($)"
-  ];
-  const rows = reg.points.map(p => [
-    p.index,
-    p.date,
-    p.close.toFixed(2).replace(".", ","),
-    p.reg.toFixed(2).replace(".", ","),
-    p.plus2.toFixed(2).replace(".", ","),
-    p.plus1.toFixed(2).replace(".", ","),
-    p.minus1.toFixed(2).replace(".", ","),
-    p.minus2.toFixed(2).replace(".", ",")
-  ]);
-  downloadCSV(`Regression_252j_${symbol}_${todayStr}.csv`, headers, rows);
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  loadSingleStock();
-  refreshScreener();
-});
 </script>
+
 </body>
 </html>
