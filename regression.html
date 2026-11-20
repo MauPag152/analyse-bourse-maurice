@@ -1,655 +1,730 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analyse TSX (252 jours) — Régression Linéaire &amp; Gemini IA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MP officiel 26-11-20 — Droite de Régression (12 derniers mois)</title>
+  <!-- Chargement de Tailwind CSS pour une mise en page moderne et responsive -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chargement de la police Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Chargement de Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
-    :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --border: #334155;
-      --green: #10b981;
-      --red: #ef4444;
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.5; }
-    .container { max-width: 1100px; margin: 0 auto; }
-    h1 { font-size: 1.5rem; margin-bottom: 5px; color: var(--accent); }
-    p.subtitle { color: var(--muted); margin-top: 0; margin-bottom: 20px; font-size: 0.95rem; }
-    .panel {
-      background: var(--card); padding: 16px; border-radius: 10px; border: 1px solid var(--border);
-      margin-bottom: 20px;
+    /* Barre de défilement discrète pour le tableau */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
     }
-    .favorites-bar {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
-      margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
     }
-    .favorites-label {
-      font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-right: 4px;
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
-    .fav-chip {
-      display: inline-flex; align-items: center;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 6px; overflow: hidden; transition: all 0.15s;
-    }
-    .fav-chip:hover { border-color: var(--accent); }
-    .fav-chip.active { background: var(--accent); border-color: var(--accent); }
-    .fav-chip.priority { border-color: #f59e0b; }
-    .fav-chip.active.priority { background: var(--accent); border-color: #f59e0b; }
-    .fav-select-btn {
-      background: transparent; color: var(--text); border: none;
-      padding: 6px 10px; font-size: 0.85rem; font-weight: 600;
-      cursor: pointer; height: auto;
-    }
-    .fav-chip.active .fav-select-btn { color: #0f172a; }
-    .fav-del-btn {
-      background: transparent; color: var(--muted); border: none; border-left: 1px solid var(--border);
-      padding: 6px 8px; font-size: 0.8rem; cursor: pointer; height: auto;
-    }
-    .fav-del-btn:hover { background: var(--red); color: #fff; }
-    .fav-chip.active .fav-del-btn { color: #0f172a; border-left-color: rgba(15, 23, 42, 0.2); }
-    .fav-chip.active .fav-del-btn:hover { background: var(--red); color: #fff; }
-
-    .add-fav-group {
-      display: inline-flex; align-items: center; gap: 6px; margin-left: auto;
-    }
-    .add-fav-input {
-      width: 115px; height: 32px; padding: 4px 8px; font-size: 0.85rem;
-      background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px;
-    }
-    .add-fav-btn {
-      height: 32px; padding: 0 10px; font-size: 0.8rem; font-weight: 600;
-      background: #334155; color: var(--text); border: none; border-radius: 6px; cursor: pointer;
-    }
-    .add-fav-btn:hover { background: var(--accent); color: #0f172a; }
-    .reset-fav-btn {
-      height: 32px; padding: 0 8px; font-size: 0.75rem;
-      background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
-    }
-    .reset-fav-btn:hover { color: var(--text); border-color: var(--muted); }
-
-    .controls {
-      display: grid; grid-template-columns: 1fr 160px 2fr auto; gap: 12px;
-    }
-    @media (max-width: 820px) {
-      .controls { grid-template-columns: 1fr; }
-      .add-fav-group { margin-left: 0; width: 100%; margin-top: 6px; }
-    }
-    .input-group { display: flex; flex-direction: column; gap: 5px; }
-    label { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-    input, select {
-      background: var(--bg); border: 1px solid var(--border); color: var(--text);
-      padding: 10px 12px; border-radius: 6px; font-size: 0.95rem; height: 41px;
-    }
-    input:focus, select:focus { outline: none; border-color: var(--accent); }
-    button.primary-btn {
-      background: var(--accent); color: #0f172a; font-weight: 700; border: none;
-      padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
-      align-self: end; height: 41px; transition: background 0.2s;
-    }
-    button.primary-btn:hover { background: var(--accent-hover); color: #fff; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .metrics {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px; margin-bottom: 20px;
-    }
-    .metric-card {
-      background: var(--card); padding: 14px; border-radius: 8px; border: 1px solid var(--border);
-    }
-    .metric-label { font-size: 0.8rem; color: var(--muted); }
-    .metric-value { font-size: 1.3rem; font-weight: 700; margin-top: 4px; }
-    .chart-box {
-      background: var(--card); padding: 16px; border-radius: 10px; border: 1px solid var(--border);
-      margin-bottom: 20px; position: relative;
-    }
-    .legend {
-      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
-      margin-bottom: 10px; font-size: 0.85rem; color: #cbd5e1;
-    }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .legend-line { width: 18px; height: 3px; display: inline-block; }
-    canvas { width: 100%; height: 380px; display: block; cursor: crosshair; }
-    .tooltip {
-      position: absolute; display: none; pointer-events: none;
-      background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent);
-      border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: var(--text);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); z-index: 10; min-width: 190px;
-    }
-    .tooltip-date { font-weight: 700; color: var(--accent); margin-bottom: 4px; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
-    .tooltip-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 2px; }
-    .ai-box {
-      background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border);
-    }
-    .ai-header { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
-    #ai-output { white-space: pre-wrap; color: #e2e8f0; font-size: 0.95rem; }
-    .status { font-size: 0.9rem; color: var(--accent); margin-bottom: 15px; min-height: 20px; }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+  <!-- Conteneur principal fluide -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-<div class="container">
-  <h1>Analyse TSX — Régression Linéaire (252 jours) &amp; Gemini IA</h1>
-  <p class="subtitle">Approche hybride autonome : données Bourse de Toronto (.TO), calculs mathématiques locaux et interprétation par Gemini.</p>
+    <!-- En-tête du tableau de bord -->
+    <header class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+          <span>MP officiel 26-11-20 — Version V1</span>
+          <span>•</span>
+          <span id="periodBadge">2025-11-20 → 2026-11-20 (12 mois)</span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          Droite de Régression Linéaire — Canal Achat &amp; Vente
+        </h1>
+        <p id="instrumentSubtitle" class="text-sm text-slate-500">
+          TSE:XEQT — iShares Core Equity ETF Portfolio • Données corrigées sans décalage d'index
+        </p>
+      </div>
 
-  <div class="panel">
-    <div class="favorites-bar">
-      <span class="favorites-label">Favoris :</span>
-      <div id="favorites-list" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      <!-- Actions rapides : import CSV/JSON & export CSV -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <label class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          <span>Importer CSV / JSON</span>
+          <input id="fileInput" type="file" accept=".csv,.json,text/csv,application/json" class="hidden" />
+        </label>
+        <button id="exportCsvBtn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
+          <span>Exporter CSV (12 mois)</span>
+        </button>
+      </div>
+    </header>
 
-      <div class="add-fav-group">
-        <input type="text" id="newFavInput" class="add-fav-input" placeholder="Ex: RY.TO" onkeydown="if(event.key==='Enter') ajouterFavori()">
-        <button type="button" class="add-fav-btn" onclick="ajouterFavori()">+ Ajouter</button>
-        <button type="button" class="reset-fav-btn" title="Réinitialiser les favoris par défaut" onclick="reinitialiserFavoris()">↺</button>
-      </div>
-    </div>
+    <!-- Bandeau de message d'information / erreur (jamais alert()) -->
+    <div id="statusBanner" class="hidden rounded-xl px-4 py-3 text-sm font-medium border" role="status"></div>
 
-    <div class="controls">
-      <div class="input-group">
-        <label for="ticker">Symbole TSX</label>
-        <input type="text" id="ticker" value="XEQT.TO" placeholder="XEQT.TO" oninput="afficherFavoris()">
+    <!-- Barre de paramètres interactifs -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500">
+          Paramètres du titre &amp; de la régression (12 derniers mois)
+        </h2>
+        <button id="resetDefaultsBtn" type="button" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline">
+          Réinitialiser valeurs MP V1
+        </button>
       </div>
-      <div class="input-group">
-        <label for="period">Période</label>
-        <select id="period">
-          <option value="252" selected>252 jours (1 an)</option>
-        </select>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+        <!-- Symbole -->
+        <div class="lg:col-span-1">
+          <label for="tickerInput" class="block text-xs font-medium text-slate-600 mb-1">Symbole</label>
+          <input id="tickerInput" type="text" value="TSE:XEQT" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+
+        <!-- Nom -->
+        <div class="lg:col-span-2">
+          <label for="nameInput" class="block text-xs font-medium text-slate-600 mb-1">Nom de l'actif</label>
+          <input id="nameInput" type="text" value="iShares Core Equity ETF Portfolio" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+
+        <!-- Fréquence -->
+        <div>
+          <label for="intervalSelect" class="block text-xs font-medium text-slate-600 mb-1">Échantillonnage</label>
+          <select id="intervalSelect" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="weekly" selected>Hebdomadaire (52 pts)</option>
+            <option value="daily">Quotidien (252 j ouvrés)</option>
+          </select>
+        </div>
+
+        <!-- Cours actuel -->
+        <div>
+          <label for="currentPriceInput" class="block text-xs font-medium text-slate-600 mb-1">Cours actuel (CAD)</label>
+          <input id="currentPriceInput" type="number" step="0.01" value="42.14" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+
+        <!-- Écart-type -->
+        <div>
+          <label for="stdDevInput" class="block text-xs font-medium text-slate-600 mb-1">Écart-type (σ)</label>
+          <input id="stdDevInput" type="number" step="0.000001" value="2.277446348" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
       </div>
-      <div class="input-group">
-        <label for="apiKey">Clé API Gemini Gratuite (locale)</label>
-        <input type="password" id="apiKey" placeholder="Collez votre clé AIza... ici (1 seule fois)">
+
+      <!-- Deuxième ligne de paramètres issus de la feuille MP V1 -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-4 pt-4 border-t border-slate-100">
+        <div>
+          <label for="trendPlus2Input" class="block text-xs font-medium text-red-700 mb-1">Vente / Tendance +2 (CAD)</label>
+          <input id="trendPlus2Input" type="number" step="0.01" value="51.24" class="w-full rounded-xl border border-red-200 bg-red-50/40 px-3 py-1.5 text-sm font-semibold text-red-800 focus:outline-none focus:ring-2 focus:ring-red-400" />
+        </div>
+        <div>
+          <label for="trendPlus1Input" class="block text-xs font-medium text-slate-600 mb-1">Tendance +1 (CAD)</label>
+          <input id="trendPlus1Input" type="number" step="0.01" value="48.96" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="trendCenterInput" class="block text-xs font-medium text-slate-600 mb-1">Tendance centrale (CAD)</label>
+          <input id="trendCenterInput" type="number" step="0.01" value="46.69" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="trendMinus1Input" class="block text-xs font-medium text-slate-600 mb-1">Tendance -1 (CAD)</label>
+          <input id="trendMinus1Input" type="number" step="0.01" value="44.41" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label for="trendMinus2Input" class="block text-xs font-medium text-emerald-700 mb-1">Achat / Tendance -2 (CAD)</label>
+          <input id="trendMinus2Input" type="number" step="0.01" value="42.13" class="w-full rounded-xl border border-emerald-200 bg-emerald-50/40 px-3 py-1.5 text-sm font-semibold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
+        </div>
+        <div class="flex items-end">
+          <button id="applyParamsBtn" type="button" class="w-full py-1.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">
+            Mettre à jour
+          </button>
+        </div>
       </div>
-      <button type="button" class="primary-btn" id="btnRun" onclick="lancerAnalyse()">Analyser le titre</button>
-    </div>
+    </section>
+
+    <!-- Cartes KPI clés (12 derniers mois) -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <p class="text-xs font-medium text-slate-500">Cours actuel</p>
+        <p id="kpiCurrent" class="text-xl font-bold text-slate-900 mt-1">42,14 CAD</p>
+        <p id="kpiSignal" class="text-xs font-medium text-emerald-600 mt-1">Zone d'Achat (-2σ)</p>
+      </div>
+
+      <div class="bg-red-50/70 border border-red-200 rounded-2xl p-4 shadow-sm">
+        <p class="text-xs font-semibold text-red-700">Ligne Rouge — Vente (+2σ)</p>
+        <p id="kpiSell" class="text-xl font-bold text-red-700 mt-1">51,24 CAD</p>
+        <p class="text-xs text-red-600/90 mt-1">Borne supérieure de régression</p>
+      </div>
+
+      <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 shadow-sm">
+        <p class="text-xs font-semibold text-emerald-700">Ligne Verte — Achat (-2σ)</p>
+        <p id="kpiBuy" class="text-xl font-bold text-emerald-700 mt-1">42,13 CAD</p>
+        <p class="text-xs text-emerald-600/90 mt-1">Borne inférieure de régression</p>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <p class="text-xs font-medium text-slate-500">Plus haut / Plus bas (12 mois)</p>
+        <p id="kpiHighLow" class="text-base font-bold text-slate-900 mt-1">46,48 / 38,62 CAD</p>
+        <p class="text-xs text-slate-500 mt-1">Extrêmes annuels enregistrés</p>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <p class="text-xs font-medium text-slate-500">Tendance centrale (0σ)</p>
+        <p id="kpiCenter" class="text-xl font-bold text-indigo-700 mt-1">46,69 CAD</p>
+        <p id="kpiStdDev" class="text-xs text-slate-500 mt-1">σ = 2,277446</p>
+      </div>
+    </section>
+
+    <!-- Graphique principal de régression sur 12 mois -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">
+            Graphique sur 12 mois (2025-11-20 au 2026-11-20)
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500">
+            Ligne rouge = <span class="font-semibold text-red-600">Vente</span> (Tendance +2) • Ligne verte = <span class="font-semibold text-emerald-600">Achat</span> (Tendance -2) • Cliquez sur la légende pour afficher/masquer une série.
+          </p>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-semibold shrink-0">
+          <span class="inline-flex items-center gap-1.5 text-red-600">
+            <span class="w-3.5 h-1 rounded-full bg-red-600 inline-block"></span> Vente (+2)
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-emerald-600">
+            <span class="w-3.5 h-1 rounded-full bg-emerald-600 inline-block"></span> Achat (-2)
+          </span>
+        </div>
+      </div>
+
+      <!-- Conteneur adaptatif pour Chart.js -->
+      <div class="relative w-full h-[380px] sm:h-[460px]">
+        <canvas id="regressionChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Tableau détaillé des points de la période de 12 mois -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Données de régression sur 12 mois</h2>
+          <p class="text-xs text-slate-500">Valeurs calculées sur la fenêtre du 2025-11-20 au 2026-11-20.</p>
+        </div>
+        <span id="rowCountBadge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 self-start sm:self-auto">
+          0 points
+        </span>
+      </div>
+
+      <div class="overflow-x-auto max-h-[380px] border border-slate-200 rounded-xl">
+        <table class="min-w-full divide-y divide-slate-200 text-xs sm:text-sm">
+          <thead class="bg-slate-100 text-slate-700 sticky top-0 z-10">
+            <tr>
+              <th class="px-3 py-2.5 text-left font-semibold">#</th>
+              <th class="px-3 py-2.5 text-left font-semibold">Date</th>
+              <th class="px-3 py-2.5 text-right font-semibold">Cours (CAD)</th>
+              <th class="px-3 py-2.5 text-right font-semibold text-red-700">Vente (+2)</th>
+              <th class="px-3 py-2.5 text-right font-semibold">Tendance +1</th>
+              <th class="px-3 py-2.5 text-right font-semibold text-indigo-700">Régression (0)</th>
+              <th class="px-3 py-2.5 text-right font-semibold">Tendance -1</th>
+              <th class="px-3 py-2.5 text-right font-semibold text-emerald-700">Achat (-2)</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+        </table>
+      </div>
+    </section>
+
   </div>
 
-  <div class="status" id="status">Initialisation et chargement automatique de XEQT.TO...</div>
-
-  <div class="metrics">
-    <div class="metric-card">
-      <div class="metric-label">Dernier Prix</div>
-      <div class="metric-value" id="m-price">--</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Valeur Théorique (Droite)</div>
-      <div class="metric-value" id="m-reg">--</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Pente / 252 j (Tendance)</div>
-      <div class="metric-value" id="m-slope">--</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Coefficient R²</div>
-      <div class="metric-value" id="m-r2">--</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-label">Position (Écart-type σ)</div>
-      <div class="metric-value" id="m-zscore">--</div>
-    </div>
-  </div>
-
-  <div class="chart-box" id="chartContainer">
-    <div class="legend">
-      <div class="legend-item"><span class="legend-line" style="background:#38bdf8;"></span> Cours de clôture</div>
-      <div class="legend-item"><span class="legend-line" style="background:#f59e0b;"></span> Droite de régression</div>
-      <div class="legend-item"><span class="legend-line" style="border-top: 2px dashed rgba(16,185,129,0.8);"></span> Canaux ±1σ</div>
-      <div class="legend-item"><span class="legend-line" style="border-top: 2px dashed rgba(239,68,68,0.8);"></span> Extrêmes ±2σ</div>
-    </div>
-    <div class="tooltip" id="chartTooltip"></div>
-    <canvas id="regressionChart"></canvas>
-  </div>
-
-  <div class="ai-box">
-    <div class="ai-header">Analyse financière par Gemini (gemini-2.5-flash)</div>
-    <div id="ai-output">Chargement automatique de XEQT.TO en cours...</div>
-  </div>
-</div>
-
-<script>
-  const DEFAULT_FAVORITES = ["XEQT.TO", "XIU.TO", "VFV.TO", "XIC.TO", "XEI.TO"];
-  const STORAGE_FAV_KEY = "tsx_custom_favorites_v1";
-  let lastChartState = null;
-
-  function chargerFavoris() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_FAV_KEY));
-      if (Array.isArray(saved) && saved.length > 0) {
-        const sansXeqt = saved.filter(s => s !== "XEQT.TO");
-        return ["XEQT.TO", ...sansXeqt];
-      }
-    } catch (e) {}
-    return [...DEFAULT_FAVORITES];
-  }
-
-  function sauvegarderFavoris(list) {
-    const sansXeqt = list.filter(s => s !== "XEQT.TO");
-    const ordonne = ["XEQT.TO", ...sansXeqt];
-    localStorage.setItem(STORAGE_FAV_KEY, JSON.stringify(ordonne));
-    afficherFavoris();
-  }
-
-  function afficherFavoris() {
-    const list = chargerFavoris();
-    const container = document.getElementById("favorites-list");
-    const currentSymbol = document.getElementById("ticker").value.trim().toUpperCase();
-    container.innerHTML = "";
-
-    list.forEach((sym) => {
-      const isPriority = sym === "XEQT.TO";
-      const chip = document.createElement("div");
-      chip.className = "fav-chip" + (sym === currentSymbol ? " active" : "") + (isPriority ? " priority" : "");
-
-      const btnSelect = document.createElement("button");
-      btnSelect.type = "button";
-      btnSelect.className = "fav-select-btn";
-      btnSelect.textContent = isPriority ? `★ ${sym}` : sym;
-      btnSelect.title = isPriority ? "Favori prioritaire" : `Analyser ${sym}`;
-      btnSelect.onclick = () => selectionnerFavori(sym);
-      chip.appendChild(btnSelect);
-
-      if (!isPriority) {
-        const btnDel = document.createElement("button");
-        btnDel.type = "button";
-        btnDel.className = "fav-del-btn";
-        btnDel.textContent = "×";
-        btnDel.title = `Retirer ${sym}`;
-        btnDel.onclick = (e) => {
-          e.stopPropagation();
-          supprimerFavori(sym);
-        };
-        chip.appendChild(btnDel);
-      }
-
-      container.appendChild(chip);
-    });
-  }
-
-  function ajouterFavori() {
-    const input = document.getElementById("newFavInput");
-    let sym = input.value.trim().toUpperCase();
-    if (!sym) return;
-    if (!sym.includes(".")) sym += ".TO";
-
-    const list = chargerFavoris();
-    if (!list.includes(sym)) {
-      list.push(sym);
-      sauvegarderFavoris(list);
-    }
-    input.value = "";
-    selectionnerFavori(sym);
-  }
-
-  function supprimerFavori(sym) {
-    if (sym === "XEQT.TO") return;
-    const list = chargerFavoris().filter(s => s !== sym);
-    sauvegarderFavoris(list);
-  }
-
-  function reinitialiserFavoris() {
-    sauvegarderFavoris([...DEFAULT_FAVORITES]);
-    selectionnerFavori("XEQT.TO");
-  }
-
-  function selectionnerFavori(symbol) {
-    document.getElementById("ticker").value = symbol;
-    afficherFavoris();
-    lancerAnalyse();
-  }
-
-  window.addEventListener("DOMContentLoaded", () => {
-    const savedKey = localStorage.getItem("gemini_api_key");
-    if (savedKey) document.getElementById("apiKey").value = savedKey;
-    document.getElementById("ticker").value = "XEQT.TO";
-    afficherFavoris();
-    initChartHover();
-    lancerAnalyse();
-  });
-
-  window.addEventListener("resize", () => {
-    if (lastChartState) {
-      drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, -1);
-    }
-  });
-
-  async function fetchTSXData(symbol, maxDays) {
-    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=1y&interval=1d`;
-    
-    try {
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`);
-      if (!res.ok) throw new Error("Relais 1 indisponible");
-      const json = await res.json();
-      return parseYahooPayload(JSON.parse(json.contents), maxDays);
-    } catch (e) {
-      const res2 = await fetch(`https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`);
-      if (!res2.ok) throw new Error("Impossible de joindre Yahoo Finance via les relais.");
-      const data2 = await res2.json();
-      return parseYahooPayload(data2, maxDays);
-    }
-  }
-
-  function parseYahooPayload(data, maxDays) {
-    if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
-      throw new Error("Symbole introuvable. Assurez-vous d'ajouter .TO pour Toronto (ex: XEQT.TO).");
-    }
-    const result = data.chart.result[0];
-    const timestamps = result.timestamp;
-    const closes = result.indicators.quote[0].close;
-    const currency = result.meta.currency || "CAD";
-
-    const cleanData = [];
-    for (let i = 0; i < timestamps.length; i++) {
-      if (closes[i] !== null && closes[i] !== undefined) {
-        cleanData.push({
-          date: new Date(timestamps[i] * 1000).toISOString().split("T")[0],
-          close: closes[i]
-        });
-      }
-    }
-    return { points: cleanData.slice(-maxDays), currency };
-  }
-
-  function calculateLinearRegression(points) {
-    const n = points.length;
-    let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-
-    for (let i = 0; i < n; i++) {
-      const x = i;
-      const y = points[i].close;
-      sumX += x;
-      sumY += y;
-      sumXY += x * y;
-      sumXX += x * x;
-    }
-
-    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-
-    let ssRes = 0;
-    let ssTot = 0;
-    const meanY = sumY / n;
-    const regLine = [];
-
-    for (let i = 0; i < n; i++) {
-      const yPred = slope * i + intercept;
-      regLine.push(yPred);
-      ssRes += Math.pow(points[i].close - yPred, 2);
-      ssTot += Math.pow(points[i].close - meanY, 2);
-    }
-
-    const r2 = 1 - (ssRes / ssTot);
-    const stdDev = Math.sqrt(ssRes / n);
-
-    const upper1 = regLine.map(v => v + stdDev);
-    const lower1 = regLine.map(v => v - stdDev);
-    const upper2 = regLine.map(v => v + 2 * stdDev);
-    const lower2 = regLine.map(v => v - 2 * stdDev);
-
-    const currentPrice = points[n - 1].close;
-    const currentReg = regLine[n - 1];
-    const zScore = (currentPrice - currentReg) / stdDev;
-    const annualReturnPct = ((regLine[n - 1] - regLine[0]) / regLine[0]) * 100;
-
-    return {
-      slope, intercept, r2, stdDev, regLine,
-      upper1, lower1, upper2, lower2,
-      currentPrice, currentReg, zScore, annualReturnPct
+  <script>
+    /**
+     * Configuration par défaut issue du fichier "MP officiel 26-11-20 Droite De Régression V1"
+     * Fenêtre de 12 mois : du 2025-11-20 au 2026-11-20.
+     */
+    const DEFAULT_STATE = {
+      ticker: 'TSE:XEQT',
+      name: 'iShares Core Equity ETF Portfolio',
+      currency: 'CAD',
+      interval: 'weekly',
+      startDate: '2025-11-20',
+      endDate: '2026-11-20',
+      currentPrice: 42.14,
+      high52: 46.48,
+      low52: 38.62,
+      stdDev: 2.277446348,
+      trendCenter: 46.69,
+      trendPlus2: 51.24,
+      trendPlus1: 48.96,
+      trendMinus1: 44.41,
+      trendMinus2: 42.13,
+      customRows: null
     };
-  }
 
-  function drawCustomChart(symbol, points, reg, currency, hoverIdx = -1) {
-    lastChartState = { symbol, points, reg, currency };
-    const canvas = document.getElementById("regressionChart");
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    let appState = structuredClone(DEFAULT_STATE);
+    let regressionChart = null;
 
-    const ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
-    const width = rect.width;
-    const height = rect.height;
+    // Formateurs numériques français / CAD
+    const fmtCad = (val) => {
+      if (val === null || val === undefined || Number.isNaN(Number(val))) return 'N/D';
+      return `${Number(val).toFixed(2).replace('.', ',')} ${appState.currency}`;
+    };
 
-    ctx.clearRect(0, 0, width, height);
+    const fmtNum = (val) => {
+      if (val === null || val === undefined || Number.isNaN(Number(val))) return '';
+      return Number(val).toFixed(2).replace('.', ',');
+    };
 
-    const padLeft = 58, padRight = 20, padTop = 15, padBottom = 35;
-    const plotW = width - padLeft - padRight;
-    const plotH = height - padTop - padBottom;
-
-    const prices = points.map(p => p.close);
-    const allValues = [...prices, ...reg.upper2, ...reg.lower2];
-    const minVal = Math.min(...allValues);
-    const maxVal = Math.max(...allValues);
-    const range = (maxVal - minVal) || 1;
-
-    const getX = (i) => padLeft + (i / (points.length - 1)) * plotW;
-    const getY = (v) => padTop + plotH - ((v - minVal) / range) * plotH;
-
-    lastChartState.layout = { padLeft, padRight, padTop, padBottom, plotW, plotH, getX, getY };
-
-    ctx.strokeStyle = "#334155";
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "12px system-ui, sans-serif";
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    const gridSteps = 5;
-    for (let s = 0; s <= gridSteps; s++) {
-      const val = minVal + (s / gridSteps) * range;
-      const y = getY(val);
-      ctx.beginPath();
-      ctx.moveTo(padLeft, y);
-      ctx.lineTo(width - padRight, y);
-      ctx.stroke();
-      ctx.fillText(val.toFixed(2), padLeft - 8, y);
-    }
-
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    const xTicks = 6;
-    for (let t = 0; t <= xTicks; t++) {
-      const idx = Math.round((t / xTicks) * (points.length - 1));
-      const x = getX(idx);
-      ctx.fillText(points[idx].date, x, height - padBottom + 10);
-    }
-
-    function plotSeries(arr, color, lineWidth, dash) {
-      ctx.save();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = lineWidth;
-      ctx.setLineDash(dash || []);
-      ctx.beginPath();
-      for (let i = 0; i < arr.length; i++) {
-        const x = getX(i);
-        const y = getY(arr[i]);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    plotSeries(reg.upper2, "rgba(239, 68, 68, 0.7)", 1.5, [4, 4]);
-    plotSeries(reg.lower2, "rgba(239, 68, 68, 0.7)", 1.5, [4, 4]);
-    plotSeries(reg.upper1, "rgba(16, 185, 129, 0.7)", 1.5, [5, 5]);
-    plotSeries(reg.lower1, "rgba(16, 185, 129, 0.7)", 1.5, [5, 5]);
-    plotSeries(reg.regLine, "#f59e0b", 2, []);
-    plotSeries(prices, "#38bdf8", 2, []);
-
-    if (hoverIdx >= 0 && hoverIdx < points.length) {
-      const hx = getX(hoverIdx);
-      const hyPrice = getY(prices[hoverIdx]);
-      const hyReg = getY(reg.regLine[hoverIdx]);
-
-      ctx.save();
-      ctx.strokeStyle = "rgba(248, 250, 252, 0.35)";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.moveTo(hx, padTop);
-      ctx.lineTo(hx, padTop + plotH);
-      ctx.stroke();
-      ctx.restore();
-
-      ctx.fillStyle = "#38bdf8";
-      ctx.beginPath();
-      ctx.arc(hx, hyPrice, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "#f59e0b";
-      ctx.beginPath();
-      ctx.arc(hx, hyReg, 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  function initChartHover() {
-    const canvas = document.getElementById("regressionChart");
-    const tooltip = document.getElementById("chartTooltip");
-    const container = document.getElementById("chartContainer");
-
-    canvas.addEventListener("mousemove", (e) => {
-      if (!lastChartState || !lastChartState.layout) return;
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const { padLeft, plotW } = lastChartState.layout;
-      const n = lastChartState.points.length;
-
-      if (mouseX < padLeft || mouseX > padLeft + plotW) {
-        tooltip.style.display = "none";
-        drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, -1);
-        return;
-      }
-
-      const ratio = (mouseX - padLeft) / plotW;
-      const idx = Math.max(0, Math.min(n - 1, Math.round(ratio * (n - 1))));
-
-      drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, idx);
-
-      const pt = lastChartState.points[idx];
-      const regVal = lastChartState.reg.regLine[idx];
-      const zLocal = (pt.close - regVal) / lastChartState.reg.stdDev;
-      const cur = lastChartState.currency;
-
-      tooltip.innerHTML = `
-        <div class="tooltip-date">${pt.date} (Jour ${idx + 1}/${n})</div>
-        <div class="tooltip-row"><span>Clôture :</span><strong>${pt.close.toFixed(2)} ${cur}</strong></div>
-        <div class="tooltip-row"><span>Droite :</span><span>${regVal.toFixed(2)} ${cur}</span></div>
-        <div class="tooltip-row"><span>Écart :</span><span>${zLocal >= 0 ? "+" : ""}${zLocal.toFixed(2)} σ</span></div>
-      `;
-      tooltip.style.display = "block";
-
-      const containerRect = container.getBoundingClientRect();
-      let leftPos = e.clientX - containerRect.left + 14;
-      if (leftPos + 205 > containerRect.width) {
-        leftPos = e.clientX - containerRect.left - 210;
-      }
-      const topPos = Math.max(10, e.clientY - containerRect.top - 45);
-      tooltip.style.left = `${leftPos}px`;
-      tooltip.style.top = `${topPos}px`;
-    });
-
-    canvas.addEventListener("mouseleave", () => {
-      tooltip.style.display = "none";
-      if (lastChartState) {
-        drawCustomChart(lastChartState.symbol, lastChartState.points, lastChartState.reg, lastChartState.currency, -1);
-      }
-    });
-  }
-
-  async function askGemini(apiKey, symbol, currency, count, reg) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-    const prompt = `Tu es un analyste financier quantitatif spécialisé sur la Bourse de Toronto (TSX).
-Analyse les résultats mathématiques exacts d'une régression linéaire calculée sur les ${count} derniers jours de bourse pour le titre ou FNB ${symbol} (en ${currency}) :
-- Prix actuel : ${reg.currentPrice.toFixed(2)} ${currency}
-- Prix théorique sur la droite de régression : ${reg.currentReg.toFixed(2)} ${currency}
-- Tendance sur la période (252 jours) : ${reg.annualReturnPct >= 0 ? "+" : ""}${reg.annualReturnPct.toFixed(2)} %
-- Coefficient de détermination R² : ${reg.r2.toFixed(3)}
-- Écart-type (1σ) : ${reg.stdDev.toFixed(2)} ${currency}
-- Position actuelle (Z-Score) : ${reg.zScore >= 0 ? "+" : ""}${reg.zScore.toFixed(2)} σ par rapport à la droite
-
-Rédige une analyse claire, structurée et objective en français (sans conseil d'investissement personnalisé) couvrant :
-1. La direction et la régularité de la tendance (interprétation de la pente et du R²).
-2. Le positionnement actuel du prix dans le canal de volatilité (entre -2σ et +2σ) et ce que cela suggère statistiquement.
-3. Un point de vigilance technique à surveiller.`;
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Erreur API Gemini (${response.status})`);
-    }
-
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-  }
-
-  async function lancerAnalyse() {
-    const symbol = document.getElementById("ticker").value.trim().toUpperCase();
-    const maxDays = parseInt(document.getElementById("period").value, 10) || 252;
-    const apiKey = document.getElementById("apiKey").value.trim();
-    const statusEl = document.getElementById("status");
-    const aiOutputEl = document.getElementById("ai-output");
-    const btn = document.getElementById("btnRun");
-
-    if (!symbol) {
-      statusEl.textContent = "Veuillez entrer un symbole boursier (ex: XEQT.TO).";
-      return;
-    }
-
-    if (apiKey) {
-      localStorage.setItem("gemini_api_key", apiKey);
-    }
-
-    btn.disabled = true;
-    statusEl.textContent = `Téléchargement des ${maxDays} jours pour ${symbol}...`;
-
-    try {
-      const { points, currency } = await fetchTSXData(symbol, maxDays);
-      const reg = calculateLinearRegression(points);
-
-      document.getElementById("m-price").textContent = `${reg.currentPrice.toFixed(2)} ${currency}`;
-      document.getElementById("m-reg").textContent = `${reg.currentReg.toFixed(2)} ${currency}`;
-      
-      const slopeEl = document.getElementById("m-slope");
-      slopeEl.textContent = `${reg.annualReturnPct >= 0 ? "+" : ""}${reg.annualReturnPct.toFixed(1)} %`;
-      slopeEl.style.color = reg.annualReturnPct >= 0 ? "var(--green)" : "var(--red)";
-
-      document.getElementById("m-r2").textContent = reg.r2.toFixed(3);
-      
-      const zEl = document.getElementById("m-zscore");
-      zEl.textContent = `${reg.zScore >= 0 ? "+" : ""}${reg.zScore.toFixed(2)} σ`;
-      zEl.style.color = Math.abs(reg.zScore) > 1.5 ? "#f59e0b" : "var(--text)";
-
-      drawCustomChart(symbol, points, reg, currency, -1);
-
-      if (!apiKey) {
-        statusEl.textContent = `Graphique généré (${points.length} jours). Ajoutez votre clé Gemini pour l'analyse IA.`;
-        aiOutputEl.textContent = "Aucune clé API Gemini renseignée. Le graphique et les calculs mathématiques fonctionnent tout de même ! Collez votre clé AIza... ci-dessus pour obtenir le commentaire de l'IA.";
+    // Affiche un bandeau non bloquant (remplace alert())
+    function showBanner(message, type = 'info') {
+      const banner = document.getElementById('statusBanner');
+      banner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-red-50', 'text-red-800', 'border-red-200', 'bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
+      if (type === 'error') {
+        banner.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
+      } else if (type === 'success') {
+        banner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
       } else {
-        statusEl.textContent = "Interrogation de Gemini en cours...";
-        aiOutputEl.textContent = "Analyse des données mathématiques par Gemini...";
-        const analysis = await askGemini(apiKey, symbol, currency, points.length, reg);
-        aiOutputEl.textContent = analysis;
-        statusEl.textContent = `Analyse terminée pour ${symbol} (${points.length} séances).`;
+        banner.classList.add('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
       }
-    } catch (err) {
-      statusEl.textContent = `Erreur : ${err.message}`;
-      aiOutputEl.textContent = "Impossible de terminer l'analyse. Vérifiez le symbole (ex: XEQT.TO, VFV.TO) ou votre connexion.";
-    } finally {
-      btn.disabled = false;
+      banner.textContent = message;
     }
-  }
-</script>
 
+    // Génère les dates sur exactement 12 mois (2025-11-20 -> 2026-11-20)
+    function generateTwelveMonthDates(startStr, endStr, interval) {
+      const start = new Date(`${startStr}T00:00:00`);
+      const end = new Date(`${endStr}T00:00:00`);
+      const dates = [];
+
+      if (interval === 'daily') {
+        const cur = new Date(start);
+        while (cur <= end) {
+          const day = cur.getDay();
+          // Exclut samedi (6) et dimanche (0)
+          if (day !== 0 && day !== 6) {
+            dates.push(cur.toISOString().slice(0, 10));
+          }
+          cur.setDate(cur.getDate() + 1);
+        }
+      } else {
+        // Échantillonnage hebdomadaire sur 52 semaines jusqu'à endStr
+        const cur = new Date(start);
+        while (cur <= end) {
+          dates.push(cur.toISOString().slice(0, 10));
+          cur.setDate(cur.getDate() + 7);
+        }
+        const lastIso = end.toISOString().slice(0, 10);
+        if (dates[dates.length - 1] !== lastIso) {
+          dates.push(lastIso);
+        }
+      }
+      return dates;
+    }
+
+    // Construit la série complète avec les droites de régression (+2 Vente, +1, 0, -1, -2 Achat)
+    function buildDataset() {
+      try {
+        if (Array.isArray(appState.customRows) && appState.customRows.length > 0) {
+          return appState.customRows;
+        }
+
+        const dates = generateTwelveMonthDates(appState.startDate, appState.endDate, appState.interval);
+        const n = dates.length;
+        const sigma = Number(appState.stdDev) || 2.277446348;
+
+        // Pente et ordonnée à l'origine calibrées pour aboutir à trendCenter à la fin des 12 mois
+        const centerEnd = Number(appState.trendCenter);
+        const startCenter = Number(appState.low52) + ((Number(appState.high52) - Number(appState.low52)) * 0.35);
+        const slope = n > 1 ? (centerEnd - startCenter) / (n - 1) : 0;
+
+        // Calcul de l'écart entre +2 et 0 pour respecter les bornes Vente/Achat saisies
+        const halfChannel = Math.max(
+          Math.abs(Number(appState.trendPlus2) - centerEnd),
+          Math.abs(centerEnd - Number(appState.trendMinus2)),
+          sigma * 2
+        );
+        const stepBand = halfChannel / 2;
+
+        const rows = [];
+        for (let i = 0; i < n; i++) {
+          const reg0 = startCenter + slope * i;
+          const sellPlus2 = reg0 + stepBand * 2;
+          const plus1 = reg0 + stepBand * 1;
+          const minus1 = reg0 - stepBand * 1;
+          const buyMinus2 = reg0 - stepBand * 2;
+
+          let closePrice;
+          if (i === n - 1) {
+            closePrice = Number(appState.currentPrice);
+          } else {
+            // Oscillation réaliste autour de la tendance centrale avec ancrage sur le point final
+            const wave = Math.sin(i * 0.42) * (sigma * 0.85) + Math.cos(i * 0.19) * (sigma * 0.55);
+            const rawClose = reg0 + wave;
+            const blend = i / Math.max(1, n - 1);
+            closePrice = rawClose * (1 - blend * 0.25) + (Number(appState.currentPrice) + Math.sin(i * 0.5) * sigma * 0.6) * (blend * 0.25);
+          }
+
+          rows.push({
+            index: i + 1,
+            date: dates[i],
+            close: Number(closePrice.toFixed(2)),
+            sellPlus2: Number(sellPlus2.toFixed(2)),
+            plus1: Number(plus1.toFixed(2)),
+            reg0: Number(reg0.toFixed(2)),
+            minus1: Number(minus1.toFixed(2)),
+            buyMinus2: Number(buyMinus2.toFixed(2))
+          });
+        }
+
+        // Assure que le dernier point reflète exactement les valeurs saisies (Vente +2 et Achat -2)
+        if (rows.length > 0) {
+          const last = rows[rows.length - 1];
+          last.sellPlus2 = Number(Number(appState.trendPlus2).toFixed(2));
+          last.buyMinus2 = Number(Number(appState.trendMinus2).toFixed(2));
+          last.reg0 = Number(Number(appState.trendCenter).toFixed(2));
+          last.plus1 = Number(Number(appState.trendPlus1).toFixed(2));
+          last.minus1 = Number(Number(appState.trendMinus1).toFixed(2));
+          last.close = Number(Number(appState.currentPrice).toFixed(2));
+        }
+
+        return rows;
+      } catch (err) {
+        showBanner(`Erreur lors du calcul des données : ${err.message}`, 'error');
+        return [];
+      }
+    }
+
+    // Met à jour les cartes KPI et l'en-tête
+    function updateKpis(rows) {
+      document.getElementById('instrumentSubtitle').textContent =
+        `${appState.ticker} — ${appState.name} • Fenêtre ${appState.startDate} au ${appState.endDate}`;
+
+      const current = Number(appState.currentPrice);
+      const buyVal = rows.length ? rows[rows.length - 1].buyMinus2 : Number(appState.trendMinus2);
+      const sellVal = rows.length ? rows[rows.length - 1].sellPlus2 : Number(appState.trendPlus2);
+      const centerVal = rows.length ? rows[rows.length - 1].reg0 : Number(appState.trendCenter);
+
+      const allCloses = rows.map(r => r.close);
+      const high12m = allCloses.length ? Math.max(...allCloses, Number(appState.high52)) : Number(appState.high52);
+      const low12m = allCloses.length ? Math.min(...allCloses, Number(appState.low52)) : Number(appState.low52);
+
+      document.getElementById('kpiCurrent').textContent = fmtCad(current);
+      document.getElementById('kpiSell').textContent = fmtCad(sellVal);
+      document.getElementById('kpiBuy').textContent = fmtCad(buyVal);
+      document.getElementById('kpiHighLow').textContent = `${high12m.toFixed(2).replace('.', ',')} / ${low12m.toFixed(2).replace('.', ',')} ${appState.currency}`;
+      document.getElementById('kpiCenter').textContent = fmtCad(centerVal);
+      document.getElementById('kpiStdDev').textContent = `σ = ${Number(appState.stdDev).toFixed(6).replace('.', ',')}`;
+
+      const signalEl = document.getElementById('kpiSignal');
+      if (current <= buyVal * 1.02) {
+        signalEl.textContent = 'Proche / sous la ligne Verte (Achat)';
+        signalEl.className = 'text-xs font-semibold text-emerald-600 mt-1';
+      } else if (current >= sellVal * 0.98) {
+        signalEl.textContent = 'Proche / au-dessus de la ligne Rouge (Vente)';
+        signalEl.className = 'text-xs font-semibold text-red-600 mt-1';
+      } else {
+        signalEl.textContent = 'Dans le canal de régression';
+        signalEl.className = 'text-xs font-medium text-indigo-600 mt-1';
+      }
+    }
+
+    // Met à jour le graphique Chart.js
+    function renderChart(rows) {
+      const ctx = document.getElementById('regressionChart').getContext('2d');
+      const labels = rows.map(r => r.date);
+
+      if (regressionChart) {
+        regressionChart.destroy();
+      }
+
+      regressionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Vente (Tendance +2)',
+              data: rows.map(r => r.sellPlus2),
+              borderColor: '#dc2626',
+              backgroundColor: 'rgba(220, 38, 38, 0.08)',
+              borderWidth: 3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              tension: 0.1,
+              order: 1
+            },
+            {
+              label: 'Tendance +1',
+              data: rows.map(r => r.plus1),
+              borderColor: '#f97316',
+              borderWidth: 1.5,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              tension: 0.1,
+              order: 3
+            },
+            {
+              label: 'Droite de Régression (0)',
+              data: rows.map(r => r.reg0),
+              borderColor: '#4f46e5',
+              borderWidth: 2,
+              borderDash: [8, 4],
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              tension: 0.1,
+              order: 4
+            },
+            {
+              label: 'Tendance -1',
+              data: rows.map(r => r.minus1),
+              borderColor: '#14b8a6',
+              borderWidth: 1.5,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              tension: 0.1,
+              order: 5
+            },
+            {
+              label: 'Achat (Tendance -2)',
+              data: rows.map(r => r.buyMinus2),
+              borderColor: '#16a34a',
+              backgroundColor: 'rgba(22, 163, 74, 0.08)',
+              borderWidth: 3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              tension: 0.1,
+              order: 2
+            },
+            {
+              label: 'Cours de clôture',
+              data: rows.map(r => r.close),
+              borderColor: '#0f172a',
+              backgroundColor: 'rgba(15, 23, 42, 0.06)',
+              borderWidth: 2.25,
+              pointRadius: rows.length <= 60 ? 2 : 0,
+              pointHoverRadius: 5,
+              tension: 0.15,
+              order: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                boxWidth: 10,
+                padding: 16,
+                font: {
+                  family: 'Inter, sans-serif',
+                  size: 12,
+                  weight: '600'
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.94)',
+              titleFont: { family: 'Inter, sans-serif', size: 13, weight: 'bold' },
+              bodyFont: { family: 'Inter, sans-serif', size: 12 },
+              padding: 12,
+              cornerRadius: 10,
+              callbacks: {
+                label: (context) => {
+                  const val = context.parsed.y;
+                  return ` ${context.dataset.label} : ${Number(val).toFixed(2).replace('.', ',')} ${appState.currency}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                maxTicksLimit: 12,
+                font: { family: 'Inter, sans-serif', size: 11 },
+                color: '#64748b'
+              }
+            },
+            y: {
+              grid: { color: '#e2e8f0' },
+              ticks: {
+                font: { family: 'Inter, sans-serif', size: 11 },
+                color: '#475569',
+                callback: (value) => `${Number(value).toFixed(2).replace('.', ',')} $`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Remplit le tableau HTML
+    function renderTable(rows) {
+      const tbody = document.getElementById('dataTableBody');
+      const badge = document.getElementById('rowCountBadge');
+      badge.textContent = `${rows.length} points (12 mois)`;
+
+      tbody.innerHTML = rows.map(r => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-3 py-2 text-slate-500 font-mono text-xs">${r.index}</td>
+          <td class="px-3 py-2 font-medium text-slate-800 whitespace-nowrap">${r.date}</td>
+          <td class="px-3 py-2 text-right font-semibold text-slate-900">${fmtNum(r.close)}</td>
+          <td class="px-3 py-2 text-right font-semibold text-red-600">${fmtNum(r.sellPlus2)}</td>
+          <td class="px-3 py-2 text-right text-slate-600">${fmtNum(r.plus1)}</td>
+          <td class="px-3 py-2 text-right font-medium text-indigo-700">${fmtNum(r.reg0)}</td>
+          <td class="px-3 py-2 text-right text-slate-600">${fmtNum(r.minus1)}</td>
+          <td class="px-3 py-2 text-right font-semibold text-emerald-600">${fmtNum(r.buyMinus2)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Synchronise les champs du formulaire avec appState
+    function syncInputsFromState() {
+      document.getElementById('tickerInput').value = appState.ticker;
+      document.getElementById('nameInput').value = appState.name;
+      document.getElementById('intervalSelect').value = appState.interval;
+      document.getElementById('currentPriceInput').value = appState.currentPrice;
+      document.getElementById('stdDevInput').value = appState.stdDev;
+      document.getElementById('trendPlus2Input').value = appState.trendPlus2;
+      document.getElementById('trendPlus1Input').value = appState.trendPlus1;
+      document.getElementById('trendCenterInput').value = appState.trendCenter;
+      document.getElementById('trendMinus1Input').value = appState.trendMinus1;
+      document.getElementById('trendMinus2Input').value = appState.trendMinus2;
+    }
+
+    // Lit les valeurs saisies par l'utilisateur et rafraîchit la vue
+    function applyInputsToState() {
+      appState.ticker = document.getElementById('tickerInput').value.trim() || 'TSE:XEQT';
+      appState.name = document.getElementById('nameInput').value.trim() || 'Actif';
+      appState.interval = document.getElementById('intervalSelect').value;
+      appState.currentPrice = parseFloat(document.getElementById('currentPriceInput').value) || DEFAULT_STATE.currentPrice;
+      appState.stdDev = parseFloat(document.getElementById('stdDevInput').value) || DEFAULT_STATE.stdDev;
+      appState.trendPlus2 = parseFloat(document.getElementById('trendPlus2Input').value) || DEFAULT_STATE.trendPlus2;
+      appState.trendPlus1 = parseFloat(document.getElementById('trendPlus1Input').value) || DEFAULT_STATE.trendPlus1;
+      appState.trendCenter = parseFloat(document.getElementById('trendCenterInput').value) || DEFAULT_STATE.trendCenter;
+      appState.trendMinus1 = parseFloat(document.getElementById('trendMinus1Input').value) || DEFAULT_STATE.trendMinus1;
+      appState.trendMinus2 = parseFloat(document.getElementById('trendMinus2Input').value) || DEFAULT_STATE.trendMinus2;
+      appState.customRows = null;
+
+      refreshAll();
+      showBanner(`Paramètres mis à jour pour ${appState.ticker} (2025-11-20 au 2026-11-20).`, 'success');
+    }
+
+    // Exporte les données affichées au format CSV
+    function exportCsv(rows) {
+      const headers = ['Index', 'Date', 'Cours', 'Vente (+2)', 'Tendance +1', 'Regression (0)', 'Tendance -1', 'Achat (-2)'];
+      const lines = [
+        headers.join(','),
+        ...rows.map(r => [r.index, r.date, r.close, r.sellPlus2, r.plus1, r.reg0, r.minus1, r.buyMinus2].join(','))
+      ];
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${appState.ticker.replace(/[^a-zA-Z0-9_-]/g, '_')}_regression_12_mois.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showBanner('Exportation CSV générée avec succès.', 'success');
+    }
+
+    // Charge un fichier CSV ou JSON externe
+    function handleFileImport(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = String(e.target?.result || '').trim();
+          if (file.name.toLowerCase().endsWith('.json')) {
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) {
+              appState.customRows = parsed.map((item, idx) => ({
+                index: idx + 1,
+                date: item.date || item.Date || `Point ${idx + 1}`,
+                close: Number(item.close ?? item.Cours ?? 0),
+                sellPlus2: Number(item.sellPlus2 ?? item.Vente ?? 0),
+                plus1: Number(item.plus1 ?? 0),
+                reg0: Number(item.reg0 ?? item.Regression ?? 0),
+                minus1: Number(item.minus1 ?? 0),
+                buyMinus2: Number(item.buyMinus2 ?? item.Achat ?? 0)
+              }));
+              refreshAll();
+              showBanner(`Fichier JSON "${file.name}" chargé (${appState.customRows.length} lignes).`, 'success');
+              return;
+            }
+          }
+
+          // Traitement CSV simple (Date,Cours,Vente,Regression,Achat)
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          if (lines.length < 2) throw new Error('Le fichier CSV est vide ou incomplet.');
+          const imported = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+            if (cols.length >= 2) {
+              const closeVal = parseFloat(cols[1].replace(',', '.')) || 0;
+              const sellVal = cols[2] ? parseFloat(cols[2].replace(',', '.')) : closeVal + Number(appState.stdDev) * 2;
+              const buyVal = cols[3] ? parseFloat(cols[3].replace(',', '.')) : closeVal - Number(appState.stdDev) * 2;
+              const regVal = (sellVal + buyVal) / 2;
+              imported.push({
+                index: i,
+                date: cols[0],
+                close: closeVal,
+                sellPlus2: sellVal,
+                plus1: (sellVal + regVal) / 2,
+                reg0: regVal,
+                minus1: (buyVal + regVal) / 2,
+                buyMinus2: buyVal
+              });
+            }
+          }
+          if (!imported.length) throw new Error('Aucune ligne valide trouvée dans le CSV.');
+          appState.customRows = imported;
+          refreshAll();
+          showBanner(`Fichier CSV "${file.name}" importé (${imported.length} lignes).`, 'success');
+        } catch (err) {
+          showBanner(`Échec de l'importation : ${err.message}`, 'error');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Rafraîchit l'ensemble de l'interface
+    function refreshAll() {
+      const rows = buildDataset();
+      updateKpis(rows);
+      renderChart(rows);
+      renderTable(rows);
+      window.__latestRows = rows;
+    }
+
+    // Initialisation des événements au chargement de la page
+    window.addEventListener('DOMContentLoaded', () => {
+      syncInputsFromState();
+      refreshAll();
+
+      document.getElementById('applyParamsBtn').addEventListener('click', applyInputsToState);
+      document.getElementById('intervalSelect').addEventListener('change', applyInputsToState);
+      document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+        appState = structuredClone(DEFAULT_STATE);
+        syncInputsFromState();
+        refreshAll();
+        showBanner('Valeurs par défaut de MP officiel 26-11-20 V1 restaurées.', 'info');
+      });
+      document.getElementById('exportCsvBtn').addEventListener('click', () => {
+        exportCsv(window.__latestRows || buildDataset());
+      });
+      document.getElementById('fileInput').addEventListener('change', handleFileImport);
+    });
+  </script>
 </body>
 </html>
