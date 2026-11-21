@@ -651,6 +651,49 @@
     .hidden-view {
       display: none !important;
     }
+
+    /* ===== THÈME FONCÉ ===== */
+    :root {
+      color-scheme: dark;
+      --bg-page: #0b1120; --bg-card: #111a2e; --bg-subtle: #162036;
+      --border: #243049; --border-strong: #33425e;
+      --text-main: #e5e9f2; --text-muted: #94a3b8;
+      --accent: #3b82f6; --accent-hover: #2563eb;
+      --sell-red: #f87171; --sell-bg: rgba(239,68,68,.14);
+      --center-yellow-dark: #facc15; --center-yellow-bg: rgba(234,179,8,.12);
+      --buy-green: #4ade80; --buy-bg: rgba(34,197,94,.14);
+      --shadow: 0 1px 3px rgba(0,0,0,.5);
+    }
+    .badge { background:#1b2a4a; color:#93c5fd; border-color:#2b3f6b; }
+    .badge.live { background:rgba(34,197,94,.15); color:#4ade80; border-color:rgba(34,197,94,.4); }
+    .badge.offline { background:rgba(245,158,11,.15); color:#fbbf24; border-color:rgba(245,158,11,.4); }
+    .btn-secondary { background:#1b2740; color:var(--text-main); border-color:var(--border-strong); }
+    .btn-secondary:hover { background:#25334f; }
+    .btn-chip { color:#cbd5e1; }
+    .btn-chip:hover, .btn-chip.active { background:#1b2a4a; color:#93c5fd; border-color:#3b82f6; }
+    .tab-btn { background:#162036; color:#94a3b8; }
+    .tab-btn.active { background:var(--bg-card); color:#60a5fa; border-color:#3b82f6; }
+    .banner.info { background:rgba(59,130,246,.12); color:#93c5fd; border-color:rgba(59,130,246,.4); }
+    .banner.success { background:rgba(34,197,94,.12); color:#86efac; border-color:rgba(34,197,94,.4); }
+    .banner.warning { background:rgba(245,158,11,.12); color:#fcd34d; border-color:rgba(245,158,11,.4); }
+    .field input, .field select, .sync-row input { background:#0f172a; color:var(--text-main); }
+    .field input:disabled { background:#162036; color:#64748b; }
+    .canvas-wrap { background:#0f172a; }
+    .sheets-table { border-color:#33425e; }
+    .sheets-table td { border-color:#243049; }
+    .sheets-table td.lbl { background:#0b1120; color:#e5e9f2; }
+    .sheets-table td.val { background:var(--bg-card); color:var(--text-main); }
+    .sheets-table td.val.sell { background:var(--sell-bg); color:var(--sell-red); }
+    .sheets-table td.val.orange { color:#fbbf24; }
+    .sheets-table td.val.yellow { background:var(--center-yellow-bg); color:#facc15; }
+    .sheets-table td.val.blue { color:#38bdf8; }
+    .sheets-table td.val.buy { background:var(--buy-bg); color:var(--buy-green); }
+    .pill { background:#1b2740; color:#cbd5e1; }
+    table.data-grid thead th { background:#162036; color:#cbd5e1; }
+    table.data-grid tbody td { border-bottom-color:#1d2a45; }
+    table.data-grid tbody tr:hover { background:#162036; }
+    .c-orange { color:#fbbf24; } .c-blue { color:#38bdf8; }
+    details.sync-details summary { color:#cbd5e1; }
   </style>
 </head>
 <body>
@@ -965,12 +1008,12 @@
 
     /* Courbes et couleurs strictement identiques à MP Graphique V1 */
     const SERIES_CONFIG = [
-      { key: 'sellPlus2', label: 'Vente (+2)', color: '#dc2626', width: 2.6, dash: [] },
+      { key: 'sellPlus2', label: 'Vente (+2)', color: '#ef4444', width: 2.6, dash: [] },
       { key: 'plus1', label: 'Tendance +1', color: '#f59e0b', width: 1.5, dash: [5, 5] },
       { key: 'reg0', label: 'Regression (0)', color: '#eab308', width: 2.3, dash: [] },
-      { key: 'close', label: 'Cours', color: '#1e293b', width: 2.2, dash: [] },
+      { key: 'close', label: 'Cours', color: '#e2e8f0', width: 2.2, dash: [] },
       { key: 'minus1', label: 'Tendance -1', color: '#0ea5e9', width: 1.5, dash: [5, 5] },
-      { key: 'buyMinus2', label: 'Achat (-2)', color: '#16a34a', width: 2.6, dash: [] }
+      { key: 'buyMinus2', label: 'Achat (-2)', color: '#22c55e', width: 2.6, dash: [] }
     ];
 
     let appState = {
@@ -1395,30 +1438,25 @@
       const signalTitle = document.getElementById('signalTitle');
       const signalDesc = document.getElementById('signalDesc');
 
+      const setSignal = (bg, bd, col, title, desc) => {
+        signalBox.style.background = bg;
+        signalBox.style.borderColor = bd;
+        signalTitle.style.color = col;
+        signalTitle.textContent = title;
+        signalDesc.textContent = desc;
+      };
       if (last.close <= last.buyMinus2) {
-        signalBox.style.background = '#f0fdf4';
-        signalBox.style.borderColor = '#bbf7d0';
-        signalTitle.style.color = '#15803d';
-        signalTitle.textContent = 'Signal : Zone d’Achat (-2σ atteinte)';
-        signalDesc.textContent = `Le cours (${fmtMoney(last.close)}) est sur ou sous la ligne verte Achat (${fmtMoney(last.buyMinus2)}).`;
+        setSignal('rgba(34,197,94,.12)', 'rgba(34,197,94,.45)', '#4ade80', 'Signal : Zone d’Achat (-2σ atteinte)',
+          `Le cours (${fmtMoney(last.close)}) est sur ou sous la ligne verte Achat (${fmtMoney(last.buyMinus2)}).`);
       } else if (last.close >= last.sellPlus2) {
-        signalBox.style.background = '#fef2f2';
-        signalBox.style.borderColor = '#fecaca';
-        signalTitle.style.color = '#b91c1c';
-        signalTitle.textContent = 'Signal : Zone de Vente (+2σ atteinte)';
-        signalDesc.textContent = `Le cours (${fmtMoney(last.close)}) est sur ou au-dessus de la ligne rouge Vente (${fmtMoney(last.sellPlus2)}).`;
+        setSignal('rgba(239,68,68,.12)', 'rgba(239,68,68,.45)', '#f87171', 'Signal : Zone de Vente (+2σ atteinte)',
+          `Le cours (${fmtMoney(last.close)}) est sur ou au-dessus de la ligne rouge Vente (${fmtMoney(last.sellPlus2)}).`);
       } else if (last.close < last.reg0) {
-        signalBox.style.background = '#f8fafc';
-        signalBox.style.borderColor = '#cbd5e1';
-        signalTitle.style.color = '#0369a1';
-        signalTitle.textContent = 'Position : Moitié inférieure du canal';
-        signalDesc.textContent = `Sous la droite centrale jaune (${fmtMoney(last.reg0)}), à ${fmtNum(last.close - last.buyMinus2)} $ de la ligne verte Achat.`;
+        setSignal('#162036', '#33425e', '#38bdf8', 'Position : Moitié inférieure du canal',
+          `Sous la droite centrale jaune (${fmtMoney(last.reg0)}), à ${fmtMoney(last.close - last.buyMinus2)} de la ligne verte Achat.`);
       } else {
-        signalBox.style.background = '#fefce8';
-        signalBox.style.borderColor = '#fde047';
-        signalTitle.style.color = '#a16207';
-        signalTitle.textContent = 'Position : Moitié supérieure du canal';
-        signalDesc.textContent = `Au-dessus de la droite centrale jaune (${fmtMoney(last.reg0)}), à ${fmtNum(last.sellPlus2 - last.close)} $ de la ligne rouge Vente.`;
+        setSignal('rgba(234,179,8,.1)', 'rgba(234,179,8,.45)', '#facc15', 'Position : Moitié supérieure du canal',
+          `Au-dessus de la droite centrale jaune (${fmtMoney(last.reg0)}), à ${fmtMoney(last.sellPlus2 - last.close)} de la ligne rouge Vente.`);
       }
     }
 
@@ -1529,14 +1567,14 @@
         const val = yMin + (t / yTicks) * (yMax - yMin);
         const y = yAt(val);
 
-        ctx.strokeStyle = '#e2e8f0';
+        ctx.strokeStyle = '#243049';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(pad.left, y);
         ctx.lineTo(pad.left + plotW, y);
         ctx.stroke();
 
-        ctx.fillStyle = '#475569';
+        ctx.fillStyle = '#94a3b8';
         ctx.fillText(`${fmtNum(val)} $`, pad.left - 8, y);
       }
 
@@ -1545,11 +1583,11 @@
       const stepX = Math.max(1, Math.floor((rows.length - 1) / maxXLabels));
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#94a3b8';
 
       for (let i = 0; i < rows.length; i += stepX) {
         const x = xAt(i);
-        ctx.strokeStyle = '#f1f5f9';
+        ctx.strokeStyle = '#1a2540';
         ctx.beginPath();
         ctx.moveTo(x, pad.top);
         ctx.lineTo(x, pad.top + plotH);
@@ -1625,7 +1663,7 @@
         // Point marqueur au bout de la courbe
         ctx.save();
         ctx.fillStyle = s.color;
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = '#111a2e';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(endX, item.rawY, 4.2, 0, Math.PI * 2);
@@ -1642,7 +1680,7 @@
         const boxX = endX + 8;
         const boxY = item.drawY - 8;
 
-        ctx.fillStyle = s.key === 'close' ? '#0f172a' : '#ffffff';
+        ctx.fillStyle = s.key === 'close' ? '#e2e8f0' : '#0f172a';
         ctx.strokeStyle = s.color;
         ctx.lineWidth = 1.2;
         ctx.beginPath();
@@ -1650,7 +1688,7 @@
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = s.key === 'close' ? '#ffffff' : (s.key === 'reg0' ? '#a16207' : s.color);
+        ctx.fillStyle = s.key === 'close' ? '#0f172a' : (s.key === 'reg0' ? '#facc15' : s.color);
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(labelText, boxX + 5, item.drawY);
@@ -1661,7 +1699,7 @@
       if (hoverIndex !== null && hoverIndex >= 0 && hoverIndex < rows.length) {
         const hx = xAt(hoverIndex);
         ctx.save();
-        ctx.strokeStyle = 'rgba(15, 23, 42, 0.3)';
+        ctx.strokeStyle = 'rgba(226, 232, 240, 0.35)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
@@ -1675,7 +1713,7 @@
           const hy = yAt(Number(row[s.key]));
           ctx.save();
           ctx.fillStyle = s.color;
-          ctx.strokeStyle = '#ffffff';
+          ctx.strokeStyle = '#111a2e';
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
