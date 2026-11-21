@@ -3,727 +3,1989 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MP officiel 26-11-20 — Droite de Régression (12 derniers mois)</title>
-  <!-- Chargement de Tailwind CSS pour une mise en page moderne et responsive -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chargement de la police Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Chargement de Chart.js via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <title>mp_officiel_26_11_20_droite_de_r_gression_12_derniers_mois V1</title>
   <style>
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* =========================================================================
+       VARIABLES & DESIGN MODERNE ÉPURÉ (INSPIRÉ GOOGLE SHEETS / BOURSE PRO)
+       100 % AUTONOME — AUCUNE DÉPENDANCE EXTERNE
+       ========================================================================= */
+    :root {
+      --bg-page: #f3f5f9;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --bg-dark-cell: #0f172a;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #1a73e8;
+      --accent-hover: #1557b0;
+      --sell-red: #dc2626;
+      --sell-bg: #fef2f2;
+      --sell-border: #fecaca;
+      --orange-1: #f59e0b;
+      --center-yellow: #eab308;
+      --center-yellow-dark: #a16207;
+      --center-yellow-bg: #fefce8;
+      --blue-1: #0ea5e9;
+      --buy-green: #16a34a;
+      --buy-bg: #f0fdf4;
+      --buy-border: #bbf7d0;
+      --radius-lg: 14px;
+      --radius-md: 9px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
     }
-    /* Barre de défilement discrète pour le tableau */
-    ::-webkit-scrollbar {
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 16px 14px 42px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 22px 24px 52px;
+        gap: 18px;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    /* En-tête & Barre d'outils */
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    @media (min-width: 1024px) {
+      .header-top {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f0fe;
+      color: #174ea6;
+      border: 1px solid #d2e3fc;
+      padding: 3px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.live {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .badge.offline {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+
+    .dot-pulse {
       width: 8px;
       height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      display: inline-block;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 23px;
+      }
+    }
+
+    .subtitle {
+      margin: 3px 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color 0.15s ease, transform 0.08s ease, border-color 0.15s ease;
+    }
+
+    button:active {
+      transform: scale(0.99);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-chip {
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      color: #334155;
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-chip:hover,
+    .btn-chip.active {
+      background: #e8f0fe;
+      color: #174ea6;
+      border-color: #93c5fd;
+    }
+
+    /* Onglets style Google Sheets */
+    .sheet-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 15px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 1px 2px rgba(26, 115, 232, 0.14);
+    }
+
+    .tab-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Bandeau d'état */
+    .banner {
+      display: none;
+      padding: 10px 15px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+
+    .banner.show {
+      display: block;
+    }
+
+    .banner.info {
+      background: #eff6ff;
+      color: #1e40af;
+      border-color: #bfdbfe;
+    }
+
+    .banner.success {
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .banner.warning {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+
+    /* Barre de contrôle du titre */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .controls-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .controls-grid {
+        grid-template-columns: 1.3fr 1.6fr 1fr 1.1fr 1fr 1fr auto;
+        align-items: end;
+      }
+    }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-strong);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: #ffffff;
+    }
+
+    .field input:disabled {
+      background: #f1f5f9;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid rgba(26, 115, 232, 0.25);
+      border-color: var(--accent);
+    }
+
+    .quick-tickers {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Disposition principale MP Graphique (Graphique large à gauche + Tableau M1:N17 à droite) */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 1180px) {
+      .workspace-grid {
+        grid-template-columns: minmax(0, 1fr) 330px;
+        align-items: start;
+      }
+    }
+
+    /* Graphique Canvas */
+    .chart-header {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .chart-header {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+      }
+    }
+
+    .chart-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .chart-desc {
+      margin: 3px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .legend-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+    }
+
+    .legend-btn.hidden-series {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+
+    .swatch {
+      width: 13px;
+      height: 3px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 450px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .canvas-wrap {
+        height: 540px;
+      }
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      display: none;
+      z-index: 25;
+      min-width: 215px;
+      background: rgba(15, 23, 42, 0.96);
+      color: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.28);
+    }
+
+    .tooltip-date {
+      font-weight: 700;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .tooltip-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 3px 0;
+    }
+
+    .tooltip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    /* Tableau latéral fidèle aux cellules L1:M17 de MP Graphique */
+    .sheets-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sheets-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      border: 1px solid #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .sheets-table td {
+      padding: 7px 10px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .sheets-table td.lbl {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      width: 48%;
+      font-size: 12px;
+    }
+
+    .sheets-table td.val {
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .sheets-table td.val.sell {
+      background: var(--sell-bg);
+      color: var(--sell-red);
+    }
+
+    .sheets-table td.val.orange {
+      color: #b45309;
+    }
+
+    .sheets-table td.val.yellow {
+      background: var(--center-yellow-bg);
+      color: var(--center-yellow-dark);
+    }
+
+    .sheets-table td.val.blue {
+      color: #0369a1;
+    }
+
+    .sheets-table td.val.buy {
+      background: var(--buy-bg);
+      color: var(--buy-green);
+    }
+
+    .signal-box {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font-size: 12px;
+    }
+
+    .signal-box strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    /* Section optionnelle Google Sheets URL */
+    details.sync-details {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      background: var(--bg-subtle);
+      font-size: 13px;
+    }
+
+    details.sync-details summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .sync-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 768px) {
+      .sync-row {
+        flex-direction: row;
+      }
+    }
+
+    .sync-row input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-strong);
+      font-size: 13px;
+    }
+
+    /* Tableau 8 colonnes (Données & Formules) */
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .table-scroll {
+      max-height: 520px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    table.data-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.data-grid thead th {
+      position: sticky;
+      top: 0;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      padding: 9px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-strong);
+      z-index: 5;
+      white-space: nowrap;
+    }
+
+    table.data-grid thead th.num,
+    table.data-grid tbody td.num {
+      text-align: right;
+    }
+
+    table.data-grid tbody td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
+    }
+
+    table.data-grid tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .c-sell { color: var(--sell-red); font-weight: 700; }
+    .c-orange { color: #b45309; font-weight: 600; }
+    .c-yellow { color: var(--center-yellow-dark); font-weight: 700; }
+    .c-blue { color: #0369a1; font-weight: 600; }
+    .c-buy { color: var(--buy-green); font-weight: 700; }
+
+    .hidden-view {
+      display: none !important;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
-  <!-- Conteneur principal fluide -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-    <!-- En-tête du tableau de bord -->
-    <header class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div class="space-y-1">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-          <span>MP officiel 26-11-20 — Version V1</span>
-          <span>•</span>
-          <span id="periodBadge">2025-11-20 → 2026-11-20 (12 mois)</span>
+<body>
+  <div class="container">
+    <!-- En-tête principal -->
+    <header class="card">
+      <div class="header-top">
+        <div>
+          <div class="badges-row">
+            <span class="badge">mp_officiel_26_11_20_droite_de_r_gression_12_derniers_mois V1</span>
+            <span id="sourceBadge" class="badge live"><span class="dot-pulse"></span><span id="sourceBadgeText">Synchronisation temps réel...</span></span>
+            <span id="periodBadge" class="badge">12 derniers mois</span>
+          </div>
+          <h1>Droite de Régression Linéaire — Canal Achat &amp; Vente</h1>
+          <p id="instrumentSubtitle" class="subtitle">
+            TSE:XEQT — iShares Core Equity ETF Portfolio • Mise à jour automatique sans fichier CSV
+          </p>
         </div>
-        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-          Droite de Régression Linéaire — Canal Achat &amp; Vente
-        </h1>
-        <p id="instrumentSubtitle" class="text-sm text-slate-500">
-          TSE:XEQT — iShares Core Equity ETF Portfolio • Données corrigées sans décalage d'index
-        </p>
-      </div>
-
-      <!-- Actions rapides : import CSV/JSON & export CSV -->
-      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-        <label class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
-          <span>Importer CSV / JSON</span>
-          <input id="fileInput" type="file" accept=".csv,.json,text/csv,application/json" class="hidden" />
-        </label>
-        <button id="exportCsvBtn" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
-          <span>Exporter CSV (12 mois)</span>
-        </button>
+        <div class="actions">
+          <button id="refreshNowBtn" type="button" class="btn-primary">Actualiser maintenant</button>
+          <button id="exportCsvBtn" type="button" class="btn-secondary">Exporter CSV (optionnel)</button>
+        </div>
       </div>
     </header>
 
-    <!-- Bandeau de message d'information / erreur (jamais alert()) -->
-    <div id="statusBanner" class="hidden rounded-xl px-4 py-3 text-sm font-medium border" role="status"></div>
+    <!-- Onglets reproduisant le classeur Google Sheets V1 -->
+    <nav class="sheet-tabs" aria-label="Onglets du classeur">
+      <button id="tabGraphBtn" type="button" class="tab-btn active">
+        <span class="tab-dot" style="background:#16a34a;"></span>
+        <span>MP Graphique</span>
+      </button>
+      <button id="tabDataBtn" type="button" class="tab-btn">
+        <span class="tab-dot" style="background:#eab308;"></span>
+        <span>Données &amp; Formules (8 colonnes)</span>
+      </button>
+    </nav>
 
-    <!-- Barre de paramètres interactifs -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500">
-          Paramètres du titre &amp; de la régression (12 derniers mois)
-        </h2>
-        <button id="resetDefaultsBtn" type="button" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline">
-          Réinitialiser valeurs MP V1
-        </button>
-      </div>
+    <!-- Bandeau d'état -->
+    <div id="statusBanner" class="banner" role="status"></div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-        <!-- Symbole -->
-        <div class="lg:col-span-1">
-          <label for="tickerInput" class="block text-xs font-medium text-slate-600 mb-1">Symbole</label>
-          <input id="tickerInput" type="text" value="TSE:XEQT" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+    <!-- Barre de contrôle du symbole et de la période -->
+    <section class="card">
+      <div class="controls-grid">
+        <div class="field">
+          <label for="tickerInput">Code Action (M1)</label>
+          <input id="tickerInput" type="text" value="TSE:XEQT" placeholder="Ex: TSE:XEQT, TSE:RY, AAPL" />
         </div>
 
-        <!-- Nom -->
-        <div class="lg:col-span-2">
-          <label for="nameInput" class="block text-xs font-medium text-slate-600 mb-1">Nom de l'actif</label>
-          <input id="nameInput" type="text" value="iShares Core Equity ETF Portfolio" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div class="field">
+          <label for="nameInput">Nom de l'actif (N1)</label>
+          <input id="nameInput" type="text" value="iShares Core Equity ETF Portfolio" />
         </div>
 
-        <!-- Fréquence -->
-        <div>
-          <label for="intervalSelect" class="block text-xs font-medium text-slate-600 mb-1">Échantillonnage</label>
-          <select id="intervalSelect" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="weekly" selected>Hebdomadaire (52 pts)</option>
-            <option value="daily">Quotidien (252 j ouvrés)</option>
+        <div class="field">
+          <label for="intervalSelect">Type (M11)</label>
+          <select id="intervalSelect">
+            <option value="Daily" selected>Daily (~252 j)</option>
+            <option value="Weekly">Weekly (~52 sem)</option>
           </select>
         </div>
 
-        <!-- Cours actuel -->
-        <div>
-          <label for="currentPriceInput" class="block text-xs font-medium text-slate-600 mb-1">Cours actuel (CAD)</label>
-          <input id="currentPriceInput" type="number" step="0.01" value="42.14" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div class="field">
+          <label for="dateModeSelect">Fenêtre 12 mois</label>
+          <select id="dateModeSelect">
+            <option value="auto" selected>Auto (Aujourd'hui - 1 an)</option>
+            <option value="manual">Dates manuelles</option>
+          </select>
         </div>
 
-        <!-- Écart-type -->
-        <div>
-          <label for="stdDevInput" class="block text-xs font-medium text-slate-600 mb-1">Écart-type (σ)</label>
-          <input id="stdDevInput" type="number" step="0.000001" value="2.277446348" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <div class="field">
+          <label for="startDateInput">Date Départ (M2)</label>
+          <input id="startDateInput" type="date" disabled />
+        </div>
+
+        <div class="field">
+          <label for="endDateInput">Date Fin (M3)</label>
+          <input id="endDateInput" type="date" disabled />
+        </div>
+
+        <div class="field">
+          <button id="loadTickerBtn" type="button" class="btn-primary" style="width:100%;">Charger</button>
         </div>
       </div>
 
-      <!-- Deuxième ligne de paramètres issus de la feuille MP V1 -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-4 pt-4 border-t border-slate-100">
-        <div>
-          <label for="trendPlus2Input" class="block text-xs font-medium text-red-700 mb-1">Vente / Tendance +2 (CAD)</label>
-          <input id="trendPlus2Input" type="number" step="0.01" value="51.24" class="w-full rounded-xl border border-red-200 bg-red-50/40 px-3 py-1.5 text-sm font-semibold text-red-800 focus:outline-none focus:ring-2 focus:ring-red-400" />
-        </div>
-        <div>
-          <label for="trendPlus1Input" class="block text-xs font-medium text-slate-600 mb-1">Tendance +1 (CAD)</label>
-          <input id="trendPlus1Input" type="number" step="0.01" value="48.96" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
-        <div>
-          <label for="trendCenterInput" class="block text-xs font-medium text-slate-600 mb-1">Tendance centrale (CAD)</label>
-          <input id="trendCenterInput" type="number" step="0.01" value="46.69" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
-        <div>
-          <label for="trendMinus1Input" class="block text-xs font-medium text-slate-600 mb-1">Tendance -1 (CAD)</label>
-          <input id="trendMinus1Input" type="number" step="0.01" value="44.41" class="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
-        <div>
-          <label for="trendMinus2Input" class="block text-xs font-medium text-emerald-700 mb-1">Achat / Tendance -2 (CAD)</label>
-          <input id="trendMinus2Input" type="number" step="0.01" value="42.13" class="w-full rounded-xl border border-emerald-200 bg-emerald-50/40 px-3 py-1.5 text-sm font-semibold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
-        </div>
-        <div class="flex items-end">
-          <button id="applyParamsBtn" type="button" class="w-full py-1.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition">
-            Mettre à jour
-          </button>
-        </div>
+      <div class="quick-tickers">
+        <span>Titres rapides :</span>
+        <button type="button" class="btn-chip active" data-ticker="TSE:XEQT">TSE:XEQT</button>
+        <button type="button" class="btn-chip" data-ticker="TSE:RY">TSE:RY</button>
+        <button type="button" class="btn-chip" data-ticker="TSE:ZST.L">TSE:ZST.L</button>
+        <button type="button" class="btn-chip" data-ticker="TSE:HXS">TSE:HXS</button>
+        <button type="button" class="btn-chip" data-ticker="NASDAQ:AAPL">NASDAQ:AAPL</button>
+        <button type="button" class="btn-chip" data-ticker="TSE:VFV">TSE:VFV</button>
       </div>
     </section>
 
-    <!-- Cartes KPI clés (12 derniers mois) -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Cours actuel</p>
-        <p id="kpiCurrent" class="text-xl font-bold text-slate-900 mt-1">42,14 CAD</p>
-        <p id="kpiSignal" class="text-xs font-medium text-emerald-600 mt-1">Zone d'Achat (-2σ)</p>
-      </div>
+    <!-- VUE 1 : MP GRAPHIQUE -->
+    <main id="viewGraph" class="workspace-grid">
+      <!-- Graphique large à gauche -->
+      <section class="card">
+        <div class="chart-header">
+          <div>
+            <h2 id="chartTitle" class="chart-title">Droite de Régression Linéaire — Canal Achat &amp; Vente (12 derniers mois)</h2>
+            <p class="chart-desc">
+              Haut rouge = <strong class="c-sell">Vente (+2)</strong> • Centre jaune = <strong class="c-yellow">Regression (0)</strong> • Bas vert = <strong class="c-buy">Achat (-2)</strong> • Prix affichés au bout de chaque courbe.
+            </p>
+          </div>
+          <div id="legendBar" class="legend-bar"></div>
+        </div>
 
-      <div class="bg-red-50/70 border border-red-200 rounded-2xl p-4 shadow-sm">
-        <p class="text-xs font-semibold text-red-700">Ligne Rouge — Vente (+2σ)</p>
-        <p id="kpiSell" class="text-xl font-bold text-red-700 mt-1">51,24 CAD</p>
-        <p class="text-xs text-red-600/90 mt-1">Borne supérieure de régression</p>
-      </div>
+        <div id="canvasWrap" class="canvas-wrap">
+          <canvas id="regressionCanvas"></canvas>
+          <div id="chartTooltip" class="tooltip"></div>
+        </div>
+      </section>
 
-      <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 shadow-sm">
-        <p class="text-xs font-semibold text-emerald-700">Ligne Verte — Achat (-2σ)</p>
-        <p id="kpiBuy" class="text-xl font-bold text-emerald-700 mt-1">42,13 CAD</p>
-        <p class="text-xs text-emerald-600/90 mt-1">Borne inférieure de régression</p>
-      </div>
+      <!-- Tableau de synthèse latéral fidèle aux cellules L1:M17 de MP Graphique -->
+      <aside class="sheets-panel">
+        <div class="card" style="padding: 14px;">
+          <table class="sheets-table" aria-label="Synthèse MP Graphique">
+            <tbody>
+              <tr>
+                <td class="lbl">Code Action</td>
+                <td id="cellM1" class="val">TSE:XEQT</td>
+              </tr>
+              <tr>
+                <td class="lbl">Date Départ</td>
+                <td id="cellM2" class="val">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Date Fin</td>
+                <td id="cellM3" class="val">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">COURS (Temps réel)</td>
+                <td id="cellM5" class="val" style="font-size:15px;">—</td>
+              </tr>
+            </tbody>
+          </table>
 
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Plus haut / Plus bas (12 mois)</p>
-        <p id="kpiHighLow" class="text-base font-bold text-slate-900 mt-1">46,48 / 38,62 CAD</p>
-        <p class="text-xs text-slate-500 mt-1">Extrêmes annuels enregistrés</p>
-      </div>
+          <table class="sheets-table" style="margin-top: 10px;" aria-label="Niveaux de régression">
+            <tbody>
+              <tr>
+                <td class="lbl">Tendance +2 (Vente)</td>
+                <td id="cellM7" class="val sell">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Tendance +1</td>
+                <td id="cellM8" class="val orange">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Tendance (Reg 0)</td>
+                <td id="cellM9" class="val yellow">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Tendance -1</td>
+                <td id="cellM10" class="val blue">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Type</td>
+                <td id="cellM11" class="val">Daily</td>
+              </tr>
+              <tr>
+                <td class="lbl">Tendance -2 (Achat)</td>
+                <td id="cellM12" class="val buy">—</td>
+              </tr>
+            </tbody>
+          </table>
 
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-        <p class="text-xs font-medium text-slate-500">Tendance centrale (0σ)</p>
-        <p id="kpiCenter" class="text-xl font-bold text-indigo-700 mt-1">46,69 CAD</p>
-        <p id="kpiStdDev" class="text-xs text-slate-500 mt-1">σ = 2,277446</p>
-      </div>
-    </section>
+          <table class="sheets-table" style="margin-top: 10px;" aria-label="Indicateurs fondamentaux et statistiques">
+            <tbody>
+              <tr>
+                <td class="lbl">PER</td>
+                <td id="cellM14" class="val">N/D</td>
+              </tr>
+              <tr>
+                <td class="lbl">Bénéfice / action</td>
+                <td id="cellM15" class="val">N/D</td>
+              </tr>
+              <tr>
+                <td class="lbl">Cours Plus haut 1 an</td>
+                <td id="cellM16" class="val">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Cours Plus bas 1 an</td>
+                <td id="cellM17" class="val">—</td>
+              </tr>
+              <tr>
+                <td class="lbl">Écart-type (σ)</td>
+                <td id="cellSigma" class="val">—</td>
+              </tr>
+            </tbody>
+          </table>
 
-    <!-- Graphique principal de régression sur 12 mois -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div id="signalBox" class="signal-box" style="margin-top: 10px;">
+            <strong id="signalTitle">Analyse du canal</strong>
+            <span id="signalDesc">Calcul de la position du cours en cours...</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- VUE 2 : DONNÉES & FORMULES (8 COLONNES IDENTIQUES À EXPORT_CSV_HTML) -->
+    <section id="viewData" class="card hidden-view">
+      <div class="table-header">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">
-            Graphique sur 12 mois (2025-11-20 au 2026-11-20)
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-500">
-            Ligne rouge = <span class="font-semibold text-red-600">Vente</span> (Tendance +2) • Ligne verte = <span class="font-semibold text-emerald-600">Achat</span> (Tendance -2) • Cliquez sur la légende pour afficher/masquer une série.
-          </p>
+          <h2 class="chart-title">Données &amp; Formules (8 colonnes identiques à Google Sheets V1)</h2>
+          <p id="tableSubtitle" class="chart-desc">Index, Date, Cours, Vente (+2), Tendance +1, Regression (0), Tendance -1, Achat (-2)</p>
         </div>
-        <div class="flex items-center gap-4 text-xs font-semibold shrink-0">
-          <span class="inline-flex items-center gap-1.5 text-red-600">
-            <span class="w-3.5 h-1 rounded-full bg-red-600 inline-block"></span> Vente (+2)
-          </span>
-          <span class="inline-flex items-center gap-1.5 text-emerald-600">
-            <span class="w-3.5 h-1 rounded-full bg-emerald-600 inline-block"></span> Achat (-2)
-          </span>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span id="rowCountBadge" class="pill">0 points</span>
+          <button id="copyTableBtn" type="button" class="btn-secondary">Copier le tableau</button>
         </div>
       </div>
 
-      <!-- Conteneur adaptatif pour Chart.js -->
-      <div class="relative w-full h-[380px] sm:h-[460px]">
-        <canvas id="regressionChart"></canvas>
-      </div>
-    </section>
-
-    <!-- Tableau détaillé des points de la période de 12 mois -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-slate-900">Données de régression sur 12 mois</h2>
-          <p class="text-xs text-slate-500">Valeurs calculées sur la fenêtre du 2025-11-20 au 2026-11-20.</p>
-        </div>
-        <span id="rowCountBadge" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700 self-start sm:self-auto">
-          0 points
-        </span>
-      </div>
-
-      <div class="overflow-x-auto max-h-[380px] border border-slate-200 rounded-xl">
-        <table class="min-w-full divide-y divide-slate-200 text-xs sm:text-sm">
-          <thead class="bg-slate-100 text-slate-700 sticky top-0 z-10">
+      <div class="table-scroll">
+        <table class="data-grid">
+          <thead>
             <tr>
-              <th class="px-3 py-2.5 text-left font-semibold">#</th>
-              <th class="px-3 py-2.5 text-left font-semibold">Date</th>
-              <th class="px-3 py-2.5 text-right font-semibold">Cours (CAD)</th>
-              <th class="px-3 py-2.5 text-right font-semibold text-red-700">Vente (+2)</th>
-              <th class="px-3 py-2.5 text-right font-semibold">Tendance +1</th>
-              <th class="px-3 py-2.5 text-right font-semibold text-indigo-700">Régression (0)</th>
-              <th class="px-3 py-2.5 text-right font-semibold">Tendance -1</th>
-              <th class="px-3 py-2.5 text-right font-semibold text-emerald-700">Achat (-2)</th>
+              <th>Index</th>
+              <th>Date</th>
+              <th class="num">Cours</th>
+              <th class="num c-sell">Vente (+2)</th>
+              <th class="num c-orange">Tendance +1</th>
+              <th class="num c-yellow">Regression (0)</th>
+              <th class="num c-blue">Tendance -1</th>
+              <th class="num c-buy">Achat (-2)</th>
             </tr>
           </thead>
-          <tbody id="dataTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+          <tbody id="dataTableBody"></tbody>
         </table>
       </div>
     </section>
 
+    <!-- Option facultative : lien direct Google Sheets publié sur le Web -->
+    <details class="sync-details">
+      <summary>Option avancée : Synchroniser directement via l'URL publiée de votre Google Sheets (sans télécharger de fichier)</summary>
+      <div class="sync-row">
+        <input id="sheetsUrlInput" type="url" placeholder="Collez ici l'URL CSV publiée de l'onglet Export_CSV_HTML (Fichier > Partager > Publier sur le Web > CSV)" />
+        <button id="syncSheetsUrlBtn" type="button" class="btn-primary">Synchroniser Google Sheets</button>
+      </div>
+    </details>
   </div>
 
   <script>
-    /**
-     * Configuration par défaut issue du fichier "MP officiel 26-11-20 Droite De Régression V1"
-     * Fenêtre de 12 mois : du 2025-11-20 au 2026-11-20.
-     */
-    const DEFAULT_STATE = {
+    /* =========================================================================
+       1. CONFIGURATION, FUSEAU HORAIRE AMERICA/TORONTO & DONNÉES DE SECOURS
+       ========================================================================= */
+    const TIMEZONE = 'America/Toronto';
+
+    const FALLBACK_CATALOG = {
+      'TSE:XEQT': {
+        name: 'iShares Core Equity ETF Portfolio',
+        currency: 'CAD',
+        currentPrice: 42.14,
+        startPrice: 38.95,
+        high52: 46.48,
+        low52: 38.62,
+        pe: null,
+        eps: null
+      },
+      'TSE:RY': {
+        name: 'Royal Bank of Canada',
+        currency: 'CAD',
+        currentPrice: 263.05,
+        startPrice: 214.50,
+        high52: 306.38,
+        low52: 208.24,
+        pe: 16.58,
+        eps: 15.87
+      },
+      'TSE:ZST.L': {
+        name: 'BMO Ultra Short-Term Bond ETF (Accumulating)',
+        currency: 'CAD',
+        currentPrice: 54.42,
+        startPrice: 52.85,
+        high52: 54.60,
+        low52: 52.70,
+        pe: null,
+        eps: null
+      },
+      'TSE:HXS': {
+        name: 'Global X S&P 500 Index Corporate Class ETF',
+        currency: 'CAD',
+        currentPrice: 82.90,
+        startPrice: 68.40,
+        high52: 85.10,
+        low52: 67.20,
+        pe: null,
+        eps: null
+      },
+      'NASDAQ:AAPL': {
+        name: 'Apple Inc.',
+        currency: 'USD',
+        currentPrice: 234.80,
+        startPrice: 196.20,
+        high52: 244.50,
+        low52: 189.40,
+        pe: 34.20,
+        eps: 6.86
+      },
+      'TSE:VFV': {
+        name: 'Vanguard S&P 500 Index ETF',
+        currency: 'CAD',
+        currentPrice: 148.60,
+        startPrice: 121.30,
+        high52: 152.40,
+        low52: 119.80,
+        pe: null,
+        eps: null
+      }
+    };
+
+    /* Courbes et couleurs strictement identiques à MP Graphique V1 */
+    const SERIES_CONFIG = [
+      { key: 'sellPlus2', label: 'Vente (+2)', color: '#dc2626', width: 2.6, dash: [] },
+      { key: 'plus1', label: 'Tendance +1', color: '#f59e0b', width: 1.5, dash: [5, 5] },
+      { key: 'reg0', label: 'Regression (0)', color: '#eab308', width: 2.3, dash: [] },
+      { key: 'close', label: 'Cours', color: '#1e293b', width: 2.2, dash: [] },
+      { key: 'minus1', label: 'Tendance -1', color: '#0ea5e9', width: 1.5, dash: [5, 5] },
+      { key: 'buyMinus2', label: 'Achat (-2)', color: '#16a34a', width: 2.6, dash: [] }
+    ];
+
+    let appState = {
       ticker: 'TSE:XEQT',
       name: 'iShares Core Equity ETF Portfolio',
       currency: 'CAD',
-      interval: 'weekly',
-      startDate: '2025-11-20',
-      endDate: '2026-11-20',
+      interval: 'Daily',
+      dateMode: 'auto',
+      startDate: '',
+      endDate: '',
       currentPrice: 42.14,
       high52: 46.48,
       low52: 38.62,
-      stdDev: 2.277446348,
-      trendCenter: 46.69,
-      trendPlus2: 51.24,
-      trendPlus1: 48.96,
-      trendMinus1: 44.41,
-      trendMinus2: 42.13,
-      customRows: null
+      pe: null,
+      eps: null,
+      stdDev: 0,
+      isLive: false,
+      sourceLabel: 'Initialisation...'
     };
 
-    let appState = structuredClone(DEFAULT_STATE);
-    let regressionChart = null;
+    let latestRows = [];
+    let hiddenSeries = new Set();
+    let chartGeometry = null;
+    let hoverIndex = null;
+    let midnightTimerId = null;
 
-    // Formateurs numériques français / CAD
-    const fmtCad = (val) => {
-      if (val === null || val === undefined || Number.isNaN(Number(val))) return 'N/D';
-      return `${Number(val).toFixed(2).replace('.', ',')} ${appState.currency}`;
-    };
+    /* =========================================================================
+       2. GESTION DES DATES (12 MOIS GLISSANTS EN HEURE AMERICA/TORONTO)
+       ========================================================================= */
+    function getTodayIsoInTimeZone(timeZone = TIMEZONE) {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(new Date());
 
-    const fmtNum = (val) => {
-      if (val === null || val === undefined || Number.isNaN(Number(val))) return '';
-      return Number(val).toFixed(2).replace('.', ',');
-    };
-
-    // Affiche un bandeau non bloquant (remplace alert())
-    function showBanner(message, type = 'info') {
-      const banner = document.getElementById('statusBanner');
-      banner.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-red-50', 'text-red-800', 'border-red-200', 'bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
-      if (type === 'error') {
-        banner.classList.add('bg-red-50', 'text-red-800', 'border-red-200');
-      } else if (type === 'success') {
-        banner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
-      } else {
-        banner.classList.add('bg-indigo-50', 'text-indigo-800', 'border-indigo-200');
-      }
-      banner.textContent = message;
+      const y = parts.find((p) => p.type === 'year')?.value || '2026';
+      const m = parts.find((p) => p.type === 'month')?.value || '11';
+      const d = parts.find((p) => p.type === 'day')?.value || '21';
+      return `${y}-${m}-${d}`;
     }
 
-    // Génère les dates sur exactement 12 mois (2025-11-20 -> 2026-11-20)
-    function generateTwelveMonthDates(startStr, endStr, interval) {
-      const start = new Date(`${startStr}T00:00:00`);
-      const end = new Date(`${endStr}T00:00:00`);
-      const dates = [];
+    function getOneYearAgoIso(endIso) {
+      const [yStr, mStr, dStr] = endIso.split('-');
+      const targetYear = Number(yStr) - 1;
+      const monthIndex = Number(mStr) - 1;
+      const day = Number(dStr);
+      const maxDay = new Date(Date.UTC(targetYear, monthIndex + 1, 0)).getUTCDate();
+      const clampedDay = Math.min(day, maxDay);
+      return new Date(Date.UTC(targetYear, monthIndex, clampedDay)).toISOString().slice(0, 10);
+    }
 
-      if (interval === 'daily') {
-        const cur = new Date(start);
-        while (cur <= end) {
-          const day = cur.getDay();
-          // Exclut samedi (6) et dimanche (0)
-          if (day !== 0 && day !== 6) {
+    function getMsUntilNextMidnight(timeZone = TIMEZONE) {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).formatToParts(now);
+
+      const h = Number(parts.find((p) => p.type === 'hour')?.value || 0);
+      const m = Number(parts.find((p) => p.type === 'minute')?.value || 0);
+      const s = Number(parts.find((p) => p.type === 'second')?.value || 0);
+      const elapsedSec = h * 3600 + m * 60 + s;
+      return Math.max(1000, (86400 - elapsedSec) * 1000 - now.getMilliseconds() + 300);
+    }
+
+    function syncAutoDatesIfNeeded() {
+      if (appState.dateMode === 'auto') {
+        const todayIso = getTodayIsoInTimeZone(TIMEZONE);
+        appState.endDate = todayIso;
+        appState.startDate = getOneYearAgoIso(todayIso);
+      }
+    }
+
+    function scheduleMidnightRefresh() {
+      if (midnightTimerId) clearTimeout(midnightTimerId);
+      midnightTimerId = setTimeout(() => {
+        if (appState.dateMode === 'auto') {
+          syncAutoDatesIfNeeded();
+          syncInputsFromState();
+          loadMarketData();
+        }
+        scheduleMidnightRefresh();
+      }, getMsUntilNextMidnight(TIMEZONE));
+    }
+
+    /* =========================================================================
+       3. CONVERSION DE SYMBOLE & RÉCUPÉRATION MULTI-SOURCES SANS CSV
+       ========================================================================= */
+    function toYahooSymbol(rawTicker) {
+      const clean = rawTicker.trim().toUpperCase();
+      if (!clean.includes(':')) return clean;
+
+      const [exchange, symbol] = clean.split(':');
+      if (exchange === 'TSE' || exchange === 'TSX') {
+        return symbol.endsWith('.TO') ? symbol : `${symbol}.TO`;
+      }
+      if (exchange === 'CVE' || exchange === 'TSXV') {
+        return symbol.endsWith('.V') ? symbol : `${symbol}.V`;
+      }
+      if (exchange === 'NYSE' || exchange === 'NASDAQ' || exchange === 'AMEX' || exchange === 'BATS') {
+        return symbol;
+      }
+      if (exchange === 'EPA') return `${symbol}.PA`;
+      if (exchange === 'LON') return `${symbol}.L`;
+      return symbol;
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 6500) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function fetchYahooChartData(ticker, intervalMode, startDateStr, endDateStr) {
+      const yahooSym = toYahooSymbol(ticker);
+      const yahooInterval = intervalMode === 'Weekly' ? '1wk' : '1d';
+
+      const period1 = Math.floor(new Date(`${startDateStr}T00:00:00Z`).getTime() / 1000) - 86400;
+      const period2 = Math.floor(new Date(`${endDateStr}T23:59:59Z`).getTime() / 1000) + 86400;
+
+      const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}?period1=${period1}&period2=${period2}&interval=${yahooInterval}&includePrePost=false`;
+
+      const endpoints = [
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        targetUrl
+      ];
+
+      let lastError = null;
+      for (const endpoint of endpoints) {
+        try {
+          const json = await fetchWithTimeout(endpoint, 6500);
+          const result = json?.chart?.result?.[0];
+          if (!result || !Array.isArray(result.timestamp) || !result.indicators?.quote?.[0]?.close) {
+            continue;
+          }
+
+          const timestamps = result.timestamp;
+          const closes = result.indicators.quote[0].close;
+          const meta = result.meta || {};
+
+          const rawPoints = [];
+          for (let i = 0; i < timestamps.length; i++) {
+            const c = closes[i];
+            if (typeof c === 'number' && Number.isFinite(c)) {
+              const isoDate = new Date(timestamps[i] * 1000).toISOString().slice(0, 10);
+              if (isoDate >= startDateStr && isoDate <= endDateStr) {
+                rawPoints.push({ date: isoDate, close: Number(c.toFixed(2)) });
+              }
+            }
+          }
+
+          // Déduplique les dates identiques en gardant la dernière clôture
+          const byDate = new Map();
+          rawPoints.forEach((pt) => byDate.set(pt.date, pt.close));
+          const points = Array.from(byDate.entries())
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([date, close]) => ({ date, close }));
+
+          if (points.length >= 5) {
+            const livePrice = typeof meta.regularMarketPrice === 'number' && Number.isFinite(meta.regularMarketPrice)
+              ? Number(meta.regularMarketPrice.toFixed(2))
+              : points[points.length - 1].close;
+
+            // Met à jour la dernière séance avec le cours en temps réel
+            points[points.length - 1].close = livePrice;
+
+            const allPrices = points.map((p) => p.close);
+            const high52 = typeof meta.fiftyTwoWeekHigh === 'number' ? meta.fiftyTwoWeekHigh : Math.max(...allPrices);
+            const low52 = typeof meta.fiftyTwoWeekLow === 'number' ? meta.fiftyTwoWeekLow : Math.min(...allPrices);
+
+            return {
+              points,
+              name: meta.longName || meta.shortName || ticker,
+              currency: meta.currency || 'CAD',
+              currentPrice: livePrice,
+              high52: Number(high52.toFixed(2)),
+              low52: Number(low52.toFixed(2)),
+              pe: null,
+              eps: null
+            };
+          }
+        } catch (err) {
+          lastError = err;
+        }
+      }
+
+      throw lastError || new Error('Flux boursier indisponible');
+    }
+
+    /* Générateur de secours intelligent si l'utilisateur est 100 % hors ligne */
+    function buildOfflineFallbackPoints(ticker, intervalMode, startDateStr, endDateStr) {
+      const preset = FALLBACK_CATALOG[ticker.toUpperCase()] || {
+        name: ticker,
+        currency: ticker.startsWith('TSE:') ? 'CAD' : 'USD',
+        currentPrice: 100.00,
+        startPrice: 88.50,
+        high52: 106.20,
+        low52: 86.10,
+        pe: null,
+        eps: null
+      };
+
+      const start = new Date(`${startDateStr}T00:00:00Z`);
+      const end = new Date(`${endDateStr}T00:00:00Z`);
+      const dates = [];
+      const cur = new Date(start);
+
+      while (cur <= end) {
+        if (intervalMode === 'Weekly') {
+          dates.push(cur.toISOString().slice(0, 10));
+          cur.setUTCDate(cur.getUTCDate() + 7);
+        } else {
+          const dow = cur.getUTCDay();
+          if (dow !== 0 && dow !== 6) {
             dates.push(cur.toISOString().slice(0, 10));
           }
-          cur.setDate(cur.getDate() + 1);
-        }
-      } else {
-        // Échantillonnage hebdomadaire sur 52 semaines jusqu'à endStr
-        const cur = new Date(start);
-        while (cur <= end) {
-          dates.push(cur.toISOString().slice(0, 10));
-          cur.setDate(cur.getDate() + 7);
-        }
-        const lastIso = end.toISOString().slice(0, 10);
-        if (dates[dates.length - 1] !== lastIso) {
-          dates.push(lastIso);
+          cur.setUTCDate(cur.getUTCDate() + 1);
         }
       }
-      return dates;
-    }
 
-    // Construit la série complète avec les droites de régression (+2 Vente, +1, 0, -1, -2 Achat)
-    function buildDataset() {
-      try {
-        if (Array.isArray(appState.customRows) && appState.customRows.length > 0) {
-          return appState.customRows;
-        }
-
-        const dates = generateTwelveMonthDates(appState.startDate, appState.endDate, appState.interval);
-        const n = dates.length;
-        const sigma = Number(appState.stdDev) || 2.277446348;
-
-        // Pente et ordonnée à l'origine calibrées pour aboutir à trendCenter à la fin des 12 mois
-        const centerEnd = Number(appState.trendCenter);
-        const startCenter = Number(appState.low52) + ((Number(appState.high52) - Number(appState.low52)) * 0.35);
-        const slope = n > 1 ? (centerEnd - startCenter) / (n - 1) : 0;
-
-        // Calcul de l'écart entre +2 et 0 pour respecter les bornes Vente/Achat saisies
-        const halfChannel = Math.max(
-          Math.abs(Number(appState.trendPlus2) - centerEnd),
-          Math.abs(centerEnd - Number(appState.trendMinus2)),
-          sigma * 2
-        );
-        const stepBand = halfChannel / 2;
-
-        const rows = [];
-        for (let i = 0; i < n; i++) {
-          const reg0 = startCenter + slope * i;
-          const sellPlus2 = reg0 + stepBand * 2;
-          const plus1 = reg0 + stepBand * 1;
-          const minus1 = reg0 - stepBand * 1;
-          const buyMinus2 = reg0 - stepBand * 2;
-
-          let closePrice;
-          if (i === n - 1) {
-            closePrice = Number(appState.currentPrice);
-          } else {
-            // Oscillation réaliste autour de la tendance centrale avec ancrage sur le point final
-            const wave = Math.sin(i * 0.42) * (sigma * 0.85) + Math.cos(i * 0.19) * (sigma * 0.55);
-            const rawClose = reg0 + wave;
-            const blend = i / Math.max(1, n - 1);
-            closePrice = rawClose * (1 - blend * 0.25) + (Number(appState.currentPrice) + Math.sin(i * 0.5) * sigma * 0.6) * (blend * 0.25);
-          }
-
-          rows.push({
-            index: i + 1,
-            date: dates[i],
-            close: Number(closePrice.toFixed(2)),
-            sellPlus2: Number(sellPlus2.toFixed(2)),
-            plus1: Number(plus1.toFixed(2)),
-            reg0: Number(reg0.toFixed(2)),
-            minus1: Number(minus1.toFixed(2)),
-            buyMinus2: Number(buyMinus2.toFixed(2))
-          });
-        }
-
-        // Assure que le dernier point reflète exactement les valeurs saisies (Vente +2 et Achat -2)
-        if (rows.length > 0) {
-          const last = rows[rows.length - 1];
-          last.sellPlus2 = Number(Number(appState.trendPlus2).toFixed(2));
-          last.buyMinus2 = Number(Number(appState.trendMinus2).toFixed(2));
-          last.reg0 = Number(Number(appState.trendCenter).toFixed(2));
-          last.plus1 = Number(Number(appState.trendPlus1).toFixed(2));
-          last.minus1 = Number(Number(appState.trendMinus1).toFixed(2));
-          last.close = Number(Number(appState.currentPrice).toFixed(2));
-        }
-
-        return rows;
-      } catch (err) {
-        showBanner(`Erreur lors du calcul des données : ${err.message}`, 'error');
-        return [];
-      }
-    }
-
-    // Met à jour les cartes KPI et l'en-tête
-    function updateKpis(rows) {
-      document.getElementById('instrumentSubtitle').textContent =
-        `${appState.ticker} — ${appState.name} • Fenêtre ${appState.startDate} au ${appState.endDate}`;
-
-      const current = Number(appState.currentPrice);
-      const buyVal = rows.length ? rows[rows.length - 1].buyMinus2 : Number(appState.trendMinus2);
-      const sellVal = rows.length ? rows[rows.length - 1].sellPlus2 : Number(appState.trendPlus2);
-      const centerVal = rows.length ? rows[rows.length - 1].reg0 : Number(appState.trendCenter);
-
-      const allCloses = rows.map(r => r.close);
-      const high12m = allCloses.length ? Math.max(...allCloses, Number(appState.high52)) : Number(appState.high52);
-      const low12m = allCloses.length ? Math.min(...allCloses, Number(appState.low52)) : Number(appState.low52);
-
-      document.getElementById('kpiCurrent').textContent = fmtCad(current);
-      document.getElementById('kpiSell').textContent = fmtCad(sellVal);
-      document.getElementById('kpiBuy').textContent = fmtCad(buyVal);
-      document.getElementById('kpiHighLow').textContent = `${high12m.toFixed(2).replace('.', ',')} / ${low12m.toFixed(2).replace('.', ',')} ${appState.currency}`;
-      document.getElementById('kpiCenter').textContent = fmtCad(centerVal);
-      document.getElementById('kpiStdDev').textContent = `σ = ${Number(appState.stdDev).toFixed(6).replace('.', ',')}`;
-
-      const signalEl = document.getElementById('kpiSignal');
-      if (current <= buyVal * 1.02) {
-        signalEl.textContent = 'Proche / sous la ligne Verte (Achat)';
-        signalEl.className = 'text-xs font-semibold text-emerald-600 mt-1';
-      } else if (current >= sellVal * 0.98) {
-        signalEl.textContent = 'Proche / au-dessus de la ligne Rouge (Vente)';
-        signalEl.className = 'text-xs font-semibold text-red-600 mt-1';
-      } else {
-        signalEl.textContent = 'Dans le canal de régression';
-        signalEl.className = 'text-xs font-medium text-indigo-600 mt-1';
-      }
-    }
-
-    // Met à jour le graphique Chart.js
-    function renderChart(rows) {
-      const ctx = document.getElementById('regressionChart').getContext('2d');
-      const labels = rows.map(r => r.date);
-
-      if (regressionChart) {
-        regressionChart.destroy();
+      if (dates.length === 0 || dates[dates.length - 1] !== endDateStr) {
+        dates.push(endDateStr);
       }
 
-      regressionChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Vente (Tendance +2)',
-              data: rows.map(r => r.sellPlus2),
-              borderColor: '#dc2626',
-              backgroundColor: 'rgba(220, 38, 38, 0.08)',
-              borderWidth: 3,
-              pointRadius: 0,
-              pointHoverRadius: 5,
-              tension: 0.1,
-              order: 1
-            },
-            {
-              label: 'Tendance +1',
-              data: rows.map(r => r.plus1),
-              borderColor: '#f97316',
-              borderWidth: 1.5,
-              borderDash: [5, 5],
-              pointRadius: 0,
-              pointHoverRadius: 4,
-              tension: 0.1,
-              order: 3
-            },
-            {
-              label: 'Droite de Régression (0)',
-              data: rows.map(r => r.reg0),
-              borderColor: '#4f46e5',
-              borderWidth: 2,
-              borderDash: [8, 4],
-              pointRadius: 0,
-              pointHoverRadius: 4,
-              tension: 0.1,
-              order: 4
-            },
-            {
-              label: 'Tendance -1',
-              data: rows.map(r => r.minus1),
-              borderColor: '#14b8a6',
-              borderWidth: 1.5,
-              borderDash: [5, 5],
-              pointRadius: 0,
-              pointHoverRadius: 4,
-              tension: 0.1,
-              order: 5
-            },
-            {
-              label: 'Achat (Tendance -2)',
-              data: rows.map(r => r.buyMinus2),
-              borderColor: '#16a34a',
-              backgroundColor: 'rgba(22, 163, 74, 0.08)',
-              borderWidth: 3,
-              pointRadius: 0,
-              pointHoverRadius: 5,
-              tension: 0.1,
-              order: 2
-            },
-            {
-              label: 'Cours de clôture',
-              data: rows.map(r => r.close),
-              borderColor: '#0f172a',
-              backgroundColor: 'rgba(15, 23, 42, 0.06)',
-              borderWidth: 2.25,
-              pointRadius: rows.length <= 60 ? 2 : 0,
-              pointHoverRadius: 5,
-              tension: 0.15,
-              order: 0
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false
-          },
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                usePointStyle: true,
-                boxWidth: 10,
-                padding: 16,
-                font: {
-                  family: 'Inter, sans-serif',
-                  size: 12,
-                  weight: '600'
-                }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(15, 23, 42, 0.94)',
-              titleFont: { family: 'Inter, sans-serif', size: 13, weight: 'bold' },
-              bodyFont: { family: 'Inter, sans-serif', size: 12 },
-              padding: 12,
-              cornerRadius: 10,
-              callbacks: {
-                label: (context) => {
-                  const val = context.parsed.y;
-                  return ` ${context.dataset.label} : ${Number(val).toFixed(2).replace('.', ',')} ${appState.currency}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: {
-                maxTicksLimit: 12,
-                font: { family: 'Inter, sans-serif', size: 11 },
-                color: '#64748b'
-              }
-            },
-            y: {
-              grid: { color: '#e2e8f0' },
-              ticks: {
-                font: { family: 'Inter, sans-serif', size: 11 },
-                color: '#475569',
-                callback: (value) => `${Number(value).toFixed(2).replace('.', ',')} $`
-              }
-            }
-          }
+      // Graine déterministe basée sur le symbole
+      let seed = 0;
+      for (let i = 0; i < ticker.length; i++) seed += ticker.charCodeAt(i) * (i + 1);
+
+      const n = dates.length;
+      const amp = (preset.high52 - preset.low52) * 0.16;
+      const points = dates.map((date, idx) => {
+        if (idx === n - 1) {
+          return { date, close: Number(preset.currentPrice.toFixed(2)) };
         }
+        const t = n > 1 ? idx / (n - 1) : 1;
+        const base = preset.startPrice + (preset.currentPrice - preset.startPrice) * t;
+        const wave = Math.sin(idx * 0.24 + seed) * amp + Math.cos(idx * 0.09 + seed * 0.5) * (amp * 0.65);
+        const val = Math.max(preset.low52 * 0.96, Math.min(preset.high52 * 1.02, base + wave));
+        return { date, close: Number(val.toFixed(2)) };
       });
+
+      return {
+        points,
+        name: preset.name,
+        currency: preset.currency,
+        currentPrice: preset.currentPrice,
+        high52: preset.high52,
+        low52: preset.low52,
+        pe: preset.pe,
+        eps: preset.eps
+      };
     }
 
-    // Remplit le tableau HTML
-    function renderTable(rows) {
-      const tbody = document.getElementById('dataTableBody');
-      const badge = document.getElementById('rowCountBadge');
-      badge.textContent = `${rows.length} points (12 mois)`;
+    /* =========================================================================
+       4. CALCUL EXACT DE LA RÉGRESSION LINÉAIRE OLS & ÉCART-TYPE (IDENTIQUE SHEETS)
+       ========================================================================= */
+    function computeRegressionSeries(rawPoints) {
+      const n = rawPoints.length;
+      if (n === 0) return { rows: [], stdDev: 0 };
 
-      tbody.innerHTML = rows.map(r => `
-        <tr class="hover:bg-slate-50 transition">
-          <td class="px-3 py-2 text-slate-500 font-mono text-xs">${r.index}</td>
-          <td class="px-3 py-2 font-medium text-slate-800 whitespace-nowrap">${r.date}</td>
-          <td class="px-3 py-2 text-right font-semibold text-slate-900">${fmtNum(r.close)}</td>
-          <td class="px-3 py-2 text-right font-semibold text-red-600">${fmtNum(r.sellPlus2)}</td>
-          <td class="px-3 py-2 text-right text-slate-600">${fmtNum(r.plus1)}</td>
-          <td class="px-3 py-2 text-right font-medium text-indigo-700">${fmtNum(r.reg0)}</td>
-          <td class="px-3 py-2 text-right text-slate-600">${fmtNum(r.minus1)}</td>
-          <td class="px-3 py-2 text-right font-semibold text-emerald-600">${fmtNum(r.buyMinus2)}</td>
+      // Régression linéaire par moindres carrés : y = a + b * x avec x = 1..n
+      let sumX = 0;
+      let sumY = 0;
+      let sumXY = 0;
+      let sumX2 = 0;
+
+      for (let i = 0; i < n; i++) {
+        const x = i + 1;
+        const y = rawPoints[i].close;
+        sumX += x;
+        sumY += y;
+        sumXY += x * y;
+        sumX2 += x * x;
+      }
+
+      const denom = n * sumX2 - sumX * sumX;
+      const slope = denom !== 0 ? (n * sumXY - sumX * sumY) / denom : 0;
+      const intercept = (sumY - slope * sumX) / n;
+
+      // Écart-type échantillon STDEV(Cours) comme dans K1 de Google Sheets V1
+      const meanY = sumY / n;
+      let sqDiffSum = 0;
+      for (let i = 0; i < n; i++) {
+        const diff = rawPoints[i].close - meanY;
+        sqDiffSum += diff * diff;
+      }
+      const stdDev = n > 1 ? Math.sqrt(sqDiffSum / (n - 1)) : 0;
+
+      const rows = rawPoints.map((pt, i) => {
+        const x = i + 1;
+        const reg0 = intercept + slope * x;
+        return {
+          index: x,
+          date: pt.date,
+          close: Number(pt.close.toFixed(2)),
+          sellPlus2: Number((reg0 + stdDev * 2).toFixed(2)),
+          plus1: Number((reg0 + stdDev * 1).toFixed(2)),
+          reg0: Number(reg0.toFixed(2)),
+          minus1: Number((reg0 - stdDev * 1).toFixed(2)),
+          buyMinus2: Number((reg0 - stdDev * 2).toFixed(2))
+        };
+      });
+
+      return { rows, stdDev };
+    }
+
+    /* =========================================================================
+       5. SYNCHRONISATION OPTIONNELLE VIA URL PUBLIÉE GOOGLE SHEETS
+       ========================================================================= */
+    async function loadFromPublishedSheetsCsv(csvUrl) {
+      const endpoints = [
+        csvUrl,
+        `https://corsproxy.io/?${encodeURIComponent(csvUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(csvUrl)}`
+      ];
+
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(ep);
+          if (!res.ok) continue;
+          const text = await res.text();
+          const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+          if (lines.length < 3) continue;
+
+          const parsedRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',').map((c) => c.replace(/^"|"$/g, '').trim());
+            const dateStr = cols[1];
+            const closeVal = parseFloat((cols[2] || '').replace(/\s|\$/g, '').replace(',', '.'));
+            if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) && Number.isFinite(closeVal)) {
+              parsedRows.push({
+                index: parsedRows.length + 1,
+                date: dateStr,
+                close: Number(closeVal.toFixed(2)),
+                sellPlus2: parseFloat((cols[3] || '0').replace(',', '.')) || 0,
+                plus1: parseFloat((cols[4] || '0').replace(',', '.')) || 0,
+                reg0: parseFloat((cols[5] || '0').replace(',', '.')) || 0,
+                minus1: parseFloat((cols[6] || '0').replace(',', '.')) || 0,
+                buyMinus2: parseFloat((cols[7] || '0').replace(',', '.')) || 0
+              });
+            }
+          }
+
+          if (parsedRows.length >= 2) {
+            return parsedRows;
+          }
+        } catch (e) {
+          // Essaie le proxy suivant
+        }
+      }
+      throw new Error('Impossible de lire l’URL CSV publiée.');
+    }
+
+    /* =========================================================================
+       6. RENDU DU TABLEAU DE BORD, DES KPI ET DU TABLEAU 8 COLONNES
+       ========================================================================= */
+    function fmtNum(val) {
+      return Number(val).toFixed(2).replace('.', ',');
+    }
+
+    function fmtMoney(val) {
+      return `${fmtNum(val)} ${appState.currency}`;
+    }
+
+    function showBanner(msg, type = 'info') {
+      const el = document.getElementById('statusBanner');
+      el.textContent = msg;
+      el.className = `banner show ${type}`;
+    }
+
+    function updateDashboard(rows) {
+      const last = rows[rows.length - 1];
+      if (!last) return;
+
+      document.getElementById('periodBadge').textContent = `${appState.startDate} → ${appState.endDate} (${appState.interval})`;
+      document.getElementById('instrumentSubtitle').textContent =
+        `${appState.ticker} — ${appState.name} • Fenêtre glissante de 12 mois (${rows.length} séances)`;
+
+      const sourceBadge = document.getElementById('sourceBadge');
+      const sourceText = document.getElementById('sourceBadgeText');
+      if (appState.isLive) {
+        sourceBadge.className = 'badge live';
+        sourceText.textContent = appState.sourceLabel;
+      } else {
+        sourceBadge.className = 'badge offline';
+        sourceText.textContent = appState.sourceLabel;
+      }
+
+      // Mise à jour des cellules fidèles à MP Graphique (M1 à M17)
+      document.getElementById('cellM1').textContent = appState.ticker;
+      document.getElementById('cellM2').textContent = appState.startDate;
+      document.getElementById('cellM3').textContent = appState.endDate;
+      document.getElementById('cellM5').textContent = fmtMoney(last.close);
+
+      document.getElementById('cellM7').textContent = fmtMoney(last.sellPlus2);
+      document.getElementById('cellM8').textContent = fmtMoney(last.plus1);
+      document.getElementById('cellM9').textContent = fmtMoney(last.reg0);
+      document.getElementById('cellM10').textContent = fmtMoney(last.minus1);
+      document.getElementById('cellM11').textContent = appState.interval;
+      document.getElementById('cellM12').textContent = fmtMoney(last.buyMinus2);
+
+      document.getElementById('cellM14').textContent = appState.pe ? fmtNum(appState.pe) : 'N/D';
+      document.getElementById('cellM15').textContent = appState.eps ? fmtMoney(appState.eps) : 'N/D';
+      document.getElementById('cellM16').textContent = fmtMoney(appState.high52);
+      document.getElementById('cellM17').textContent = fmtMoney(appState.low52);
+      document.getElementById('cellSigma').textContent = Number(appState.stdDev).toFixed(6).replace('.', ',');
+
+      // Signal de position dans le canal
+      const signalBox = document.getElementById('signalBox');
+      const signalTitle = document.getElementById('signalTitle');
+      const signalDesc = document.getElementById('signalDesc');
+
+      if (last.close <= last.buyMinus2) {
+        signalBox.style.background = '#f0fdf4';
+        signalBox.style.borderColor = '#bbf7d0';
+        signalTitle.style.color = '#15803d';
+        signalTitle.textContent = 'Signal : Zone d’Achat (-2σ atteinte)';
+        signalDesc.textContent = `Le cours (${fmtMoney(last.close)}) est sur ou sous la ligne verte Achat (${fmtMoney(last.buyMinus2)}).`;
+      } else if (last.close >= last.sellPlus2) {
+        signalBox.style.background = '#fef2f2';
+        signalBox.style.borderColor = '#fecaca';
+        signalTitle.style.color = '#b91c1c';
+        signalTitle.textContent = 'Signal : Zone de Vente (+2σ atteinte)';
+        signalDesc.textContent = `Le cours (${fmtMoney(last.close)}) est sur ou au-dessus de la ligne rouge Vente (${fmtMoney(last.sellPlus2)}).`;
+      } else if (last.close < last.reg0) {
+        signalBox.style.background = '#f8fafc';
+        signalBox.style.borderColor = '#cbd5e1';
+        signalTitle.style.color = '#0369a1';
+        signalTitle.textContent = 'Position : Moitié inférieure du canal';
+        signalDesc.textContent = `Sous la droite centrale jaune (${fmtMoney(last.reg0)}), à ${fmtNum(last.close - last.buyMinus2)} $ de la ligne verte Achat.`;
+      } else {
+        signalBox.style.background = '#fefce8';
+        signalBox.style.borderColor = '#fde047';
+        signalTitle.style.color = '#a16207';
+        signalTitle.textContent = 'Position : Moitié supérieure du canal';
+        signalDesc.textContent = `Au-dessus de la droite centrale jaune (${fmtMoney(last.reg0)}), à ${fmtNum(last.sellPlus2 - last.close)} $ de la ligne rouge Vente.`;
+      }
+    }
+
+    function renderDataTable(rows) {
+      document.getElementById('rowCountBadge').textContent = `${rows.length} points (${appState.interval})`;
+      document.getElementById('tableSubtitle').textContent =
+        `Données calculées sur 12 mois (${appState.startDate} au ${appState.endDate}) — format identique à Export_CSV_HTML.`;
+
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = rows.map((r) => `
+        <tr>
+          <td>${r.index}</td>
+          <td>${r.date}</td>
+          <td class="num"><strong>${fmtNum(r.close)}</strong></td>
+          <td class="num c-sell">${fmtNum(r.sellPlus2)}</td>
+          <td class="num c-orange">${fmtNum(r.plus1)}</td>
+          <td class="num c-yellow">${fmtNum(r.reg0)}</td>
+          <td class="num c-blue">${fmtNum(r.minus1)}</td>
+          <td class="num c-buy">${fmtNum(r.buyMinus2)}</td>
         </tr>
       `).join('');
     }
 
-    // Synchronise les champs du formulaire avec appState
+    /* =========================================================================
+       7. GRAPHIQUE HTML5 <CANVAS> AVEC PRIX AU BOUT DE CHAQUE COURBE
+       ========================================================================= */
+    function renderLegend() {
+      const bar = document.getElementById('legendBar');
+      bar.innerHTML = '';
+
+      SERIES_CONFIG.forEach((s) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `legend-btn ${hiddenSeries.has(s.key) ? 'hidden-series' : ''}`;
+        btn.innerHTML = `<span class="swatch" style="background:${s.color};"></span><span>${s.label}</span>`;
+        btn.addEventListener('click', () => {
+          if (hiddenSeries.has(s.key)) hiddenSeries.delete(s.key);
+          else hiddenSeries.add(s.key);
+          renderLegend();
+          drawCanvasChart(latestRows);
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    function drawCanvasChart(rows) {
+      const canvas = document.getElementById('regressionCanvas');
+      const wrap = document.getElementById('canvasWrap');
+      const rect = wrap.getBoundingClientRect();
+      const width = Math.max(300, rect.width);
+      const height = Math.max(300, rect.height);
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      if (!rows || rows.length === 0) {
+        chartGeometry = null;
+        return;
+      }
+
+      // Marge droite élargie (94 px) pour afficher les 6 prix finaux au bout de chaque courbe sans coupure
+      const pad = { top: 24, right: 96, bottom: 42, left: 72 };
+      const plotW = Math.max(60, width - pad.left - pad.right);
+      const plotH = Math.max(60, height - pad.top - pad.bottom);
+
+      const activeSeries = SERIES_CONFIG.filter((s) => !hiddenSeries.has(s.key));
+      let minVal = Infinity;
+      let maxVal = -Infinity;
+
+      rows.forEach((r) => {
+        activeSeries.forEach((s) => {
+          const v = Number(r[s.key]);
+          if (Number.isFinite(v)) {
+            if (v < minVal) minVal = v;
+            if (v > maxVal) maxVal = v;
+          }
+        });
+      });
+
+      if (!Number.isFinite(minVal) || !Number.isFinite(maxVal)) {
+        minVal = 35;
+        maxVal = 55;
+      }
+
+      const span = Math.max(0.5, maxVal - minVal);
+      const yMin = minVal - span * 0.09;
+      const yMax = maxVal + span * 0.09;
+
+      const xAt = (idx) => {
+        if (rows.length <= 1) return pad.left + plotW / 2;
+        return pad.left + (idx / (rows.length - 1)) * plotW;
+      };
+
+      const yAt = (val) => pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+
+      // Grille horizontale et graduations monétaires Y
+      const yTicks = 6;
+      ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+
+      for (let t = 0; t <= yTicks; t++) {
+        const val = yMin + (t / yTicks) * (yMax - yMin);
+        const y = yAt(val);
+
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(pad.left + plotW, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#475569';
+        ctx.fillText(`${fmtNum(val)} $`, pad.left - 8, y);
+      }
+
+      // Axe X (dates mensuelles sur 12 mois)
+      const maxXLabels = width < 640 ? 5 : 8;
+      const stepX = Math.max(1, Math.floor((rows.length - 1) / maxXLabels));
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = '#64748b';
+
+      for (let i = 0; i < rows.length; i += stepX) {
+        const x = xAt(i);
+        ctx.strokeStyle = '#f1f5f9';
+        ctx.beginPath();
+        ctx.moveTo(x, pad.top);
+        ctx.lineTo(x, pad.top + plotH);
+        ctx.stroke();
+
+        ctx.fillText(rows[i].date, x, pad.top + plotH + 10);
+      }
+
+      // Zone ombrée légère entre Vente (+2) et Achat (-2)
+      if (!hiddenSeries.has('sellPlus2') && !hiddenSeries.has('buyMinus2')) {
+        ctx.save();
+        ctx.beginPath();
+        rows.forEach((r, idx) => {
+          const x = xAt(idx);
+          const y = yAt(r.sellPlus2);
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        for (let idx = rows.length - 1; idx >= 0; idx--) {
+          ctx.lineTo(xAt(idx), yAt(rows[idx].buyMinus2));
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(234, 179, 8, 0.05)';
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Tracé des 6 courbes
+      activeSeries.forEach((s) => {
+        ctx.save();
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = s.width;
+        ctx.setLineDash(s.dash);
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        rows.forEach((r, idx) => {
+          const x = xAt(idx);
+          const y = yAt(Number(r[s.key]));
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // Prix affichés directement au bout droit de chaque courbe (anti-chevauchement)
+      const lastIdx = rows.length - 1;
+      const lastRow = rows[lastIdx];
+      const endX = xAt(lastIdx);
+
+      // Trie les étiquettes de droite par position Y pour éviter toute superposition
+      const endLabels = activeSeries.map((s) => {
+        const val = Number(lastRow[s.key]);
+        return {
+          series: s,
+          val,
+          rawY: yAt(val),
+          drawY: yAt(val)
+        };
+      }).sort((a, b) => a.rawY - b.rawY);
+
+      const minGap = 15;
+      for (let i = 1; i < endLabels.length; i++) {
+        if (endLabels[i].drawY - endLabels[i - 1].drawY < minGap) {
+          endLabels[i].drawY = endLabels[i - 1].drawY + minGap;
+        }
+      }
+
+      endLabels.forEach((item) => {
+        const s = item.series;
+        // Point marqueur au bout de la courbe
+        ctx.save();
+        ctx.fillStyle = s.color;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(endX, item.rawY, 4.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Étiquette de prix à droite du point
+        const labelText = `${fmtNum(item.val)} $`;
+        ctx.font = s.key === 'close' || s.key === 'sellPlus2' || s.key === 'buyMinus2'
+          ? 'bold 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+          : '600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+        const textW = ctx.measureText(labelText).width;
+        const boxX = endX + 8;
+        const boxY = item.drawY - 8;
+
+        ctx.fillStyle = s.key === 'close' ? '#0f172a' : '#ffffff';
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, textW + 10, 16, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = s.key === 'close' ? '#ffffff' : (s.key === 'reg0' ? '#a16207' : s.color);
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labelText, boxX + 5, item.drawY);
+        ctx.restore();
+      });
+
+      // Repère vertical au survol de la souris
+      if (hoverIndex !== null && hoverIndex >= 0 && hoverIndex < rows.length) {
+        const hx = xAt(hoverIndex);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(hx, pad.top);
+        ctx.lineTo(hx, pad.top + plotH);
+        ctx.stroke();
+        ctx.restore();
+
+        const row = rows[hoverIndex];
+        activeSeries.forEach((s) => {
+          const hy = yAt(Number(row[s.key]));
+          ctx.save();
+          ctx.fillStyle = s.color;
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        });
+      }
+
+      chartGeometry = { pad, plotW, plotH, xAt, yAt };
+    }
+
+    function setupCanvasInteractions() {
+      const canvas = document.getElementById('regressionCanvas');
+      const tooltip = document.getElementById('chartTooltip');
+
+      function handleMove(clientX, clientY) {
+        if (!chartGeometry || latestRows.length === 0) {
+          tooltip.style.display = 'none';
+          return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const px = clientX - rect.left;
+        const py = clientY - rect.top;
+        const { pad, plotW, plotH, xAt } = chartGeometry;
+
+        if (px < pad.left - 8 || px > pad.left + plotW + 12 || py < pad.top - 8 || py > pad.top + plotH + 8) {
+          hoverIndex = null;
+          tooltip.style.display = 'none';
+          drawCanvasChart(latestRows);
+          return;
+        }
+
+        let bestIdx = 0;
+        let bestDist = Infinity;
+        for (let i = 0; i < latestRows.length; i++) {
+          const d = Math.abs(xAt(i) - px);
+          if (d < bestDist) {
+            bestDist = d;
+            bestIdx = i;
+          }
+        }
+
+        hoverIndex = bestIdx;
+        drawCanvasChart(latestRows);
+
+        const r = latestRows[bestIdx];
+        tooltip.innerHTML = `
+          <div class="tooltip-date">${r.date} (Séance #${r.index})</div>
+          ${SERIES_CONFIG.map((s) => `
+            <div class="tooltip-row">
+              <span><span class="tooltip-dot" style="background:${s.color};"></span>${s.label}</span>
+              <strong>${fmtNum(r[s.key])} ${appState.currency}</strong>
+            </div>
+          `).join('')}
+        `;
+
+        tooltip.style.display = 'block';
+        const tipRect = tooltip.getBoundingClientRect();
+        let left = px + 14;
+        if (left + tipRect.width > rect.width - 10) {
+          left = Math.max(10, px - tipRect.width - 14);
+        }
+        let top = py - 14;
+        if (top + tipRect.height > rect.height - 10) {
+          top = Math.max(10, rect.height - tipRect.height - 10);
+        }
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${Math.max(10, top)}px`;
+      }
+
+      canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+      canvas.addEventListener('mouseleave', () => {
+        hoverIndex = null;
+        tooltip.style.display = 'none';
+        drawCanvasChart(latestRows);
+      });
+      canvas.addEventListener('touchmove', (e) => {
+        if (e.touches?.[0]) handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+
+      window.addEventListener('resize', () => drawCanvasChart(latestRows));
+    }
+
+    /* =========================================================================
+       8. CHARGEMENT PRINCIPAL DES DONNÉES & ÉVÉNEMENTS UI
+       ========================================================================= */
     function syncInputsFromState() {
+      syncAutoDatesIfNeeded();
+      const isManual = appState.dateMode === 'manual';
+
       document.getElementById('tickerInput').value = appState.ticker;
       document.getElementById('nameInput').value = appState.name;
       document.getElementById('intervalSelect').value = appState.interval;
-      document.getElementById('currentPriceInput').value = appState.currentPrice;
-      document.getElementById('stdDevInput').value = appState.stdDev;
-      document.getElementById('trendPlus2Input').value = appState.trendPlus2;
-      document.getElementById('trendPlus1Input').value = appState.trendPlus1;
-      document.getElementById('trendCenterInput').value = appState.trendCenter;
-      document.getElementById('trendMinus1Input').value = appState.trendMinus1;
-      document.getElementById('trendMinus2Input').value = appState.trendMinus2;
+      document.getElementById('dateModeSelect').value = appState.dateMode;
+      document.getElementById('startDateInput').value = appState.startDate;
+      document.getElementById('endDateInput').value = appState.endDate;
+      document.getElementById('startDateInput').disabled = !isManual;
+      document.getElementById('endDateInput').disabled = !isManual;
+
+      document.querySelectorAll('.btn-chip').forEach((chip) => {
+        chip.classList.toggle('active', chip.dataset.ticker === appState.ticker.toUpperCase());
+      });
     }
 
-    // Lit les valeurs saisies par l'utilisateur et rafraîchit la vue
-    function applyInputsToState() {
-      appState.ticker = document.getElementById('tickerInput').value.trim() || 'TSE:XEQT';
-      appState.name = document.getElementById('nameInput').value.trim() || 'Actif';
+    async function loadMarketData() {
+      appState.ticker = (document.getElementById('tickerInput').value || 'TSE:XEQT').trim().toUpperCase();
       appState.interval = document.getElementById('intervalSelect').value;
-      appState.currentPrice = parseFloat(document.getElementById('currentPriceInput').value) || DEFAULT_STATE.currentPrice;
-      appState.stdDev = parseFloat(document.getElementById('stdDevInput').value) || DEFAULT_STATE.stdDev;
-      appState.trendPlus2 = parseFloat(document.getElementById('trendPlus2Input').value) || DEFAULT_STATE.trendPlus2;
-      appState.trendPlus1 = parseFloat(document.getElementById('trendPlus1Input').value) || DEFAULT_STATE.trendPlus1;
-      appState.trendCenter = parseFloat(document.getElementById('trendCenterInput').value) || DEFAULT_STATE.trendCenter;
-      appState.trendMinus1 = parseFloat(document.getElementById('trendMinus1Input').value) || DEFAULT_STATE.trendMinus1;
-      appState.trendMinus2 = parseFloat(document.getElementById('trendMinus2Input').value) || DEFAULT_STATE.trendMinus2;
-      appState.customRows = null;
+      appState.dateMode = document.getElementById('dateModeSelect').value;
 
-      refreshAll();
-      showBanner(`Paramètres mis à jour pour ${appState.ticker} (2025-11-20 au 2026-11-20).`, 'success');
+      if (appState.dateMode === 'auto') {
+        syncAutoDatesIfNeeded();
+      } else {
+        const s = document.getElementById('startDateInput').value;
+        const e = document.getElementById('endDateInput').value;
+        if (s && e && s <= e) {
+          appState.startDate = s;
+          appState.endDate = e;
+        }
+      }
+
+      syncInputsFromState();
+      showBanner(`Récupération des cotations sur 12 mois pour ${appState.ticker}...`, 'info');
+
+      try {
+        const liveData = await fetchYahooChartData(
+          appState.ticker,
+          appState.interval,
+          appState.startDate,
+          appState.endDate
+        );
+
+        appState.name = liveData.name;
+        appState.currency = liveData.currency;
+        appState.currentPrice = liveData.currentPrice;
+        appState.high52 = liveData.high52;
+        appState.low52 = liveData.low52;
+        appState.pe = liveData.pe;
+        appState.eps = liveData.eps;
+        appState.isLive = true;
+        appState.sourceLabel = 'Cours temps réel synchronisé';
+
+        const { rows, stdDev } = computeRegressionSeries(liveData.points);
+        appState.stdDev = stdDev;
+        latestRows = rows;
+
+        syncInputsFromState();
+        updateDashboard(latestRows);
+        renderDataTable(latestRows);
+        drawCanvasChart(latestRows);
+
+        showBanner(
+          `Données en direct chargées pour ${appState.ticker} (${latestRows.length} séances du ${appState.startDate} au ${appState.endDate}).`,
+          'success'
+        );
+      } catch (err) {
+        // Bascule automatiquement sur le modèle local autonome si hors ligne
+        const fallback = buildOfflineFallbackPoints(
+          appState.ticker,
+          appState.interval,
+          appState.startDate,
+          appState.endDate
+        );
+
+        appState.name = fallback.name;
+        appState.currency = fallback.currency;
+        appState.currentPrice = fallback.currentPrice;
+        appState.high52 = fallback.high52;
+        appState.low52 = fallback.low52;
+        appState.pe = fallback.pe;
+        appState.eps = fallback.eps;
+        appState.isLive = false;
+        appState.sourceLabel = 'Mode hors ligne autonome';
+
+        const { rows, stdDev } = computeRegressionSeries(fallback.points);
+        appState.stdDev = stdDev;
+        latestRows = rows;
+
+        syncInputsFromState();
+        updateDashboard(latestRows);
+        renderDataTable(latestRows);
+        drawCanvasChart(latestRows);
+
+        showBanner(
+          `Flux réseau indisponible : affichage du mode autonome local pour ${appState.ticker} (${latestRows.length} points).`,
+          'warning'
+        );
+      }
     }
 
-    // Exporte les données affichées au format CSV
-    function exportCsv(rows) {
+    function exportOptionalCsv() {
       const headers = ['Index', 'Date', 'Cours', 'Vente (+2)', 'Tendance +1', 'Regression (0)', 'Tendance -1', 'Achat (-2)'];
       const lines = [
         headers.join(','),
-        ...rows.map(r => [r.index, r.date, r.close, r.sellPlus2, r.plus1, r.reg0, r.minus1, r.buyMinus2].join(','))
+        ...latestRows.map((r) => [r.index, r.date, r.close, r.sellPlus2, r.plus1, r.reg0, r.minus1, r.buyMinus2].join(','))
       ];
       const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${appState.ticker.replace(/[^a-zA-Z0-9_-]/g, '_')}_regression_12_mois.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${appState.ticker.replace(/[^a-zA-Z0-9_-]/g, '_')}_regression_12_mois.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showBanner('Exportation CSV générée avec succès.', 'success');
+      showBanner('Fichier CSV exporté.', 'success');
     }
 
-    // Charge un fichier CSV ou JSON externe
-    function handleFileImport(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const text = String(e.target?.result || '').trim();
-          if (file.name.toLowerCase().endsWith('.json')) {
-            const parsed = JSON.parse(text);
-            if (Array.isArray(parsed)) {
-              appState.customRows = parsed.map((item, idx) => ({
-                index: idx + 1,
-                date: item.date || item.Date || `Point ${idx + 1}`,
-                close: Number(item.close ?? item.Cours ?? 0),
-                sellPlus2: Number(item.sellPlus2 ?? item.Vente ?? 0),
-                plus1: Number(item.plus1 ?? 0),
-                reg0: Number(item.reg0 ?? item.Regression ?? 0),
-                minus1: Number(item.minus1 ?? 0),
-                buyMinus2: Number(item.buyMinus2 ?? item.Achat ?? 0)
-              }));
-              refreshAll();
-              showBanner(`Fichier JSON "${file.name}" chargé (${appState.customRows.length} lignes).`, 'success');
-              return;
-            }
-          }
-
-          // Traitement CSV simple (Date,Cours,Vente,Regression,Achat)
-          const lines = text.split(/\r?\n/).filter(Boolean);
-          if (lines.length < 2) throw new Error('Le fichier CSV est vide ou incomplet.');
-          const imported = [];
-          for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-            if (cols.length >= 2) {
-              const closeVal = parseFloat(cols[1].replace(',', '.')) || 0;
-              const sellVal = cols[2] ? parseFloat(cols[2].replace(',', '.')) : closeVal + Number(appState.stdDev) * 2;
-              const buyVal = cols[3] ? parseFloat(cols[3].replace(',', '.')) : closeVal - Number(appState.stdDev) * 2;
-              const regVal = (sellVal + buyVal) / 2;
-              imported.push({
-                index: i,
-                date: cols[0],
-                close: closeVal,
-                sellPlus2: sellVal,
-                plus1: (sellVal + regVal) / 2,
-                reg0: regVal,
-                minus1: (buyVal + regVal) / 2,
-                buyMinus2: buyVal
-              });
-            }
-          }
-          if (!imported.length) throw new Error('Aucune ligne valide trouvée dans le CSV.');
-          appState.customRows = imported;
-          refreshAll();
-          showBanner(`Fichier CSV "${file.name}" importé (${imported.length} lignes).`, 'success');
-        } catch (err) {
-          showBanner(`Échec de l'importation : ${err.message}`, 'error');
-        } finally {
-          event.target.value = '';
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    // Rafraîchit l'ensemble de l'interface
-    function refreshAll() {
-      const rows = buildDataset();
-      updateKpis(rows);
-      renderChart(rows);
-      renderTable(rows);
-      window.__latestRows = rows;
-    }
-
-    // Initialisation des événements au chargement de la page
     window.addEventListener('DOMContentLoaded', () => {
+      syncAutoDatesIfNeeded();
       syncInputsFromState();
-      refreshAll();
+      renderLegend();
+      setupCanvasInteractions();
+      loadMarketData();
+      scheduleMidnightRefresh();
 
-      document.getElementById('applyParamsBtn').addEventListener('click', applyInputsToState);
-      document.getElementById('intervalSelect').addEventListener('change', applyInputsToState);
-      document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
-        appState = structuredClone(DEFAULT_STATE);
+      // Actualisation automatique au changement de jour
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && appState.dateMode === 'auto') {
+          const prevEnd = appState.endDate;
+          syncAutoDatesIfNeeded();
+          if (appState.endDate !== prevEnd) {
+            loadMarketData();
+          }
+        }
+      });
+
+      document.getElementById('loadTickerBtn').addEventListener('click', loadMarketData);
+      document.getElementById('refreshNowBtn').addEventListener('click', loadMarketData);
+      document.getElementById('intervalSelect').addEventListener('change', loadMarketData);
+      document.getElementById('dateModeSelect').addEventListener('change', () => {
+        appState.dateMode = document.getElementById('dateModeSelect').value;
         syncInputsFromState();
-        refreshAll();
-        showBanner('Valeurs par défaut de MP officiel 26-11-20 V1 restaurées.', 'info');
+        if (appState.dateMode === 'auto') loadMarketData();
       });
-      document.getElementById('exportCsvBtn').addEventListener('click', () => {
-        exportCsv(window.__latestRows || buildDataset());
+
+      document.getElementById('tickerInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') loadMarketData();
       });
-      document.getElementById('fileInput').addEventListener('change', handleFileImport);
+
+      document.querySelectorAll('.btn-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          document.getElementById('tickerInput').value = chip.dataset.ticker;
+          loadMarketData();
+        });
+      });
+
+      // Basculement d'onglets (MP Graphique <-> Données & Formules)
+      const tabGraphBtn = document.getElementById('tabGraphBtn');
+      const tabDataBtn = document.getElementById('tabDataBtn');
+      const viewGraph = document.getElementById('viewGraph');
+      const viewData = document.getElementById('viewData');
+
+      tabGraphBtn.addEventListener('click', () => {
+        tabGraphBtn.classList.add('active');
+        tabDataBtn.classList.remove('active');
+        viewGraph.classList.remove('hidden-view');
+        viewData.classList.add('hidden-view');
+        drawCanvasChart(latestRows);
+      });
+
+      tabDataBtn.addEventListener('click', () => {
+        tabDataBtn.classList.add('active');
+        tabGraphBtn.classList.remove('active');
+        viewData.classList.remove('hidden-view');
+        viewGraph.classList.add('hidden-view');
+      });
+
+      // Synchronisation optionnelle via URL Google Sheets publiée sur le Web
+      document.getElementById('syncSheetsUrlBtn').addEventListener('click', async () => {
+        const url = document.getElementById('sheetsUrlInput').value.trim();
+        if (!url) {
+          showBanner('Veuillez coller l’URL CSV publiée de votre onglet Export_CSV_HTML.', 'warning');
+          return;
+        }
+        try {
+          showBanner('Synchronisation directe avec votre Google Sheets...', 'info');
+          const rows = await loadFromPublishedSheetsCsv(url);
+          latestRows = rows;
+          appState.startDate = rows[0].date;
+          appState.endDate = rows[rows.length - 1].date;
+          appState.currentPrice = rows[rows.length - 1].close;
+          appState.isLive = true;
+          appState.sourceLabel = 'Synchronisé avec Google Sheets';
+          updateDashboard(latestRows);
+          renderDataTable(latestRows);
+          drawCanvasChart(latestRows);
+          showBanner(`Synchronisation réussie avec votre Google Sheets (${rows.length} lignes chargées).`, 'success');
+        } catch (err) {
+          showBanner('Impossible de lire cette URL. Vérifiez que la feuille est bien publiée au format CSV.', 'warning');
+        }
+      });
+
+      document.getElementById('copyTableBtn').addEventListener('click', () => {
+        const tsv = [
+          ['Index', 'Date', 'Cours', 'Vente (+2)', 'Tendance +1', 'Regression (0)', 'Tendance -1', 'Achat (-2)'].join('\t'),
+          ...latestRows.map((r) => [r.index, r.date, r.close, r.sellPlus2, r.plus1, r.reg0, r.minus1, r.buyMinus2].join('\t'))
+        ].join('\n');
+
+        const ta = document.createElement('textarea');
+        ta.value = tsv;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showBanner('Tableau copié dans le presse-papiers (prêt à coller dans Google Sheets).', 'success');
+      });
+
+      document.getElementById('exportCsvBtn').addEventListener('click', exportOptionalCsv);
     });
   </script>
 </body>
